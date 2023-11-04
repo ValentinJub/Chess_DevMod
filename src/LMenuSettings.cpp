@@ -60,7 +60,7 @@ void LMenu::renderPieceTheme() {
 }
 
 void LMenu::initMenuStrings() {
-    std::ifstream settingsLeft("src/setl.config");
+    std::ifstream settingsLeft("resources/setl.config");
     bool success = true;
     if(settingsLeft.fail()) {
         printf("Unable to load settings file!\n");
@@ -85,7 +85,7 @@ void LMenu::initMenuStrings() {
         }
         settingsLeft.close();
     }
-    std::ifstream settingsRight("src/setr.config");
+    std::ifstream settingsRight("resources/setr.config");
     success = true;
     if(settingsRight.fail()) {
         printf("Unable to load settings file!\n");
@@ -151,9 +151,9 @@ bool LMenu::initController() {
 */
 
 void LMenu::initFont() {
-    mFont = TTF_OpenFont("src/valentin.ttf", 28);
+    mFont = TTF_OpenFont("resources/valentin.ttf", 28);
     if(mFont == NULL) {
-        printf("Failed to load src/valentin font! SDL_ttf Error: %s\n", TTF_GetError());
+        printf("Failed to load resources/valentin font! SDL_ttf Error: %s\n", TTF_GetError());
     }
 }
 
@@ -298,7 +298,7 @@ void LMenu::handleEvent(SDL_Event* e) {
 
 void LMenu::saveSettingsToFile() {
     std::ofstream settings;
-        settings.open("src/settings.config", std::ios::trunc);
+        settings.open("resources/settings.config", std::ios::trunc);
     if(settings.is_open()) {
         for(int i(0); i < TOTAL_CLICKABLE_ITEMS - 1; i++) {
             int a = mSettingsTable[i];

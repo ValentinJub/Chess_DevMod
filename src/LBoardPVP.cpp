@@ -249,7 +249,7 @@ void LBoardPVP::stopBlackTimer() {
 
 void LBoardPVP::readSettingsFromFile() {
 	std::ifstream settings;
-	settings.open("src/settings.config");
+	settings.open("resources/settings.config");
 	if(settings.is_open()) {
 		char c(0);
 		int i(0);
@@ -765,7 +765,7 @@ bool LBoardPVP::checkPromotion(int x, int y) {
 }
 		
 bool LBoardPVP::initMap() {
-	std::ifstream map( "src/map.map" );
+	std::ifstream map( "resources/map.map" );
 	bool success = true;
 	if(map.fail()) {
 		printf( "Unable to load map file!\n" );
