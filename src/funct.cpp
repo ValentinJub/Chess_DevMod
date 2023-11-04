@@ -98,8 +98,8 @@ void displayMenu(LTexture menuTextures[TOTAL_MENU_ITEMS]) {
 bool loadTitle(LTexture titleTexture[TOTAL_TITLE_ITEMS]) {
 	bool success = true;
 	SDL_Color black = {0,0,0,0xFF};
-	gFont64 = TTF_OpenFont( "resources/valentin.ttf", 64 );
-	gFont32 = TTF_OpenFont( "resources/valentin.ttf", 32 );
+	gFont64 = TTF_OpenFont( "resources/branda.ttf", 64 );
+	gFont32 = TTF_OpenFont( "resources/branda.ttf", 32 );
 	
 	if( gFont64 == NULL  || gFont32 == NULL) {
 			printf( "Failed to load resources/valentin font! SDL_ttf Error: %s\n", TTF_GetError() );

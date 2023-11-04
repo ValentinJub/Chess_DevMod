@@ -170,12 +170,14 @@ bool LBoardPVAI::isPaused() const {
 
 void LBoardPVAI::pause() {
 	if(mIsPaused) {
+		Mix_ResumeMusic();
 		mIsPaused = false;
 		if(mSettingsTable[TL_YES]) {
 			if(mWhiteTurn) unpauseWhiteTimer();
 		}
 	}
 	else {
+		Mix_PauseMusic();
 		mIsPaused = true;
 		if(mSettingsTable[TL_YES]) {
 			if(mWhiteTurn) pauseWhiteTimer();

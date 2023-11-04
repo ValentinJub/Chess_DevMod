@@ -144,6 +144,7 @@ bool LBoardPVP::isPaused() const {
 
 void LBoardPVP::pause() {
 	if(mIsPaused) {
+		Mix_ResumeMusic();
 		mIsPaused = false;
 		if(mSettingsTable[TL_YES]) {
 			if(mWhiteTurn) unpauseWhiteTimer();
@@ -152,6 +153,7 @@ void LBoardPVP::pause() {
 	}
 	else {
 		mIsPaused = true;
+		Mix_PauseMusic();
 		if(mSettingsTable[TL_YES]) {
 			if(mWhiteTurn) pauseWhiteTimer();
 			else pauseBlackTimer();

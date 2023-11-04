@@ -121,7 +121,7 @@ bool LMenu::initController() {
 */
 
 void LMenu::initFont() {
-    mFont = TTF_OpenFont("resources/valentin.ttf", 28);
+    mFont = TTF_OpenFont("resources/branda.ttf", 28);
     if(mFont == NULL) {
         printf("Failed to load resources/valentin font! SDL_ttf Error: %s\n", TTF_GetError());
     }
