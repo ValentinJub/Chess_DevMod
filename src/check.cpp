@@ -40,7 +40,8 @@ bool isKingChecked(const int mapCopy[SPL][SPL], const int piece, const int desX,
 					showMove(map, pieceType, selectedPieceXPos, selectedPieceYPos, &tileXPos, &tileYPos, true);
 					//check if on one if these moves there is a BKING, in which case it checks 
 					//its own color and returns true
-					for(int i(0); i < tileYPos.size(); i++) {
+					int size = tileYPos.size();
+					for(int i(0); i < size; i++) {
 						if(map[tileYPos[i]][tileXPos[i]] == BKING) {
 							check = true;
 							return check;
@@ -66,7 +67,8 @@ bool isKingChecked(const int mapCopy[SPL][SPL], const int piece, const int desX,
 					showMove(map, pieceType, selectedPieceXPos, selectedPieceYPos, &tileXPos, &tileYPos, true);
 					//check if on one if these moves there is a WKING, in which case it checks 
 					//its own color and returns true
-					for(int i(0); i < tileYPos.size(); i++) {
+					int size = tileYPos.size();
+					for (int i(0); i < size; i++) {
 						if(map[tileYPos[i]][tileXPos[i]] == WKING) {
 							check = true;
 							return check;

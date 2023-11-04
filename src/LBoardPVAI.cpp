@@ -388,7 +388,8 @@ void LBoardPVAI::renderTile() {
 	if(mAPieceIsSelected) {
 		//show legal move bool settings
 		if(mPreviewMove) {
-			for(int z(0); z < mHighlightedTileYPos.size(); z++) {
+			int size = mHighlightedTileYPos.size();
+			for(int z(0); z < size; z++) {
 				yPos = OFFSET + (mHighlightedTileYPos[z] * TOTAL_SQUARES);
 				xPos = OFFSET + (mHighlightedTileXPos[z] * TOTAL_SQUARES);
 				mHighlightedTileTexture->render(xPos, yPos, &mTileRectClip[LIGHT1]);
@@ -396,7 +397,8 @@ void LBoardPVAI::renderTile() {
 		}
 	}
 	if(mRightClickedTileXPos.size() > 0) {
-		for(int z(0); z < mRightClickedTileXPos.size(); z++) {
+		int size = mHighlightedTileXPos.size();
+		for(int z(0); z < size; z++) {
 			yPos = OFFSET + (mRightClickedTileYPos[z] * TOTAL_SQUARES);
 			xPos = OFFSET + (mRightClickedTileXPos[z] * TOTAL_SQUARES);
 			mHighlightedTileTexture->render(xPos, yPos, &mTileRectClip[LIGHT2]);
@@ -454,7 +456,8 @@ void LBoardPVAI::handleEvents(SDL_Event* e) {
 	x = (x / TOTAL_SQUARES) - 1;
 	y = (y / TOTAL_SQUARES) - 1;
 	//check for each buttons
-	for(int i(0); i < mPieceButtons.size(); i++) {
+	int size = mPieceButtons.size();
+	for(int i(0); i < size; i++) {
 		//if mouse is inside
 		if(mPieceButtons[i]->handleInside(e)) {
 			//if mouse button clicked 
@@ -495,7 +498,8 @@ void LBoardPVAI::handleEvents(SDL_Event* e) {
 	}
 	if((e->type == SDL_MOUSEBUTTONUP) && (e->button.button == SDL_BUTTON_RIGHT)) {
 		bool dont = false;
-		for(int z(0); z < mRightClickedTileXPos.size(); z++) {
+		int size = mRightClickedTileXPos.size();
+		for(int z(0); z < size; z++) {
 			if((mRightClickedTileXPos[z] == x) && (mRightClickedTileYPos[z] == y)) {
 				mRightClickedTileXPos[z] = 8;
 				mRightClickedTileYPos[z] = 8;
@@ -575,7 +579,8 @@ void LBoardPVAI::movePiece(SDL_Event* e) {
 	destinationPosY = (destinationPosY / TOTAL_SQUARES) - 1;
 	if(e->type == SDL_MOUSEBUTTONUP) {
 		//if click is in possible square posX&Y[i]
-		for(int i(0); i < mHighlightedTileYPos.size(); i++) {
+		int size = mHighlightedTileYPos.size();
+		for(int i(0); i < size; i++) {
 			if((destinationPosX == mHighlightedTileXPos[i]) && (destinationPosY == mHighlightedTileYPos[i])) {
 				int piece = mSelectedPieceType;
 				int srcPosX = mSelectedPieceXPos;
@@ -895,7 +900,8 @@ bool LBoardPVAI::pollCheck(const int map[SPL][SPL]) {
 					int pieceXPos = x;
 					//fill possible moves
 					showLegalMove(map, pieceType, pieceXPos, pieceYPos);
-					for(int i(0); i < mHighlightedTileYPos.size(); i++) {
+					int size = mHighlightedTileYPos.size();
+					for(int i(0); i < size; i++) {
 						if(map[mHighlightedTileYPos[i]][mHighlightedTileXPos[i]] == WKING) {
 							mCheckStatus = WCHECK;
 							check = true;
@@ -918,7 +924,8 @@ bool LBoardPVAI::pollCheck(const int map[SPL][SPL]) {
 					int pieceXPos = x;
 					//fill possible moves
 					showLegalMove(map, pieceType, pieceXPos, pieceYPos);
-					for(int i(0); i < mHighlightedTileYPos.size(); i++) {
+					int size = mHighlightedTileYPos.size();
+					for(int i(0); i < size; i++) {
 						if(map[mHighlightedTileYPos[i]][mHighlightedTileXPos[i]] == BKING) {
 							mCheckStatus = BCHECK;
 							check = true;
@@ -972,7 +979,8 @@ bool LBoardPVAI::pollDiscoverAttack(const int mapCopy[SPL][SPL], const int piece
 					showLegalMove(map, pieceType, selectedPieceXPos, selectedPieceYPos, true);
 					//check if on one if these moves there is a BKING, in which case it checks 
 					//its own color and returns true
-					for(int i(0); i < mHighlightedTileYPos.size(); i++) {
+					int size =  mHighlightedTileYPos.size();
+					for(int i(0); i < size; i++) {
 						if(map[mHighlightedTileYPos[i]][mHighlightedTileXPos[i]] == BKING) {
 							check = true;
 							return check;
@@ -996,7 +1004,8 @@ bool LBoardPVAI::pollDiscoverAttack(const int mapCopy[SPL][SPL], const int piece
 					showLegalMove(map, pieceType, selectedPieceXPos, selectedPieceYPos, true);
 					//check if on one if these moves there is a WKING, in which case it checks 
 					//its own color and returns true
-					for(int i(0); i < mHighlightedTileYPos.size(); i++) {
+					int size = mHighlightedTileYPos.size();
+					for(int i(0); i < size; i++) {
 						if(map[mHighlightedTileYPos[i]][mHighlightedTileXPos[i]] == WKING) {
 							check = true;
 							return check;
@@ -1077,13 +1086,15 @@ bool LBoardPVAI::checkMate() {
 					std::vector<int> destPosY;
 					//only fill if there's something to fill
 					if(mHighlightedTileXPos.size() > 0) {
-						for(int i(0); i < mHighlightedTileXPos.size(); i++) {
+						int size = mHighlightedTileXPos.size();
+						for(int i(0); i < size; i++) {
 							destPosX.push_back(mHighlightedTileXPos[i]);
 							destPosY.push_back(mHighlightedTileYPos[i]);
 						}
 					}
+					int size = destPosX.size();
 					//for each possible move
-					for(int i(0); i < destPosX.size(); i++) {
+					for(int i(0); i < size; i++) {
 						//copy of local copy of the map to preview the moves
 						int mapCopy[SPL][SPL] = {0};
 						for(int a(0); a < SPL; a++) {
@@ -1124,13 +1135,15 @@ bool LBoardPVAI::checkMate() {
 					std::vector<int> destPosY;
 					//only fill if there's something to fill
 					if(mHighlightedTileXPos.size() > 0) {
-						for(int i(0); i < mHighlightedTileXPos.size(); i++) {
+						int size = mHighlightedTileXPos.size();
+						for(int i(0); i < size; i++) {
 							destPosX.push_back(mHighlightedTileXPos[i]);
 							destPosY.push_back(mHighlightedTileYPos[i]);
 						}
 					}
 					//for each possible move
-					for(int i(0); i < destPosX.size(); i++) {
+					int size = destPosX.size();
+					for(int i(0); i < size; i++) {
 						//copy of local copy of the map to preview the moves
 						int mapCopy[SPL][SPL] = {0};
 						for(int a(0); a < SPL; a++) {
@@ -1198,13 +1211,15 @@ void LBoardPVAI::blackTurn() {
 				std::vector<int> destPosY;
 				//only fill if there's something to fill
 				if(mHighlightedTileXPos.size() > 0) {
-					for(int i(0); i < mHighlightedTileXPos.size(); i++) {
+					int size = mHighlightedTileXPos.size();
+					for(int i(0); i < size; i++) {
 						destPosX.push_back(mHighlightedTileXPos[i]);
 						destPosY.push_back(mHighlightedTileYPos[i]);
 					}
 				}
 				//for each possible move
-				for(int i(0); i < destPosX.size(); i++) {
+				int size = destPosX.size();
+				for(int i(0); i < size; i++) {
 					//copy of local copy of the map to preview the moves
 					int mapCopy[SPL][SPL] = {0};
 					for(int a(0); a < SPL; a++) {
@@ -1619,7 +1634,8 @@ bool LBoardPVAI::checkIfWhiteCanTake(int map[SPL][SPL], const int piece, const i
 				showLegalMove(map, pieceType, selectedPieceXPos, selectedPieceYPos);
 				//check if on one if these moves there is a BKING, in which case it checks 
 				//its own color and returns true
-				for(int i(0); i < mHighlightedTileYPos.size(); i++) {
+				int size = mHighlightedTileYPos.size();
+				for(int i(0); i < size; i++) {
 					if((mHighlightedTileYPos[i] == desY) && (mHighlightedTileXPos[i] == desX)) {
 						//check if white moves discovers white king, if yes, dnt do move
 						//change turn for white to be checked
@@ -1663,7 +1679,8 @@ bool LBoardPVAI::checkIfBlackCanTake(int map[SPL][SPL], const int piece, const i
 				showLegalMove(map, pieceType, selectedPieceXPos, selectedPieceYPos);
 				//check if on one if these moves there is a BKING, in which case it checks 
 				//its own color and returns true
-				for(int i(0); i < mHighlightedTileYPos.size(); i++) {
+				int size = mHighlightedTileYPos.size();
+				for(int i(0); i < size; i++) {
 					if((mHighlightedTileYPos[i] == desY) && (mHighlightedTileXPos[i] == desX)) {
 						//check if black move discovers black king, if yes, dnt do move
 						//no need to change turn for black to be checked
