@@ -8,20 +8,27 @@ TTF_Font* gFont32 = NULL;
 
 
 CApp::CApp() {
+	// responsible for running the program, pressing esc in the menu would close the program
 	mIsRunning = true;
-	mWaitBool = true;
+	// responsible for waiting for the title screen & music to finish before displaying the menu
+	mWaitBool = false;
+	// Track when menu buttons are set
 	mButtonsSet = false;
+	// The window we'll be rendering to
 	mWindow = new LWindow;
 }
 
 void CApp::close() {
-	//Remember to close local and global var!!!!
+	// Free the menu textures
 	for(int i(0); i < TOTAL_MENU_ITEMS; i++) {
 		mMenuTextures[i].free();
 	}
+	// Free the title textures
 	for(int i(0); i < TOTAL_TITLE_ITEMS; i++) {
 		mTitleTextures[i].free();
 	}
+	
+
 	
 	gWIPTexture.free();
 	gBackgroundTexture.free();
