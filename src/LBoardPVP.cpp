@@ -344,7 +344,6 @@ void LBoardPVP::setTileRectClip() {
 void LBoardPVP::renderTile() {
 	bool light = true,
 	dark = true;
-	int i(0);
 	int xPos(0);
 	int yPos(0);
 	//color settings

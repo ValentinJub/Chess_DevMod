@@ -34,7 +34,6 @@ bool loadMenu(LTexture menuTextures[TOTAL_MENU_ITEMS]) {
 }
 
 void loadMenuHighlight(LTexture menuTextures[TOTAL_MENU_ITEMS], int position) {
-	bool success = true; 
 	SDL_Color black = {0,0,0,0xFF};
 	SDL_Color red = {0xFF,0,0,0xFF};
 	switch(position) {
@@ -160,7 +159,7 @@ Mix_Chunk* loadChunk(const char *src) {
 Mix_Music* loadMusic(const char *src) {
 	Mix_Music* music = Mix_LoadMUS(src);
 	if(music == NULL) {
-		printf( "Failed to load music %s! SDL_mixer Error: %s\n", *src, Mix_GetError() );
+		printf( "Failed to load music %s! SDL_mixer Error: %s\n", src, Mix_GetError() );
 	}
 	return music;
 }

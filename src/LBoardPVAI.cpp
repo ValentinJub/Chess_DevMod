@@ -350,7 +350,6 @@ void LBoardPVAI::setTileRectClip() {
 void LBoardPVAI::renderTile() {
 	bool light = true,
 	dark = true;
-	int i(0);
 	int xPos(0);
 	int yPos(0);
 	//color settings
@@ -1562,9 +1561,9 @@ void LBoardPVAI::eveluateBlackMove(int map[SPL][SPL], const int piece, const int
 				int piece2 = map[desY][desX];
 				if(checkIfBlackCanTake(map, piece2, desX, desY, &trade)) {
 					int piece3 = map[desY][desX];
-					if(checkIfWhiteCanTake(map, piece, desX, desY, &trade)) {
+					if(checkIfWhiteCanTake(map, piece3, desX, desY, &trade)) {
 						int piece4 = map[desY][desX];
-						if(checkIfBlackCanTake(map, piece2, desX, desY, &trade)) {
+						if(checkIfBlackCanTake(map, piece4, desX, desY, &trade)) {
 							if(pollCheck(map)) {
 								trade +=10;
 							}

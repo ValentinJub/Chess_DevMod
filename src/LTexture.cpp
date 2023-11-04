@@ -67,7 +67,6 @@ bool LTexture::loadFromRenderedTextTabLeft(string menuStr[], TTF_Font* font, int
     //Get rid of preexisting texture
     freeLeftTab();
     bool success = true;
-    SDL_Color colorRed = {0xFF, 0, 0, 0xFF};
     SDL_Surface* textSurface = NULL;
     for(int i(0); i < size; i++) {
     //Render text surface
@@ -105,7 +104,6 @@ bool LTexture::loadFromRenderedTextTabRight(string menuStr[], TTF_Font* font, in
     //Get rid of preexisting texture
     freeRightTab();
     bool success = true;
-    SDL_Color colorRed = {0xFF, 0, 0, 0xFF};
     SDL_Surface* textSurface = NULL;
     for(int i(0); i < size; i++) {
         //Render text surface
@@ -215,7 +213,6 @@ void LTexture::renderFromTabLeftSide(int tabSize, SDL_Rect* clip) {
 }
 
 void LTexture::renderFromTabRightSide(int tabSize, SDL_Rect* clip) {
-    const int initialVerticalSpace(5);
     const int titlePadding(5);
     const int initialHorizontalSpace(10);
     const int initialSpace(5);

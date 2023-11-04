@@ -8,6 +8,8 @@ Methods for LMenu class
 
 #include "LMenuSettings.h"
 
+
+
 extern SDL_Renderer* gRenderer;
 extern LTexture gBackgroundTexture;
 
@@ -61,35 +63,21 @@ void LMenu::renderPieceTheme() {
 
 void LMenu::initMenuStrings() {
     std::ifstream settingsLeft("resources/setl.config");
-    bool success = true;
     if(settingsLeft.fail()) {
         printf("Unable to load settings file!\n");
-        success = false;
     }
     else {
         for(int i(0); i < LEFT_MENU; i++) {
             std::string line;
             std::getline(settingsLeft, line);
             std::cout << line << std::endl;
-            /* 
-                fill the mMenuLeftStr[] with the lines below:
-                Settings
-                Show Legal Moves
-                Use Timer
-                Time Limit
-                Tile Color
-                Music Theme
-                Piece Theme
-            */
             mMenuLeftStr[i] = line;
         }
         settingsLeft.close();
     }
     std::ifstream settingsRight("resources/setr.config");
-    success = true;
     if(settingsRight.fail()) {
         printf("Unable to load settings file!\n");
-        success = false;
     }
     else {
         // fill the mMenuRightStr[] and subtracting 2 for the 2 piece textures
@@ -101,24 +89,6 @@ void LMenu::initMenuStrings() {
         }
         settingsRight.close();
     }
-    // mMenuLeftStr[0] = "Settings";
-    // mMenuLeftStr[1] = "Show Legal Moves";
-    // mMenuLeftStr[2] = "Use Timer";
-    // mMenuLeftStr[3] = "Time Limit";
-    // mMenuLeftStr[4] = "Tile Color";
-    // mMenuLeftStr[5] = "Music Theme";
-    // mMenuLeftStr[6] = "Piece Theme";
-    // mMenuRightStr[0] = "Yes";
-    // mMenuRightStr[1] = "No";
-    // mMenuRightStr[2] = "Yes";
-    // mMenuRightStr[3] = "No";
-    // mMenuRightStr[4] = "5m";
-    // mMenuRightStr[5] = "10m";
-    // mMenuRightStr[6] = "Brown";
-    // mMenuRightStr[7] = "Grey";
-    // mMenuRightStr[8] = "Jazzy";
-    // mMenuRightStr[9] = "Classic";
-    // mMenuRightStr[10] = "Back";
 }
 
 void LMenu::initCurrentItemList() {
@@ -358,7 +328,6 @@ void LMenu::drawButtons() {
 }
 
 void LMenu::setButtonPosition() {
-    const int initialVerticalSpace(5);
     const int titlePadding(5);
     const int initialHorizontalSpace(10);
     const int initialSpace(5);
