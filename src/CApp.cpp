@@ -29,7 +29,7 @@ void CApp::close() {
 	}
 	
 
-	
+
 	gWIPTexture.free();
 	gBackgroundTexture.free();
 	
@@ -175,6 +175,15 @@ void CApp::handleEvents(SDL_Event* e) {
 					//menu buttons when going back to menu from settings
 					flushEvents();
 					settings();
+				}
+				else if(i == DEVMODE) {
+					//Unset menu buttons and reset menuBool
+					unsetButtons(mMenuButtons);
+					mButtonsSet = false;
+					SDL_Delay(200);
+					//flush events to prevent clicks clicking the 
+					//menu buttons when going back to menu from settings
+					flushEvents();
 				}
 			}
 		}

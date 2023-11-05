@@ -13,6 +13,7 @@ const std::string TITLE_AUTHOR_STR = "by Valentin with Love";
 const std::string MENU_PLAY_STR = "Play PvP";
 const std::string MENU_PLAY_AI_STR = "Play vs AI";
 const std::string MENU_SETTINGS_STR = "Game Settings";
+const std::string MENU_DEVMODE_STR = "Developer Mode";
 
 
 bool loadMenu(LTexture menuTextures[TOTAL_MENU_ITEMS]) {
@@ -25,6 +26,9 @@ bool loadMenu(LTexture menuTextures[TOTAL_MENU_ITEMS]) {
 		success = false;
 	}
 	else if(!(menuTextures[SETTINGS].loadFromRenderedText(gFont64, MENU_SETTINGS_STR.c_str() , black))) {
+		success = false;
+	}
+	else if(!(menuTextures[DEVMODE].loadFromRenderedText(gFont64, MENU_DEVMODE_STR.c_str() , black))) {
 		success = false;
 	}
 	else if(!(gBackgroundTexture.loadFromFile("Sprites/Background/bg1.jpg"))) {
@@ -41,21 +45,31 @@ void loadMenuHighlight(LTexture menuTextures[TOTAL_MENU_ITEMS], int position) {
 			menuTextures[PLAY].loadFromRenderedText(gFont64, MENU_PLAY_STR.c_str() , red);
 			menuTextures[PLAY_AI].loadFromRenderedText(gFont64, MENU_PLAY_AI_STR.c_str() , black);
 			menuTextures[SETTINGS].loadFromRenderedText(gFont64, MENU_SETTINGS_STR.c_str() , black);
+			menuTextures[DEVMODE].loadFromRenderedText(gFont64, MENU_DEVMODE_STR.c_str() , black);
 			break;
 		case PLAY_AI:
 			menuTextures[PLAY].loadFromRenderedText(gFont64, MENU_PLAY_STR.c_str() , black);
 			menuTextures[PLAY_AI].loadFromRenderedText(gFont64, MENU_PLAY_AI_STR.c_str() , red);
 			menuTextures[SETTINGS].loadFromRenderedText(gFont64, MENU_SETTINGS_STR.c_str() , black);
+			menuTextures[DEVMODE].loadFromRenderedText(gFont64, MENU_DEVMODE_STR.c_str() , black);
 			break;
 		case SETTINGS:
 			menuTextures[PLAY].loadFromRenderedText(gFont64, MENU_PLAY_STR.c_str() , black);
 			menuTextures[PLAY_AI].loadFromRenderedText(gFont64, MENU_PLAY_AI_STR.c_str() , black);
 			menuTextures[SETTINGS].loadFromRenderedText(gFont64, MENU_SETTINGS_STR.c_str() , red);
+			menuTextures[DEVMODE].loadFromRenderedText(gFont64, MENU_DEVMODE_STR.c_str() , black);
+			break;
+		case DEVMODE:
+			menuTextures[PLAY].loadFromRenderedText(gFont64, MENU_PLAY_STR.c_str() , black);
+			menuTextures[PLAY_AI].loadFromRenderedText(gFont64, MENU_PLAY_AI_STR.c_str() , black);
+			menuTextures[SETTINGS].loadFromRenderedText(gFont64, MENU_SETTINGS_STR.c_str() , black);
+			menuTextures[DEVMODE].loadFromRenderedText(gFont64, MENU_DEVMODE_STR.c_str() , red);
 			break;
 		default: 
 			menuTextures[PLAY].loadFromRenderedText(gFont64, MENU_PLAY_STR.c_str() , black);
 			menuTextures[PLAY_AI].loadFromRenderedText(gFont64, MENU_PLAY_AI_STR.c_str() , black);
 			menuTextures[SETTINGS].loadFromRenderedText(gFont64, MENU_SETTINGS_STR.c_str() , black);
+			menuTextures[DEVMODE].loadFromRenderedText(gFont64, MENU_DEVMODE_STR.c_str() , black);
 			break;
 	}
 }
@@ -68,29 +82,61 @@ void displayMenu(LTexture menuTextures[TOTAL_MENU_ITEMS]) {
 	//render BG 1st
 	gBackgroundTexture.render();
 	
-	//render center text texture
+	// //render center text texture
+	// if(menuTextures[PLAY_AI].x() == 0 || menuTextures[PLAY_AI].y() == 0) {
+	// 	menuTextures[PLAY_AI].setX((SCREEN_WIDTH - menuTextures[PLAY_AI].getWidth()) / 2);
+	// 	menuTextures[PLAY_AI].setY((SCREEN_HEIGHT / 2) - (menuTextures[PLAY_AI].getHeight() / 2)); 
+	// }
+	
+	// menuTextures[PLAY_AI].render(menuTextures[PLAY_AI].x(), menuTextures[PLAY_AI].y());
+	
+	// //render above center text texture
+	// if(menuTextures[PLAY].x() == 0 || menuTextures[PLAY].y() == 0) {
+	// 	menuTextures[PLAY].setX((SCREEN_WIDTH - menuTextures[PLAY].getWidth()) / 2);
+	// 	menuTextures[PLAY].setY(menuTextures[PLAY_AI].y() - menuTextures[PLAY].getHeight());
+	// }
+	
+	// menuTextures[PLAY].render(menuTextures[PLAY].x(), menuTextures[PLAY].y());
+	
+	// //render below center text texture
+	// if(menuTextures[SETTINGS].x() == 0 || menuTextures[SETTINGS].y() == 0) {
+	// 	menuTextures[SETTINGS].setX((SCREEN_WIDTH - menuTextures[SETTINGS].getWidth()) / 2);
+	// 	menuTextures[SETTINGS].setY(menuTextures[PLAY_AI].y() + menuTextures[PLAY_AI].getHeight());
+	// }
+	
+	// menuTextures[SETTINGS].render(menuTextures[SETTINGS].x(), menuTextures[SETTINGS].y());
+
+	//render center up text texture
 	if(menuTextures[PLAY_AI].x() == 0 || menuTextures[PLAY_AI].y() == 0) {
 		menuTextures[PLAY_AI].setX((SCREEN_WIDTH - menuTextures[PLAY_AI].getWidth()) / 2);
-		menuTextures[PLAY_AI].setY((SCREEN_HEIGHT / 2) - (menuTextures[PLAY_AI].getHeight() / 2)); 
+		menuTextures[PLAY_AI].setY((SCREEN_HEIGHT / 2) - (menuTextures[PLAY_AI].getHeight())); 
 	}
 	
 	menuTextures[PLAY_AI].render(menuTextures[PLAY_AI].x(), menuTextures[PLAY_AI].y());
-	
-	//render above center text texture
-	if(menuTextures[PLAY].x() == 0 || menuTextures[PLAY].y() == 0) {
-		menuTextures[PLAY].setX((SCREEN_WIDTH - menuTextures[PLAY].getWidth()) / 2);
-		menuTextures[PLAY].setY(menuTextures[PLAY_AI].y() - menuTextures[PLAY].getHeight());
-	}
-	
-	menuTextures[PLAY].render(menuTextures[PLAY].x(), menuTextures[PLAY].y());
-	
-	//render below center text texture
+
+	//render center down text texture
 	if(menuTextures[SETTINGS].x() == 0 || menuTextures[SETTINGS].y() == 0) {
 		menuTextures[SETTINGS].setX((SCREEN_WIDTH - menuTextures[SETTINGS].getWidth()) / 2);
 		menuTextures[SETTINGS].setY(menuTextures[PLAY_AI].y() + menuTextures[PLAY_AI].getHeight());
 	}
 	
 	menuTextures[SETTINGS].render(menuTextures[SETTINGS].x(), menuTextures[SETTINGS].y());
+	
+	//render top text texture
+	if(menuTextures[PLAY].x() == 0 || menuTextures[PLAY].y() == 0) {
+		menuTextures[PLAY].setX((SCREEN_WIDTH - menuTextures[PLAY].getWidth()) / 2);
+		menuTextures[PLAY].setY(menuTextures[PLAY_AI].y() - menuTextures[PLAY].getHeight());
+	}
+	
+	menuTextures[PLAY].render(menuTextures[PLAY].x(), menuTextures[PLAY].y());
+
+	//render bottom text texture
+	if(menuTextures[DEVMODE].x() == 0 || menuTextures[DEVMODE].y() == 0) {
+		menuTextures[DEVMODE].setX((SCREEN_WIDTH - menuTextures[DEVMODE].getWidth()) / 2);
+		menuTextures[DEVMODE].setY(menuTextures[SETTINGS].y() + menuTextures[SETTINGS].getHeight());
+	}
+	
+	menuTextures[DEVMODE].render(menuTextures[DEVMODE].x(), menuTextures[DEVMODE].y());
 	
 	SDL_RenderPresent(gRenderer);
 }

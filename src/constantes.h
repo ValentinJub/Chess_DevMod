@@ -81,7 +81,8 @@ enum MenuItems {
     PLAY,
     PLAY_AI,
     SETTINGS,
-    TOTAL_MENU_ITEMS // = 3
+    DEVMODE,
+    TOTAL_MENU_ITEMS // = 4
 };
 
 enum Tile {
