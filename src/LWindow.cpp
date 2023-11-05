@@ -14,6 +14,10 @@ LWindow::LWindow()
     mHeight = 0;
 }
 
+SDL_Window* LWindow::getWindow() {
+    return mWindow;
+}
+
 bool LWindow::init()
 {
     //Create window

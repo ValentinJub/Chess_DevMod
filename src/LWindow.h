@@ -25,6 +25,8 @@ class LWindow
         int getWidth();
         int getHeight();
 
+        SDL_Window* getWindow();
+
         //Window focii
         bool hasMouseFocus();
         bool hasKeyboardFocus();

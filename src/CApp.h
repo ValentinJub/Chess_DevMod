@@ -29,6 +29,7 @@ public:
 	void close();
 	void playMusic();
 	void stopMusic();
+	bool loadWindowIcon(std::string path);
 private:
 	bool mIsRunning, mWaitBool, mButtonsSet;
 	LButton mMenuButtons[TOTAL_MENU_ITEMS];
