@@ -16,6 +16,9 @@ void playerVersusComputer() {
 	else if(!(board.loadPauseTexture())) {
 		printf("Failed to load pause texture");
 	}
+	else if(!(board.loadOutOfTimeTexture())) {
+		printf("Failed to load pause texture");
+	}
 	//Read map to initialise piece position
 	else if(!(board.initMap())) {
 		printf("Failed to load map");
@@ -74,12 +77,10 @@ void playerVersusComputer() {
 			if(board.isBlackThinking()) {
 				board.pauseWhiteTimer();
 				SDL_Delay(1000);
-				board.stopBlackThinking();
+				board.stopBlackThinking();	
 				board.playMoveSound();
 				board.unpauseWhiteTimer();
 			}
-			
-			
 			
 			SDL_RenderPresent(gRenderer);
 			SDL_Delay(16);
@@ -87,12 +88,16 @@ void playerVersusComputer() {
 			//check for victory
 			board.checkRemainingPieces();
 			if(board.pollVictory()) {
-				//Pay victory sound and quit
+				//Play victory sound and quit
 				board.playVictorySound();
 				quit = true;
 			}
 			//check for defeat by time out
-			if(board.pollTimeOut()) quit = true;
+			if(board.pollTimeOut()) {
+				// Add a small pause to let the player see the out of time screen and contemplate their loss, lol.
+				SDL_Delay(1750);
+				quit = true;
+			}
 		}
 	}
-} //board.close is automatically called here
+} // board.close is automatically called here....

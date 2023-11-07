@@ -30,7 +30,7 @@ LBoardPVAI::LBoardPVAI() {
 	mBlackScoreTexture = new LTexture;
 	mPauseBackgroundTexture = new LTexture;
 	mPauseTextTexture = new LTexture;
-	
+	mOutOfTimeTexture = new LTexture;
 	for(int i(0); i < INITIAL_PIECES_TOTAL; i++) {
 		mPieceButtons.push_back(new LButton);
 	}
@@ -127,7 +127,7 @@ void LBoardPVAI::initGameSettings() {
 	//Set timer duration
 	if(mSettingsTable[TL_YES]) {
 		if(mSettingsTable[TL_5]) {
-			mTimeLimit = 300; 
+			mTimeLimit = 3; 
 		}
 		else {
 			mTimeLimit = 600; 
@@ -313,6 +313,19 @@ bool LBoardPVAI::loadPauseTexture() {
 	return success;
 }
 
+bool LBoardPVAI::loadOutOfTimeTexture() {
+	SDL_Color white = {0xFF, 0xFF, 0xFF, 0xFF};
+	if(!mPauseBackgroundTexture) {
+		std::cerr << "mPauseBackgroundTexture is NULL, we must have failed to load it in LBoardPVAI::loadPauseTexture()" << std::endl;
+		return false;
+	}
+	if(!(mOutOfTimeTexture->loadFromRenderedText(gFont64, "Out of time!", white))) {
+		std::cerr << "Failed to load out of time texture in LBoardPVAI::loadOutOfTimeTexture()" << std::endl;
+		return false;
+	}
+	return true;
+}
+
 void LBoardPVAI::setPiecesClip() {
 	for(int i(0); i < TOTAL_PIECES - 1; i++) {
 		mPieceClip[i].x = TOTAL_SQUARES*i;
@@ -449,6 +462,12 @@ void LBoardPVAI::drawButtons() {
 void LBoardPVAI::renderPause() {
 	mPauseBackgroundTexture->render();
 	mPauseTextTexture->render((SCREEN_WIDTH - mPauseTextTexture->getWidth()) / 2, (SCREEN_HEIGHT - mPauseTextTexture->getHeight()) / 2); 
+}
+
+void LBoardPVAI::renderOutOfTimeScreen() {
+	mPauseBackgroundTexture->render();
+	mOutOfTimeTexture->render((SCREEN_WIDTH - mOutOfTimeTexture->getWidth()) / 2, (SCREEN_HEIGHT - mOutOfTimeTexture->getHeight()) / 2);
+	SDL_RenderPresent(gRenderer);
 }
 
 void LBoardPVAI::handleEvents(SDL_Event* e) {
@@ -1181,6 +1200,7 @@ bool LBoardPVAI::pollTimeOut() {
 			Mix_FadeOutMusic(500);
 		}
 		Mix_PlayChannel(-1, mDefeat, 0);
+		renderOutOfTimeScreen();
 		while(Mix_Playing(-1) > 0) {
 			SDL_Delay(16);
 		}
