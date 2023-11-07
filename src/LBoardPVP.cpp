@@ -101,7 +101,7 @@ void LBoardPVP::initGameSettings() {
 	//Set timer duration
 	if(mSettingsTable[TL_YES]) {
 		if(mSettingsTable[TL_5]) {
-			mTimeLimit = 300; 
+			mTimeLimit = 3; 
 		}
 		else {
 			mTimeLimit = 600; 

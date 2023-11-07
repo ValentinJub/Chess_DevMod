@@ -35,70 +35,71 @@ Board also contains settings such as tile colors, legal move displayed on map...
 class LBoardPVAI {
 
 public:
-    LBoardPVAI();
+LBoardPVAI();
     ~LBoardPVAI();
-    bool initMap();
+    void checkRemainingPieces();
+    void displayOutOfTimeScreen();
+    void drawButtons();
     void free();
+    void handleEvents(SDL_Event* e);
+    bool initMap();
+    bool isBlackThinking() const;
+    bool isPaused() const;
+    bool loadOutOfTimeTexture();
+    bool loadPauseTexture();
     bool loadPiecesTextures();
     bool loadTileTextures();
-    bool loadPauseTexture();
+    void pause();
+    bool pollTimeOut();
+    bool pollVictory() const;
+    void playMoveSound();
+    void playMusic();
+    void playVictorySound() const;
+    void renderDeadPieces();
+    void renderOutOfTimeScreen();
+    void renderPause();
+    void renderPieces();
+    void renderScore();
+    void renderTile();
+    void renderTimer();
+    void setButtons();
     void setPiecesClip();
     void setTileRectClip();
-    void renderTile();
-    void renderPieces();
-    void setButtons();
-    void handleEvents(SDL_Event* e);
-    bool pollVictory() const;
-    void playVictorySound() const;
     void startWhiteTimer();
-    void pauseWhiteTimer();
-    void unpauseWhiteTimer();
-    void stopWhiteTimer();
-    void renderTimer();
-    void renderScore();
-    void renderDeadPieces();
-    void playMusic();
-    bool pollTimeOut();
-    void renderPause();
-    bool isPaused() const;
-    void pause();
-    bool isBlackThinking() const;
     void stopBlackThinking();
-    void playMoveSound();
-    //checks if W|B has only a king remaining, if yes mGameOver true
-    void checkRemainingPieces();
-    void drawButtons();
+    void stopWhiteTimer();
+    void unpauseWhiteTimer();
+    void pauseWhiteTimer();
     
     
 protected:
 
 private:
-    void renderBeforeBlackPlays();
-    void fillDeadPieceTab(const int fallenPiece);
     void blackMove();
-    void fillBlackVectors(int tradeValue, const int desX, const int desY, const int srcX, const int srcY);
-    bool checkIfWhiteCanTake(int map[SPL][SPL], const int piece, const int piecePosX, const int piecePosY, int* trade);
-    bool checkIfBlackCanTake(int map[SPL][SPL], const int piece, const int piecePosX, const int piecePosY, int* trade);
-    int pieceValue(int const pieceType) const;
-    void eveluateBlackMove(int map[SPL][SPL], const int piece, const int desX, const int desY, const int srcX, const int srcY);
-    void clearBlackVectors();
     void blackTurn();
+    bool castling(int piece, int destinationPosX, int destinationPosY, int sourcePosX, int sourcePosY);
+    void changeTurn();
+    bool checkIfBlackCanTake(int map[SPL][SPL], const int piece, const int piecePosX, const int piecePosY, int* trade);
+    bool checkIfWhiteCanTake(int map[SPL][SPL], const int piece, const int piecePosX, const int piecePosY, int* trade);
+    bool checkMate();
+    bool checkPromotion(int x, int y, int piece);
+    void clearBlackVectors();
+    void eveluateBlackMove(int map[SPL][SPL], const int piece, const int desX, const int desY, const int srcX, const int srcY);
+    void enPassant(int destinationPosX);
+    void fillBlackVectors(int tradeValue, const int desX, const int desY, const int srcX, const int srcY);
+    void fillDeadPieceTab(const int fallenPiece);
+    void initGameSettings();
+    void move(int destX, int destY, int srcX, int srcY, int piece);
+    void movePiece(SDL_Event* e);
     bool pollCheck(const int map[SPL][SPL]);
     bool pollDiscoverAttack(const int map[SPL][SPL], const int piece, const int desX, const int desY, const int srcX, const int srcY);
-    void showLegalMove(const int map[SPL][SPL], int const pieceType, int const pieceXPos, const int pieceYPos, bool preCheck = false);
+    int pieceValue(int const pieceType) const;
     void readSettingsFromFile();
-    void initGameSettings();
-    bool checkMate();
-    void changeTurn();
-    void move(int destX, int destY, int srcX, int srcY, int piece);
-    bool castling(int piece, int destinationPosX, int destinationPosY, int sourcePosX, int sourcePosY);
-    void movePiece(SDL_Event* e);
+    void renderBeforeBlackPlays();
     void setCastlingBools(int x, int y, int piece);
-    bool checkPromotion(int x, int y, int piece);
-    
     void setEnPassantVar(const int piece, const int srcX, const int srcY , const int desX, const int desY);
-    void enPassant(int destinationPosX);
-    
+    void showLegalMove(const int map[SPL][SPL], int const pieceType, int const pieceXPos, const int pieceYPos, bool preCheck = false);
+
   int mDeadWhitePiece[EMPTY];
   int mDeadBlackPiece[EMPTY];
   LTexture *mMiniPieceTexture;
@@ -116,8 +117,8 @@ private:
     bool mWhiteTimerRanOut;
     bool mIsPaused;
     //textures
-    LTexture *mPieceTexture;
-    LTexture *mHighlightedPieceTexture;
+    LTexture *mPieceTexture, 
+             *mHighlightedPieceTexture;
     LTexture *mTileTexture;
     LTexture *mHighlightedTileTexture;
     LTexture *mWhiteTimerTexture;
@@ -125,6 +126,7 @@ private:
     LTexture *mBlackScoreTexture;
     LTexture *mPauseBackgroundTexture;
     LTexture *mPauseTextTexture;
+    LTexture *mOutOfTimeTexture;
     //Texture clipping 
     SDL_Rect mPieceClip[TOTAL_PIECES - 1];
     SDL_Rect mTileRectClip[TOTAL_TILE_COLOR];
