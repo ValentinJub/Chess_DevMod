@@ -1019,11 +1019,19 @@ void LBoardPVP::renderTimer() {
 	if(mSettingsTable[TL_YES] == 1) {
 		SDL_Color black = {0,0,0,0xFF};
 		
+		// white timer total time left in seconds
 		int wtime = mTimeLimit - (mWhiteTimer.getTicks() / 1000);
+
+		// if the timer ran out we set it to 0 to avoid displaying negative time
+		if(wtime < 0) {
+			wtime = 0;
+			mWhiteTimerRanOut = true;
+		}
+
+		// minutes left for white 
 		int wminutes = wtime / 60;
+		// seconds left for white 
 		int ws = wtime % 60;
-		
-		if(wtime < 0) mWhiteTimerRanOut = true;
 		
 		//In memory text stream
 		std::stringstream whiteTimeText;
@@ -1035,11 +1043,19 @@ void LBoardPVP::renderTimer() {
 		mWhiteTimerTexture->loadFromRenderedText(gFont64, whiteTimeText.str().c_str(), black);
 		mWhiteTimerTexture->render(0,SCREEN_HEIGHT - 64);
 		
+		// black timer total time left in seconds
 		int btime = mTimeLimit - (mBlackTimer.getTicks() / 1000);
+
+		// if the timer ran out we set it to 0 to avoid displaying negative time
+		if(btime < 0) {
+			btime = 0;
+			mBlackTimerRanOut = true;
+		}
+
+		// minutes left for black
 		int bminutes = btime / 60;
+		// seconds left for black
 		int bs = btime % 60;
-		
-		if(btime < 0) mBlackTimerRanOut = true;
 		
 		//In memory text stream
 		std::stringstream blackTimeText;
