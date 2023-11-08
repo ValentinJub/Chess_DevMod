@@ -1044,19 +1044,32 @@ void LBoardPVAI::renderTimer() {
 	if(mSettingsTable[TL_YES] == 1) {
 		SDL_Color black = {0,0,0,0xFF};
 		
+		// total amount of seconds left (total time - time passed)
 		int wtime = mTimeLimit - (mWhiteTimer.getTicks() / 1000);
+
+		// if we reached under zero, we set the timer back to 0 to avoid displaying -1
+		// and we set the mWhiteTimerRanOut to true to know that the white player lost
+		if(wtime < 0) {
+			mWhiteTimerRanOut = true;
+			wtime = 0;
+		}
+
+		// number of minutes left
 		int wminutes = wtime / 60;
+		// number of seconds left
 		int ws = wtime % 60;
-		
-		if(wtime < 0) mWhiteTimerRanOut = true;
+
 		
 		//In memory text stream
 		std::stringstream whiteTimeText;
+		// if we have more than 9 seconds left, we don't need to add a 0 before the seconds
 		if(ws > 9) {
 			whiteTimeText << std::to_string(wminutes) + ":" + std::to_string(ws);
 		}
+		// else we add a 0 before the seconds
 		else whiteTimeText << std::to_string(wminutes) + ":" + "0" + std::to_string(ws);
 		
+		// load the time text texture and render
 		mWhiteTimerTexture->loadFromRenderedText(gFont64, whiteTimeText.str().c_str(), black);
 		mWhiteTimerTexture->render(0,SCREEN_HEIGHT - OFFSET);
 	}
