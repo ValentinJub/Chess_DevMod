@@ -61,7 +61,7 @@ void playPVP() {
 			board.renderTile();
 			//display Pieces 
 			board.renderPieces();
-			//display timer
+			//display timer and checks for time remaining
 			board.renderTimer();
 			//display score
 			board.renderScore();
@@ -85,7 +85,10 @@ void playPVP() {
 				quit = true;
 			}
 			//check for defeat by time out
-			if(board.pollTimeOut()) quit = true;
+			if(board.pollTimeOut()) {
+				SDL_Delay(1750);
+				quit = true;
+			}
 		}
 	}
 } //board.close is automatically called here

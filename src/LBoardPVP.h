@@ -42,10 +42,12 @@ public:
     bool loadPiecesTextures();
     bool loadTileTextures();
     bool loadPauseTexture();
+    bool loadOutOfTimeTexture();
     void setPiecesClip();
     void setTileRectClip();
     void renderTile();
     void renderPieces();
+    void renderOutOfTimeScreen();
     void showLegalMove();
     void setButtons();
     void handleEvents(SDL_Event* e);
@@ -115,6 +117,7 @@ private:
     LTexture *mBlackScoreTexture;
     LTexture *mPauseBackgroundTexture;
     LTexture *mPauseTextTexture;
+    LTexture *mOutOfTimeTexture;
     //Texture clipping 
     SDL_Rect mPieceClip[TOTAL_PIECES - 1];
     SDL_Rect mMiniPieceClip[TOTAL_PIECES - 1];

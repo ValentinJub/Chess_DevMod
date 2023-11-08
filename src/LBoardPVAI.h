@@ -38,7 +38,6 @@ public:
 LBoardPVAI();
     ~LBoardPVAI();
     void checkRemainingPieces();
-    void displayOutOfTimeScreen();
     void drawButtons();
     void free();
     void handleEvents(SDL_Event* e);

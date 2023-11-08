@@ -29,6 +29,7 @@ LBoardPVP::LBoardPVP() {
 	mBlackScoreTexture = new LTexture;
 	mPauseBackgroundTexture = new LTexture;
 	mPauseTextTexture = new LTexture;
+	mOutOfTimeTexture = new LTexture;
 	
 	for(int i(0); i < INITIAL_PIECES_TOTAL; i++) {
 		mPieceButtons.push_back(new LButton);
@@ -307,6 +308,21 @@ bool LBoardPVP::loadPauseTexture() {
 	return success;
 }
 
+// for now this function is called when either white or black run out of time
+// because it relies on the mWhiteTimerRanOut and mBlackTimerRanOut bools
+// alternatively we could load two textures but considering we are not going 
+// to use one it would be a waste of memory
+bool LBoardPVP::loadOutOfTimeTexture() {
+	SDL_Color white = {0xFF, 0xFF, 0xFF, 0xFF};
+	if(mWhiteTimerRanOut) {
+		if(!(mOutOfTimeTexture->loadFromRenderedText(gFont64, "White ran out of time!", white))) return false;
+	}
+	else if(mBlackTimerRanOut) {
+		if(!(mOutOfTimeTexture->loadFromRenderedText(gFont64, "Black ran out of time!", white))) return false;
+	}
+	return true;
+}
+
 void LBoardPVP::setPiecesClip() {
 	for(int i(0); i < TOTAL_PIECES - 1; i++) {
 		mPieceClip[i].x = TOTAL_SQUARES*i;
@@ -444,6 +460,12 @@ void LBoardPVP::setButtons() {
 void LBoardPVP::renderPause() {
 	mPauseBackgroundTexture->render();
 	mPauseTextTexture->render((SCREEN_WIDTH - mPauseTextTexture->getWidth()) / 2, (SCREEN_HEIGHT - mPauseTextTexture->getHeight()) / 2); 
+}
+
+void LBoardPVP::renderOutOfTimeScreen() {
+	mPauseBackgroundTexture->render();
+	mOutOfTimeTexture->render((SCREEN_WIDTH - mOutOfTimeTexture->getWidth()) / 2, (SCREEN_HEIGHT - mOutOfTimeTexture->getHeight()) / 2);
+	SDL_RenderPresent(gRenderer);
 }
 
 void LBoardPVP::handleEvents(SDL_Event* e) {
@@ -1438,6 +1460,8 @@ bool LBoardPVP::pollTimeOut() {
 		if(Mix_PlayingMusic()) {
 			Mix_FadeOutMusic(500);
 		}
+		loadOutOfTimeTexture();
+		renderOutOfTimeScreen();
 		Mix_PlayChannel(-1, mDefeat, 0);
 		while(Mix_Playing(-1) > 0) {
 			SDL_Delay(16);
