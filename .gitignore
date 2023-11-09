@@ -38,3 +38,4 @@ Sprites/*
 src/include/*
 src/lib/*
 .vscode/*
+resources/settings.config
