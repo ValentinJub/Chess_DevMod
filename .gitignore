@@ -31,6 +31,9 @@
 *.out
 *.app
 
+# conf files
+*.config
+
 # Specific folders: Music, SoundEffects, Sprites
 Music/*
 SoundEffects/*
@@ -38,4 +41,3 @@ Sprites/*
 src/include/*
 src/lib/*
 .vscode/*
-resources/settings.config

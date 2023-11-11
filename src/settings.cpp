@@ -32,8 +32,8 @@ void settings() {
 	
 	gBackgroundTexture.render();
 	
-	menuSettings.renderLeftTextureToRenderer();
-	menuSettings.renderRightTextureToRenderer();
+	menuSettings.renderLeftTexture();
+	menuSettings.renderRightTexture();
 	menuSettings.renderPieceTheme();
 	
 	/*

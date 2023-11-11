@@ -24,10 +24,10 @@ public:
     bool initController();
     void initFont();
     void initCurrentItemList();
-    void renderTextureFromTextLeft();
-    void renderTextureFromTextRight();
-    void renderLeftTextureToRenderer();
-    void renderRightTextureToRenderer();
+    void loadTextureFromTextLeft();
+    void loadTextureFromTextRight();
+    void renderLeftTexture();
+    void renderRightTexture();
     void renderPieceTheme();
     void setButtonPosition();
     void setButtonWH();

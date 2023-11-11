@@ -30,8 +30,8 @@ LMenu::LMenu(){
     
     loadPieceThemeTextures();
     
-    renderTextureFromTextLeft();
-    renderTextureFromTextRight();
+    loadTextureFromTextLeft();
+    loadTextureFromTextRight();
     
     mSound = loadChunk("SoundEffects/START.wav");
     
@@ -135,7 +135,7 @@ void LMenu::underlineSelected() const {
     SDL_SetRenderDrawColor(gRenderer, 0, 0xFF, 0, 0xFF);
     for(int i(0); i < TOTAL_CLICKABLE_ITEMS - 1; i++) {
         if(mSettingsTable[i] == 1) {
-            for(int y(-6); y < -3; y++) {
+            for(int y(-2); y < 0; y++) {
                 //y is the offset to render a thicker line
                 SDL_RenderDrawLine(gRenderer, mButtons[i]->getX(), (mButtons[i]->getY() + mButtons[i]->getH() + y), (mButtons[i]->getX() + mButtons[i]->getW()), (mButtons[i]->getY() + mButtons[i]->getH() + y));
             }
@@ -147,7 +147,7 @@ void LMenu::crossOut() const {
     SDL_SetRenderDrawColor(gRenderer, 0xFF, 0, 0, 0xFF);
     for(int i(0); i < TOTAL_CLICKABLE_ITEMS - 1; i++) {
         if(mSettingsTable[i] == 0) {
-            for(int y(-6); y < -3; y++) {
+            for(int y(-1); y < 1; y++) {
                 //y is the offset to render a thicker line
                 SDL_RenderDrawLine(gRenderer, mButtons[i]->getX(), ((mButtons[i]->getY() + mButtons[i]->getH() / 2) + y), (mButtons[i]->getX() + mButtons[i]->getW()), ((mButtons[i]->getY() + mButtons[i]->getH() / 2) + y));
             }
@@ -297,20 +297,20 @@ void LMenu::generateText(LGameController* controller){
 }
 */
 
-void LMenu::renderTextureFromTextLeft() {
+void LMenu::loadTextureFromTextLeft() {
     SDL_Color colorBlack = {0,0,0,0xFF};
     mMenuTextTextures->loadFromRenderedTextTabLeft(mMenuLeftStr, mFont, LEFT_MENU, colorBlack);
 }
-void LMenu::renderTextureFromTextRight() {
+void LMenu::loadTextureFromTextRight() {
     SDL_Color colorBlack = {0,0,0,0xFF};
     mMenuTextTextures->loadFromRenderedTextTabRight(mMenuRightStr, mFont, TOTAL_CLICKABLE_ITEMS - 2, colorBlack);
 }
 
-void LMenu::renderLeftTextureToRenderer() {
+void LMenu::renderLeftTexture() {
     mMenuTextTextures->renderFromTabLeftSide(LEFT_MENU);
 }
 
-void LMenu::renderRightTextureToRenderer() {
+void LMenu::renderRightTexture() {
     mMenuTextTextures->renderFromTabRightSide(TOTAL_CLICKABLE_ITEMS - 2);
 }
 
