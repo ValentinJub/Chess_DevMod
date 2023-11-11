@@ -25,8 +25,8 @@ LMenu::LMenu(){
     initFont();
     //fill text menu into str[] from 2 txt files
     initMenuStrings();
-    //set settingsTable to default values
-    initCurrentItemList();
+    
+    loadSettingsFromFile();
     
     loadPieceThemeTextures();
     
@@ -266,6 +266,27 @@ void LMenu::handleEvent(SDL_Event* e) {
     }
 }
 
+bool LMenu::loadSettingsFromFile() {
+    std::ifstream settings;
+    settings.open("resources/settings.config", std::ios::in);
+    if(settings.is_open()) {
+        for(int i(0); i < TOTAL_CLICKABLE_ITEMS - 1; i++) {
+            std::string line;
+            std::getline(settings, line);
+            std::stringstream ss(line);
+            int a;
+            ss >> a;
+            mSettingsTable[i] = a;
+        }
+        settings.close();
+        return true;
+    }
+    else {
+        std::cerr << "Unable to load settings file!\n";
+        return false;
+    }
+}
+
 void LMenu::saveSettingsToFile() {
     std::ofstream settings;
         settings.open("resources/settings.config", std::ios::trunc);
@@ -275,7 +296,7 @@ void LMenu::saveSettingsToFile() {
             std::stringstream ss;
             ss << a;
             std::string str = ss.str();
-            settings << str;
+            settings << str + "\n";
         }
         settings.close();
     }

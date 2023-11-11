@@ -26,6 +26,7 @@ public:
     void initCurrentItemList();
     void loadTextureFromTextLeft();
     void loadTextureFromTextRight();
+    bool loadSettingsFromFile();    
     void renderLeftTexture();
     void renderRightTexture();
     void renderPieceTheme();

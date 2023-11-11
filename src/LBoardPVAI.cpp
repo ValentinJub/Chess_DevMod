@@ -263,22 +263,21 @@ void LBoardPVAI::stopWhiteTimer() {
 
 void LBoardPVAI::readSettingsFromFile() {
 	std::ifstream settings;
-	settings.open("resources/settings.config");
-	if(settings.is_open()) {
-		char c(0);
-		int i(0);
-		while(settings.get(c)) {
-			if(i < TOTAL_CLICKABLE_ITEMS) {
-				int ac = c - '0';
-				mSettingsTable[i] = ac;
-				i++;
-			}
-		}
-		settings.close();
-	}
-	else {
-		printf("Unable to open settings.config");
-	}
+    settings.open("resources/settings.config", std::ios::in);
+    if(settings.is_open()) {
+        for(int i(0); i < TOTAL_CLICKABLE_ITEMS - 1; i++) {
+            std::string line;
+            std::getline(settings, line);
+            std::stringstream ss(line);
+            int a;
+            ss >> a;
+            mSettingsTable[i] = a;
+        }
+        settings.close();
+    }
+    else {
+        std::cerr << "Unable to load settings file!\n";
+    }
 }
 
 bool LBoardPVAI::loadPiecesTextures() {
