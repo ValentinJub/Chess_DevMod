@@ -418,7 +418,7 @@ void LBoardPVAI::renderTile() {
 		}
 	}
 	if(mRightClickedTileXPos.size() > 0) {
-		int size = mHighlightedTileXPos.size();
+		int size = mRightClickedTileXPos.size();
 		for(int z(0); z < size; z++) {
 			yPos = OFFSET + (mRightClickedTileYPos[z] * TOTAL_SQUARES);
 			xPos = OFFSET + (mRightClickedTileXPos[z] * TOTAL_SQUARES);
@@ -506,8 +506,7 @@ void LBoardPVAI::handleEvents(SDL_Event* e) {
 			}
 		}
 	}
-	//if a piece is selected - can move
-	//to pos set in shwlegalMove()
+	//if a piece is selected - can move to pos set in shwlegalMove()
 	if(mAPieceIsSelected) {
 		showLegalMove(mMap, mSelectedPieceType, mSelectedPieceXPos, mSelectedPieceYPos);
 		movePiece(e);
@@ -526,18 +525,63 @@ void LBoardPVAI::handleEvents(SDL_Event* e) {
 	if((e->type == SDL_MOUSEBUTTONUP) && (e->button.button == SDL_BUTTON_RIGHT)) {
 		bool dont = false;
 		int size = mRightClickedTileXPos.size();
+		// check if the tile x,y position is already in the vector, if yes we remove it
 		for(int z(0); z < size; z++) {
 			if((mRightClickedTileXPos[z] == x) && (mRightClickedTileYPos[z] == y)) {
-				mRightClickedTileXPos[z] = 8;
-				mRightClickedTileYPos[z] = 8;
+				mRightClickedTileXPos.erase(mRightClickedTileXPos.begin() + z);
+				mRightClickedTileYPos.erase(mRightClickedTileYPos.begin() + z);
 				dont = true;
 			}
 		}
+		// push the tile x,y position in the vector
 		if(!(dont)) {
 			mRightClickedTileXPos.push_back(x);
 			mRightClickedTileYPos.push_back(y);
 		}
 	} 
+}
+
+void LBoardPVAI::movePiece(SDL_Event* e) {
+	int destinationPosX, destinationPosY;
+	SDL_GetMouseState( &destinationPosX, &destinationPosY );
+	destinationPosX = (destinationPosX / TOTAL_SQUARES) - 1;
+	destinationPosY = (destinationPosY / TOTAL_SQUARES) - 1;
+	if((e->type == SDL_MOUSEBUTTONUP) && (e->button.button == SDL_BUTTON_LEFT)) {
+		// clear the highlighted tile vector since we did a left click
+		mRightClickedTileXPos.clear();
+		mRightClickedTileYPos.clear();
+		//if click is in possible square posX&Y[i]
+		int size = mHighlightedTileYPos.size();
+		for(int i(0); i < size; i++) {
+			if((destinationPosX == mHighlightedTileXPos[i]) && (destinationPosY == mHighlightedTileYPos[i])) {
+				int piece = mSelectedPieceType;
+				int srcPosX = mSelectedPieceXPos;
+				int srcPosY = mSelectedPieceYPos;
+				//check if the move we're about to play is goint to check
+				//our own King - returns true if it does check own King
+				//false if it's not checking our own King
+				if(!(pollDiscoverAttack(mMap, piece, destinationPosX, destinationPosY, srcPosX, srcPosY))) { 
+					//check if the move we're about to play is a castling move
+					//if castling returns false then it was a castling move but it
+					//cant be done - returns true in all other screnarios
+					if(castling(piece, destinationPosX, destinationPosY, srcPosX, srcPosY)) {
+							move(destinationPosX, destinationPosY, srcPosX, srcPosY, piece);
+							//exit loop
+							i = 99;
+					}
+					else {
+						//Play unable to move sound 
+						Mix_PlayChannel(-1, mError, 0);
+					}
+				}
+				//Unable to move due to move checking its own King
+				else {
+					//PPlay unable to move sound 
+					Mix_PlayChannel(-1, mError, 0);
+				}
+			}
+		}
+	}
 }
 
 //fill mHighlightedTileXPos/YPos with
@@ -598,47 +642,6 @@ void LBoardPVAI::showLegalMove(const int map[SPL][SPL], const int pieceType, con
 			break;
 	}
 }
-
-void LBoardPVAI::movePiece(SDL_Event* e) {
-	int destinationPosX, destinationPosY;
-	SDL_GetMouseState( &destinationPosX, &destinationPosY );
-	destinationPosX = (destinationPosX / TOTAL_SQUARES) - 1;
-	destinationPosY = (destinationPosY / TOTAL_SQUARES) - 1;
-	if(e->type == SDL_MOUSEBUTTONUP) {
-		//if click is in possible square posX&Y[i]
-		int size = mHighlightedTileYPos.size();
-		for(int i(0); i < size; i++) {
-			if((destinationPosX == mHighlightedTileXPos[i]) && (destinationPosY == mHighlightedTileYPos[i])) {
-				int piece = mSelectedPieceType;
-				int srcPosX = mSelectedPieceXPos;
-				int srcPosY = mSelectedPieceYPos;
-				//check if the move we're about to play is goint to check
-				//our own King - returns true if it does check own King
-				//false if it's not checking our own King
-				if(!(pollDiscoverAttack(mMap, piece, destinationPosX, destinationPosY, srcPosX, srcPosY))) { 
-					//check if the move we're about to play is a castling move
-					//if castling returns false then it was a castling move but it
-					//cant be done - returns true in all other screnarios
-					if(castling(piece, destinationPosX, destinationPosY, srcPosX, srcPosY)) {
-							move(destinationPosX, destinationPosY, srcPosX, srcPosY, piece);
-							//exit loop
-							i = 99;
-					}
-					else {
-						//Play unable to move sound 
-						Mix_PlayChannel(-1, mError, 0);
-					}
-				}
-				//Unable to move due to move checking its own King
-				else {
-					//PPlay unable to move sound 
-					Mix_PlayChannel(-1, mError, 0);
-				}
-			}
-		}
-	}
-}
-
 
 void LBoardPVAI::enPassant(int destinationPosX) { 
 	if(destinationPosX == mLastMovedPieceXDes) {

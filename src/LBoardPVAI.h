@@ -133,8 +133,9 @@ private:
     std::vector <LButton*> mPieceButtons;
     //Legal moves coordinates
     std::vector <int> mHighlightedTileXPos,
-                      mHighlightedTileYPos,
-                      mRightClickedTileXPos,
+                      mHighlightedTileYPos;
+
+    std::vector <int> mRightClickedTileXPos,
                       mRightClickedTileYPos;
     int mSelectedPieceType,
         mSelectedPieceXPos,

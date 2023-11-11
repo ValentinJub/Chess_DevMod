@@ -70,7 +70,9 @@ bool LButton::handleClick(SDL_Event* e) {
         switch( e->type )
         {
             case SDL_MOUSEBUTTONUP:
-            success = true;
+            if(e->button.button == SDL_BUTTON_LEFT) {
+                success = true;
+            }
             break;
         }
     return success;

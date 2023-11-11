@@ -477,9 +477,9 @@ void LBoardPVP::handleEvents(SDL_Event* e) {
 	//check for each buttons
 	int size = mPieceButtons.size();
 	for(int i(0); i < size; i++) {
-		//if mouse is inside
+		//if mouse is inside a button
 		if(mPieceButtons[i]->handleInside(e)) {
-			//if mouse button clicked 
+			//if THE LEFT mouse button clicked 
 			if(mPieceButtons[i]->handleClick(e)) {
 				//if a piece is not selected 
 				//if a piece is already selected, count as clicking outside 
@@ -526,8 +526,10 @@ void LBoardPVP::handleEvents(SDL_Event* e) {
 		int size = mRightClickedTileXPos.size();
 		for(int z(0); z < size; z++) {
 			if((mRightClickedTileXPos[z] == x) && (mRightClickedTileYPos[z] == y)) {
-				mRightClickedTileXPos[z] = 8;
-				mRightClickedTileYPos[z] = 8;
+				// mRightClickedTileXPos[z] = 9;
+				// mRightClickedTileYPos[z] = 9;
+				mRightClickedTileXPos.erase(mRightClickedTileXPos.begin() + z);
+				mRightClickedTileYPos.erase(mRightClickedTileYPos.begin() + z);
 				dont = true;
 			}
 		}
@@ -595,7 +597,7 @@ void LBoardPVP::movePiece(SDL_Event* e) {
 	SDL_GetMouseState( &destinationPosX, &destinationPosY );
 	destinationPosX = (destinationPosX / TOTAL_SQUARES) - 1;
 	destinationPosY = (destinationPosY / TOTAL_SQUARES) - 1;
-	if(e->type == SDL_MOUSEBUTTONUP) {
+	if((e->type == SDL_MOUSEBUTTONUP) && (e->button.button == SDL_BUTTON_LEFT)) {
 		//if click is in possible square2 posX&Y[i]
 		int size = mHighlightedTileYPos.size();
 		for(int i(0); i < size; i++) {
