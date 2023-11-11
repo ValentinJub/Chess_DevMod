@@ -209,6 +209,12 @@ void LBoardPVAI::free() {
 	
 	mHighlightedTileTexture->free();
 	mHighlightedTileTexture = NULL;
+
+	mPauseBackgroundTexture->free();
+	mPauseBackgroundTexture = NULL;	
+
+	mOutOfTimeTexture->free();
+	mOutOfTimeTexture = NULL;
 	
 	mPieceButtons.clear();
 	mHighlightedTileXPos.clear();
@@ -411,14 +417,14 @@ void LBoardPVAI::renderTile() {
 			}
 		}
 	}
-	// if(mRightClickedTileXPos.size() > 0) {
-	// 	int size = mHighlightedTileXPos.size();
-	// 	for(int z(0); z < size; z++) {
-	// 		yPos = OFFSET + (mRightClickedTileYPos[z] * TOTAL_SQUARES);
-	// 		xPos = OFFSET + (mRightClickedTileXPos[z] * TOTAL_SQUARES);
-	// 		mHighlightedTileTexture->render(xPos, yPos, &mTileRectClip[LIGHT2]);
-	// 	}
-	// }
+	if(mRightClickedTileXPos.size() > 0) {
+		int size = mHighlightedTileXPos.size();
+		for(int z(0); z < size; z++) {
+			yPos = OFFSET + (mRightClickedTileYPos[z] * TOTAL_SQUARES);
+			xPos = OFFSET + (mRightClickedTileXPos[z] * TOTAL_SQUARES);
+			mHighlightedTileTexture->render(xPos, yPos, &mTileRectClip[LIGHT2]);
+		}
+	}
 }
 	
 void LBoardPVAI::renderPieces() {
@@ -493,8 +499,8 @@ void LBoardPVAI::handleEvents(SDL_Event* e) {
 						mSelectedPieceXPos = x;
 						mSelectedPieceYPos = y;
 						mAPieceIsSelected = true;
-						// mRightClickedTileXPos.clear();
-						// mRightClickedTileYPos.clear();
+						mRightClickedTileXPos.clear();
+						mRightClickedTileYPos.clear();
 					}
 				}
 			}
@@ -513,25 +519,25 @@ void LBoardPVAI::handleEvents(SDL_Event* e) {
 			mSelectedPieceYPos = 9;
 			mHighlightedTileXPos.clear();
 			mHighlightedTileYPos.clear();
-			// mRightClickedTileXPos.clear();
-			// mRightClickedTileYPos.clear();
+			mRightClickedTileXPos.clear();
+			mRightClickedTileYPos.clear();
 		}
 	}
-	// if((e->type == SDL_MOUSEBUTTONUP) && (e->button.button == SDL_BUTTON_RIGHT)) {
-	// 	bool dont = false;
-	// 	int size = mRightClickedTileXPos.size();
-	// 	for(int z(0); z < size; z++) {
-	// 		if((mRightClickedTileXPos[z] == x) && (mRightClickedTileYPos[z] == y)) {
-	// 			mRightClickedTileXPos[z] = 8;
-	// 			mRightClickedTileYPos[z] = 8;
-	// 			dont = true;
-	// 		}
-	// 	}
-	// 	if(!(dont)) {
-	// 		mRightClickedTileXPos.push_back(x);
-	// 		mRightClickedTileYPos.push_back(y);
-	// 	}
-	// } 
+	if((e->type == SDL_MOUSEBUTTONUP) && (e->button.button == SDL_BUTTON_RIGHT)) {
+		bool dont = false;
+		int size = mRightClickedTileXPos.size();
+		for(int z(0); z < size; z++) {
+			if((mRightClickedTileXPos[z] == x) && (mRightClickedTileYPos[z] == y)) {
+				mRightClickedTileXPos[z] = 8;
+				mRightClickedTileYPos[z] = 8;
+				dont = true;
+			}
+		}
+		if(!(dont)) {
+			mRightClickedTileXPos.push_back(x);
+			mRightClickedTileYPos.push_back(y);
+		}
+	} 
 }
 
 //fill mHighlightedTileXPos/YPos with
