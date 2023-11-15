@@ -265,6 +265,7 @@ void LBoardPVAI::readSettingsFromFile() {
 	std::ifstream settings;
     settings.open("resources/settings.config", std::ios::in);
     if(settings.is_open()) {
+		// minus 1 because clickable includes the back button
         for(int i(0); i < TOTAL_CLICKABLE_ITEMS - 1; i++) {
             std::string line;
             std::getline(settings, line);

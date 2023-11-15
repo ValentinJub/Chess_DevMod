@@ -39,5 +39,3 @@
 
 - Add a music volume selector in the settings
 	- Use a horizontal bar and a circle, the circle can slide left to right limited by the horizontal bar x position.
-
-![Alt text](image.png)

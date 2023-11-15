@@ -13,7 +13,7 @@ const int SCREEN_WIDTH = 64*10;
 const int SCREEN_HEIGHT = 64*10;
 const int NBR_OF_MUSIC = 7;
 
-const int LEFT_MENU = 7;
+const int LEFT_MENU = 8;
 const int TOTAL_SETTINGS_MENU_TEXTURES = 17;
 const int TOTAL_SQUARES = 64;
 const int OFFSET = 64;
@@ -37,7 +37,9 @@ enum CastlingResult {
     NO_MOVE
 };
 
-enum Settings {
+const int TOTAL_SETTINGS_RIGHT_MENU_TEXT_ITEMS = 11;
+
+enum SettingsMenuButtons {
     SLM_YES,
     SLM_NO,
     TL_YES,

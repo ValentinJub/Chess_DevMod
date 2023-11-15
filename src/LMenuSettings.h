@@ -14,6 +14,7 @@ Prototypes and const for LMenuclass
 #include "fstream"
 #include "LTexture.h"
 #include "LButton.h"
+#include "LSlider.h"
 #include "funct_headers.h"
 
 class LMenu {
@@ -30,18 +31,22 @@ public:
     void renderLeftTexture();
     void renderRightTexture();
     void renderPieceTheme();
+    void renderSlider();
     void setButtonPosition();
     void setButtonWH();
-    void handleEvent(SDL_Event* e); 
+    void handleEvent(SDL_Event* e, SDL_Point mouse); 
     void drawButtons();
     bool getRun() const;
     void underlineSelected() const;
     void crossOut() const;
+    bool getMouseFollow() const;
+    void handleSliderMotion(SDL_Point mouse);
     
 private:
     void loadPieceThemeTextures();
     void saveSettingsToFile(); 
     bool mRun;
+    LSlider* mSlider = NULL;
     Mix_Chunk* mSound;
     //Create text menu and put it into mMenuStr[]
     void initMenuStrings();
@@ -56,7 +61,7 @@ private:
     //no need including back as it's not a setting
     int mSettingsTable[TOTAL_CLICKABLE_ITEMS - 1]; //minus back
     std::string mMenuLeftStr[LEFT_MENU];
-    std::string mMenuRightStr[TOTAL_CLICKABLE_ITEMS - 2]; //minus 2 piece textures
+    std::string mMenuRightStr[TOTAL_SETTINGS_RIGHT_MENU_TEXT_ITEMS];
 };
 
 #endif

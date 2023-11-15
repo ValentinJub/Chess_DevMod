@@ -53,12 +53,12 @@ class LTexture {
     SDL_Texture* mTexture;
     
     SDL_Texture* mLeftMenuTexture[LEFT_MENU]; //7
-    SDL_Texture* mRightMenuTexture[TOTAL_CLICKABLE_ITEMS - 2]; //11
+    SDL_Texture* mRightMenuTexture[TOTAL_SETTINGS_RIGHT_MENU_TEXT_ITEMS]; //11
     std::string mMenuStr[PLACEHOLDER];
     int mLeftTabWidth[LEFT_MENU];
     int mLeftTabHeight[LEFT_MENU];
-    int mRightTabWidth[TOTAL_CLICKABLE_ITEMS - 2]; //11
-    int mRightTabHeight[TOTAL_CLICKABLE_ITEMS - 2];
+    int mRightTabWidth[TOTAL_SETTINGS_RIGHT_MENU_TEXT_ITEMS]; //11
+    int mRightTabHeight[TOTAL_SETTINGS_RIGHT_MENU_TEXT_ITEMS];
     
     int mHeight;
     int mWidth;

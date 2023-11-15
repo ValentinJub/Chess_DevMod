@@ -23,29 +23,36 @@ void settings() {
 	SDL_Event e;
 	
 	while(menuSettings.getRun()) {
+		SDL_Point mouse;
+		SDL_GetMouseState( &mouse.x, &mouse.y );
 		while(SDL_PollEvent(&e) > 0) {
-			menuSettings.handleEvent(&e);
+			menuSettings.handleEvent(&e, mouse);
+		}
+
+		if(menuSettings.getMouseFollow()) {
+			menuSettings.handleSliderMotion(mouse);
 		}
 	
-	SDL_SetRenderDrawColor(gRenderer, 0XFF, 0xFF, 0xFF, 0xFF);
-	SDL_RenderClear(gRenderer);
-	
-	gBackgroundTexture.render();
-	
-	menuSettings.renderLeftTexture();
-	menuSettings.renderRightTexture();
-	menuSettings.renderPieceTheme();
-	
-	/*
-	menuSettings.drawButtons();
-	*/
-	
-	menuSettings.underlineSelected(); 
-	menuSettings.crossOut(); 
-	
-	/*to check if hitbox is set properly
-	menuSettings.drawButtons(); */
-	
-	SDL_RenderPresent(gRenderer);
+		SDL_SetRenderDrawColor(gRenderer, 0XFF, 0xFF, 0xFF, 0xFF);
+		SDL_RenderClear(gRenderer);
+		
+		gBackgroundTexture.render();
+		
+		menuSettings.renderLeftTexture();
+		menuSettings.renderRightTexture();
+		menuSettings.renderPieceTheme();
+		menuSettings.renderSlider();
+
+		/*
+		menuSettings.drawButtons();
+		*/
+		
+		menuSettings.underlineSelected(); 
+		menuSettings.crossOut(); 
+		
+		// to check if hitbox is set properly
+		menuSettings.drawButtons();
+		
+		SDL_RenderPresent(gRenderer);
 	}
 }

@@ -8,8 +8,6 @@ Methods for LMenu class
 
 #include "LMenuSettings.h"
 
-
-
 extern SDL_Renderer* gRenderer;
 extern LTexture gBackgroundTexture;
 
@@ -21,6 +19,9 @@ LMenu::LMenu(){
     for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i++) {
         mButtons[i] = new LButton;
     }
+
+    mSlider = new LSlider(100, 25, 320, 184);
+
     //open font
     initFont();
     //fill text menu into str[] from 2 txt files
@@ -47,6 +48,9 @@ LMenu::~LMenu(){}
 void LMenu::free() {
     mMenuTextTextures->freeLeftTab();
     mMenuTextTextures->freeRightTab();
+    mPieceTheme1Texture->free();
+    mPieceTheme2Texture->free();
+    mSound = NULL;
     mFont = NULL;
 }
 
@@ -81,7 +85,7 @@ void LMenu::initMenuStrings() {
     }
     else {
         // fill the mMenuRightStr[] and subtracting 2 for the 2 piece textures
-        for(int i(0); i < TOTAL_CLICKABLE_ITEMS - 2; i++) {
+        for(int i(0); i < TOTAL_SETTINGS_RIGHT_MENU_TEXT_ITEMS; i++) {
             std::string line;
             std::getline(settingsRight, line);
             std::cout << line << std::endl;
@@ -133,6 +137,7 @@ bool LMenu::getRun() const {
 
 void LMenu::underlineSelected() const {
     SDL_SetRenderDrawColor(gRenderer, 0, 0xFF, 0, 0xFF);
+    // - 1 because we don't want to underline back
     for(int i(0); i < TOTAL_CLICKABLE_ITEMS - 1; i++) {
         if(mSettingsTable[i] == 1) {
             for(int y(-2); y < 0; y++) {
@@ -145,6 +150,7 @@ void LMenu::underlineSelected() const {
 
 void LMenu::crossOut() const {
     SDL_SetRenderDrawColor(gRenderer, 0xFF, 0, 0, 0xFF);
+    // - 1 because we don't want to cross out the back button
     for(int i(0); i < TOTAL_CLICKABLE_ITEMS - 1; i++) {
         if(mSettingsTable[i] == 0) {
             for(int y(-1); y < 1; y++) {
@@ -155,10 +161,27 @@ void LMenu::crossOut() const {
     }
 }
 
-void LMenu::handleEvent(SDL_Event* e) {
+void LMenu::renderSlider() {
+    mSlider->renderSlider();
+    // mSlider->renderVolume();
+}
+
+void LMenu::handleSliderMotion(SDL_Point mouse) {
+    mSlider->handleMotion(mouse);
+}
+
+bool LMenu::getMouseFollow() const {
+    return mSlider->getMouseFollow();
+}
+
+void LMenu::handleEvent(SDL_Event* e, SDL_Point mouse) {
     if(e->type == SDL_QUIT) {
         mRun = false;
     }
+    // handles slider events to control the volume
+    mSlider->handleEvents(e, mouse);
+
+    // handles button events for the settings menu 
     for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i++) {
         if(mButtons[i]->handleInside(e)) {
             switch(i) {
@@ -270,6 +293,7 @@ bool LMenu::loadSettingsFromFile() {
     std::ifstream settings;
     settings.open("resources/settings.config", std::ios::in);
     if(settings.is_open()) {
+        // - 1 because we don't want to load back
         for(int i(0); i < TOTAL_CLICKABLE_ITEMS - 1; i++) {
             std::string line;
             std::getline(settings, line);
@@ -291,6 +315,7 @@ void LMenu::saveSettingsToFile() {
     std::ofstream settings;
         settings.open("resources/settings.config", std::ios::trunc);
     if(settings.is_open()) {
+        // - 1 because we don't want to save back
         for(int i(0); i < TOTAL_CLICKABLE_ITEMS - 1; i++) {
             int a = mSettingsTable[i];
             std::stringstream ss;
@@ -324,7 +349,7 @@ void LMenu::loadTextureFromTextLeft() {
 }
 void LMenu::loadTextureFromTextRight() {
     SDL_Color colorBlack = {0,0,0,0xFF};
-    mMenuTextTextures->loadFromRenderedTextTabRight(mMenuRightStr, mFont, TOTAL_CLICKABLE_ITEMS - 2, colorBlack);
+    mMenuTextTextures->loadFromRenderedTextTabRight(mMenuRightStr, mFont, TOTAL_SETTINGS_RIGHT_MENU_TEXT_ITEMS, colorBlack);
 }
 
 void LMenu::renderLeftTexture() {
@@ -332,7 +357,7 @@ void LMenu::renderLeftTexture() {
 }
 
 void LMenu::renderRightTexture() {
-    mMenuTextTextures->renderFromTabRightSide(TOTAL_CLICKABLE_ITEMS - 2);
+    mMenuTextTextures->renderFromTabRightSide(TOTAL_SETTINGS_RIGHT_MENU_TEXT_ITEMS);
 }
 
 //function used to check the buttons box are set properly
@@ -396,16 +421,23 @@ void LMenu::setButtonPosition() {
             else if(i == PT_2) {
                 mButtons[i]->setPosition((((SCREEN_WIDTH - mPieceTheme1Texture->getWidth()) / 2) - mPieceTheme2Texture->getWidth() / 2) + mPieceTheme1Texture->getWidth() + hPadding, ((SCREEN_HEIGHT - mPieceTheme2Texture->getHeight()) / 2) + mPieceTheme2Texture->getHeight() / 2);
             }
-
         }
     }
 }
 
 void LMenu::setButtonWH() {
     for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i++) {
-        if(i == PT_1) mButtons[i]->setWidthAndHeight(mPieceTheme1Texture->getWidth(), (mPieceTheme1Texture->getHeight()));
-        else if(i == PT_2) mButtons[i]->setWidthAndHeight(mPieceTheme2Texture->getWidth(), (mPieceTheme2Texture->getHeight()));
-        else if(i == BACK) mButtons[i]->setWidthAndHeight(mMenuTextTextures->getRightWidthTab(i - 2), (mMenuTextTextures->getRightHeightTab(i - 2)));
-        else mButtons[i]->setWidthAndHeight(mMenuTextTextures->getRightWidthTab(i), (mMenuTextTextures->getRightHeightTab(i)));
+        if(i == PT_1) {
+            mButtons[i]->setWidthAndHeight(mPieceTheme1Texture->getWidth(), (mPieceTheme1Texture->getHeight()));
+        }
+        else if(i == PT_2) {
+            mButtons[i]->setWidthAndHeight(mPieceTheme2Texture->getWidth(), (mPieceTheme2Texture->getHeight()));
+        }
+        else if(i == BACK) {
+            mButtons[i]->setWidthAndHeight(mMenuTextTextures->getRightWidthTab(i - 2), (mMenuTextTextures->getRightHeightTab(i - 2)));
+        }
+        else {
+            mButtons[i]->setWidthAndHeight(mMenuTextTextures->getRightWidthTab(i), (mMenuTextTextures->getRightHeightTab(i)));
+        }
     }
 }

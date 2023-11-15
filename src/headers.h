@@ -17,5 +17,6 @@ headers for all files - do not put L*.h!!!!
 #include <stdio.h>
 #include <string>
 #include <sstream>
+#include <iostream>
 
 #endif
