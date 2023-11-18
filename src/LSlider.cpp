@@ -9,7 +9,9 @@ Methods for LSlider class
 #include "LSlider.h"
 
 extern SDL_Renderer* gRenderer;
-extern TTF_Font* gFont;
+extern TTF_Font* gFont32;
+extern uint8_t gMusicVolume;
+using std::floor;
 
 LSlider::LSlider(int width, int height, int posX, int posY) {
     setSliderWidthAndHeight(width, height);
@@ -24,7 +26,7 @@ LSlider::LSlider(int width, int height, int posX, int posY) {
 
 bool LSlider::loadDotTexture() {
     bool success = true;
-    if(!mDotTexture->loadFromFile("sprites/dot.png")) {
+    if(!mDotTexture->loadFromFile("sprites/dot.png", true)) {
         std::cerr << "Failed to load dot texture!" << std::endl;
         success = false;
     }
@@ -42,24 +44,24 @@ LSlider::~LSlider() {
 
 int LSlider::getVolume() const {
     if(mSliderWidth < 100) {
-        float res = ((mDot->getDotPosition().x - mSliderPosition.x) / (mSliderWidth * 1.0)) * 100.0;
+        float res = ((mDot->getDotPosition().x - mSliderPosition.x + LDot::DOT_WIDTH / 2) / (mSliderWidth * 1.0)) * 100.0;
         return res;
     }
-    else if(mSliderWidth == 100) return mDot->getDotPosition().x - mSliderPosition.x;
+    else if(mSliderWidth == 100) return mDot->getDotPosition().x - (mSliderPosition.x - LDot::DOT_WIDTH / 2);
     else if(mSliderWidth > 100) {
         float coeff = (mSliderWidth / 100.0);
-        return (mDot->getDotPosition().x - mSliderPosition.x) / coeff;
+        return (mDot->getDotPosition().x - mSliderPosition.x + LDot::DOT_WIDTH / 2) / coeff;
     }
 }
 
-// void LSlider::renderVolume() {
-//     std::stringstream volumeText;
-//     volumeText << "Volume: " << getVolume() << "%";
-//     if(!mVolumeTexture->loadFromRenderedText(gFont, volumeText.str().c_str(), {0, 0, 0, 255})) {
-//         std::cerr << "Failed to render volume text texture!" << std::endl;
-//     }
-//     mVolumeTexture->render(mSliderPosition.x, mSliderPosition.y - (mVolumeTexture->getHeight()));
-// }
+void LSlider::renderVolume() {
+    std::stringstream volumeText;
+    volumeText << getVolume() << " %";
+    if(!mVolumeTexture->loadFromRenderedText(gFont32, volumeText.str().c_str(), {0, 0, 0, 255})) {
+        std::cerr << "Failed to render volume text texture!" << std::endl;
+    }
+    mVolumeTexture->render(mSliderPosition.x + mSliderWidth + (LDot::DOT_WIDTH / 2), mSliderPosition.y);
+}
 
 void LSlider::setSliderPosition( int x, int y ) {
     mSliderPosition.x = x;
@@ -71,9 +73,20 @@ void LSlider::setSliderWidthAndHeight(int width, int height) {
     mSliderHeight = height;
 }
 
+// set the dot position relative to the current music volume
+
 void LSlider::setDotPosition() {   
-    int posX = mSliderPosition.x + (mSliderWidth/2);
-    int posY = mSliderPosition.y + (mSliderHeight/2) - (LDot::DOT_HEIGHT/2);
+
+    // from 0 to 128
+
+    int currentVolume = gMusicVolume;
+
+    // from 0 to 100
+
+    currentVolume = (int)floor((currentVolume * 100) / 128);
+
+    int posX = mSliderPosition.x + currentVolume - (LDot::DOT_WIDTH / 2);
+    int posY = mSliderPosition.y + (mSliderHeight / 2) - (LDot::DOT_HEIGHT / 2);
     mDot->setDotPosition(posX, posY);
 }
 
@@ -138,16 +151,35 @@ void LSlider::handleMotion(SDL_Point mouse) {
     mDot->setDotPosition(mouse.x - LDot::DOT_WIDTH/2, mDot->getDotPosition().y);
 
     // left boudary
-    if(mDot->getDotPosition().x < mSliderPosition.x) {
-        mDot->setDotPosition(mSliderPosition.x, mDot->getDotPosition().y);
+    if(mDot->getDotPosition().x < mSliderPosition.x - LDot::DOT_WIDTH / 2) {
+        mDot->setDotPosition(mSliderPosition.x - LDot::DOT_WIDTH / 2, mDot->getDotPosition().y);
     }
     // right boundary
-    else if(mDot->getDotPosition().x > mSliderPosition.x + mSliderWidth) {
-        mDot->setDotPosition(mSliderPosition.x + mSliderWidth, mDot->getDotPosition().y);
+    else if(mDot->getDotPosition().x > mSliderPosition.x + mSliderWidth - LDot::DOT_WIDTH / 2) {
+        mDot->setDotPosition(mSliderPosition.x + mSliderWidth - LDot::DOT_WIDTH / 2, mDot->getDotPosition().y);
     }
+
+    // set the volume
+    setVolume();
 }
 
+void LSlider::setVolume() {
 
+    // get the volume from 0 to 100, we need to convert it to 0 to 128 and return an int
+    int vol = getVolume();
+
+    // convert the volume to 0 to 128
+    vol = (int)floor((vol * 128) / 100);
+
+    // making sure we stay in bounds
+    if(vol < 0) vol = 0;
+    else if(vol > 128) vol = 128;
+
+    // set the volume
+    gMusicVolume = vol;
+    Mix_VolumeMusic(gMusicVolume);
+
+}
 
 int LSlider::getX() const {
     return mSliderPosition.x;
@@ -165,11 +197,17 @@ int LSlider::getW() const {
     return mSliderWidth;
 }
 
+// render the slider, dot and volume text
+
 void LSlider::renderSlider() {
     // the rectangle that represents the slider
     SDL_Rect fillRect = { mSliderPosition.x, mSliderPosition.y, mSliderWidth, mSliderHeight };
+
+    // Set blend mode to support alpha blending
+    SDL_SetRenderDrawBlendMode(gRenderer, SDL_BLENDMODE_BLEND);
+
     // is filled with white
-    SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );     
+    SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0x00);     
     // and rendered   
     SDL_RenderFillRect( gRenderer, &fillRect );
     // the horizontal line in the middle of the slider is black
@@ -177,9 +215,15 @@ void LSlider::renderSlider() {
     // draw a horizontal line in the middle of the slider, thickness 2
     int i(-1);
     while(i < 2) {
-        SDL_RenderDrawLine( gRenderer, mSliderPosition.x, mSliderPosition.y + i + mSliderHeight/2, mSliderPosition.x + mSliderWidth, mSliderPosition.y + i + mSliderHeight/2 );
+        // draw a horizontal line in the middle of the slider, thickness 2
+        // I have to - 1 to x1 otherwise the line is 101px long instead of 100
+        SDL_RenderDrawLine( gRenderer, mSliderPosition.x, mSliderPosition.y + i + mSliderHeight/2, mSliderPosition.x + mSliderWidth - 1, mSliderPosition.y + i + mSliderHeight/2 );
         i++;
     }
+
     // render the dot
     mDot->render(mDotTexture);
+
+    // render the volume text
+    renderVolume();
 }

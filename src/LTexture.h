@@ -19,7 +19,7 @@ class LTexture {
     void renderFromTabLeftSide(int tabSize, SDL_Rect* clip = NULL);
     void renderFromTabRightSide(int tabSize, SDL_Rect* clip = NULL);
     //Load IMG from file
-    bool loadFromFile(std::string path);
+    bool loadFromFile(std::string path, bool colorKey = false, Uint8 red = 0x00, Uint8 green = 0xFF, Uint8 blue = 0xFF);
     //Destroy texture 
     void free();
     void freeLeftTab();

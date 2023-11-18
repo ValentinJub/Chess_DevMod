@@ -11,6 +11,7 @@ Methods for class LBoardPVP
 using std::vector;
 extern TTF_Font* gFont64;
 extern SDL_Renderer* gRenderer;
+extern uint8_t gMusicVolume;
 
 LBoardPVP::LBoardPVP() {
 	//grab settings from file
@@ -135,7 +136,7 @@ void LBoardPVP::playMusic() {
 		int i = rand() % 7;
 		//Play the music
 		Mix_FadeInMusic(mMusic[i], 0, 10000);
-		Mix_VolumeMusic(MIX_MAX_VOLUME / 2);
+		Mix_VolumeMusic(gMusicVolume);
 	}
 }
 

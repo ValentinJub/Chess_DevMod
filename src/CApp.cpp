@@ -6,6 +6,9 @@ LTexture gBackgroundTexture;
 TTF_Font* gFont64 = NULL;
 TTF_Font* gFont32 = NULL;
 
+// Global music volume, between 0 and 128.
+uint8_t gMusicVolume = MIX_MAX_VOLUME / 2;
+
 
 CApp::CApp() {
 	// responsible for running the program, pressing esc in the menu would close the program
@@ -267,7 +270,7 @@ void CApp::playMusic() {
 	//loop infinitely menu music
 	if(Mix_PlayingMusic() == 0) {
 		Mix_PlayMusic(mMenuMusic, -1);
-		Mix_VolumeMusic(MIX_MAX_VOLUME / 2);
+		Mix_VolumeMusic(gMusicVolume);
 	}
 }
 

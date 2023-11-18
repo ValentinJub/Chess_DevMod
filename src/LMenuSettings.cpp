@@ -163,7 +163,6 @@ void LMenu::crossOut() const {
 
 void LMenu::renderSlider() {
     mSlider->renderSlider();
-    // mSlider->renderVolume();
 }
 
 void LMenu::handleSliderMotion(SDL_Point mouse) {

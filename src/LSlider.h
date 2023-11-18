@@ -16,6 +16,7 @@ The slider is used to change the volume of the music and the sound effects.
 #include "headers.h"
 #include "LTexture.h"
 #include "LDot.h"
+#include <cmath>
 
 
 //The mouse button
@@ -55,6 +56,7 @@ class LSlider
         bool getMouseFollow() const;
 
     private:
+        void setVolume();
         bool loadDotTexture();
         void setMouseFollow(bool follow);
         bool mMouseFollow;

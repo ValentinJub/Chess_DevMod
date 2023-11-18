@@ -134,7 +134,7 @@ bool LTexture::loadFromRenderedTextTabRight(string menuStr[], TTF_Font* font, in
 
 #endif 
 
-bool LTexture::loadFromFile(std::string path) {
+bool LTexture::loadFromFile(std::string path, bool colorKey, Uint8 red, Uint8 green, Uint8 blue) {
     //Get rid of pre-existing texture
     free();
 
@@ -147,6 +147,10 @@ bool LTexture::loadFromFile(std::string path) {
         printf("Unable to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError());
     }
     else {
+        //Color key image
+        if(colorKey) {
+            SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, red, green, blue));
+        }
         //Create texture from surface pixels
         newTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface);
         if(newTexture == NULL) {
