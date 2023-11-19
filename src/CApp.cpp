@@ -267,9 +267,11 @@ int CApp::execute() {
 }
 
 void CApp::playMusic() {
-	//loop infinitely menu music
 	if(Mix_PlayingMusic() == 0) {
+		// loop infinitely menu music
 		Mix_PlayMusic(mMenuMusic, -1);
+		// set volume 
+		Mix_Volume(-1, gMusicVolume);
 		Mix_VolumeMusic(gMusicVolume);
 	}
 }

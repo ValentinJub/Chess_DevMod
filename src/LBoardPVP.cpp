@@ -136,7 +136,7 @@ void LBoardPVP::playMusic() {
 		int i = rand() % 7;
 		//Play the music
 		Mix_FadeInMusic(mMusic[i], 0, 10000);
-		Mix_VolumeMusic(gMusicVolume);
+		Mix_Volume(-1, gMusicVolume);
 	}
 }
 

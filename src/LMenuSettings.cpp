@@ -20,6 +20,8 @@ LMenu::LMenu(){
         mButtons[i] = new LButton;
     }
 
+    // if the slider is not set to 100 then there will be some issues with
+    // the volume calculation after having set the volume once.
     mSlider = new LSlider(100, 25, 320, 184);
 
     //open font

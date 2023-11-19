@@ -11,7 +11,7 @@ Methods for LSlider class
 extern SDL_Renderer* gRenderer;
 extern TTF_Font* gFont32;
 extern uint8_t gMusicVolume;
-using std::floor;
+using std::floor, std::ceil;
 
 LSlider::LSlider(int width, int height, int posX, int posY) {
     setSliderWidthAndHeight(width, height);
@@ -77,13 +77,10 @@ void LSlider::setSliderWidthAndHeight(int width, int height) {
 
 void LSlider::setDotPosition() {   
 
-    // from 0 to 128
+    // we transform gMusicVolume that ranges from 0 t0 128 to a range of 0 to 100
+    // we need to round up the result to the nearest integer
 
-    int currentVolume = gMusicVolume;
-
-    // from 0 to 100
-
-    currentVolume = (int)floor((currentVolume * 100) / 128);
+    int currentVolume = (int)std::ceil((gMusicVolume * 100.0) / 128.0);
 
     int posX = mSliderPosition.x + currentVolume - (LDot::DOT_WIDTH / 2);
     int posY = mSliderPosition.y + (mSliderHeight / 2) - (LDot::DOT_HEIGHT / 2);
@@ -177,6 +174,11 @@ void LSlider::setVolume() {
 
     // set the volume
     gMusicVolume = vol;
+
+    // set the volume for a specific channel, -1 for all channels
+    Mix_Volume(-1, gMusicVolume);
+
+    // set the volume for music
     Mix_VolumeMusic(gMusicVolume);
 
 }
