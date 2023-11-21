@@ -22,10 +22,11 @@ LMenu::LMenu(){
 
     // if the slider is not set to 100 then there will be some issues with
     // the volume calculation after having set the volume once.
-    mSlider = new LSlider(100, 25, 320, 184);
+    mSlider = new LSlider(100, 25, 320, 271);
 
-    //open font
+    //open font in 28px
     initFont();
+
     //fill text menu into str[] from 2 txt files
     initMenuStrings();
     
@@ -62,9 +63,15 @@ void LMenu::loadPieceThemeTextures() {
 }
 
 void LMenu::renderPieceTheme() {
-    int const hPadding = 25;
-    mPieceTheme1Texture->render((((SCREEN_WIDTH - mPieceTheme1Texture->getWidth()) / 2) - mPieceTheme1Texture->getWidth() / 2), ((SCREEN_HEIGHT - mPieceTheme1Texture->getHeight()) / 2) + mPieceTheme1Texture->getHeight() / 2);
-    mPieceTheme2Texture->render((((SCREEN_WIDTH - mPieceTheme1Texture->getWidth()) / 2) - mPieceTheme2Texture->getWidth() / 2) + mPieceTheme1Texture->getWidth() + hPadding, ((SCREEN_HEIGHT - mPieceTheme1Texture->getHeight()) / 2) + mPieceTheme1Texture->getHeight() / 2);
+    int const   hPadding = 12,
+                startPosX = 243,
+                maxPosX = startPosX + 153,
+                startPosY = 359 + hPadding,
+                piece1Width = mPieceTheme1Texture->getWidth(),
+                piece2Width = mPieceTheme2Texture->getWidth();
+
+    mPieceTheme1Texture->render(startPosX, startPosY);
+    mPieceTheme2Texture->render(maxPosX - piece2Width, startPosY);
 }
 
 void LMenu::initMenuStrings() {
@@ -375,54 +382,82 @@ void LMenu::drawButtons() {
 }
 
 void LMenu::setButtonPosition() {
-    const int titlePadding(5);
-    const int initialHorizontalSpace(10);
-    const int initialSpace(5);
-    int const hPadding (25);
+    const int   padding(5),
+                bigPadding(10),
+                center(SCREEN_WIDTH / 2),
+                titleHeight(mMenuTextTextures->getLeftHeightTab(0)),
+                averageItemHeight(mMenuTextTextures->getRightHeightTab(0)),
+                startPosY(titleHeight + bigPadding);
+
+    const int   pieceStartPosX = 243,
+                hPadding = 12,
+                pieceMaxPosX = pieceStartPosX + 153,
+                pieceStartPosY = 359 + hPadding,
+                piece1Width = mPieceTheme1Texture->getWidth(),
+                piece2Width = mPieceTheme2Texture->getWidth();
+
+    // displays the height of each texture, just for debugging purposes
+
+    for(int y(0); y < 11; ++y) {
+        std::cout << "Right texture number: " << y << ", height: " << mMenuTextTextures->getRightHeightTab(y) << std::endl;
+    }
+    for(int y(0); y < LEFT_MENU; ++y) {
+        std::cout << "Left texture number: " << y << ", height: " << mMenuTextTextures->getLeftHeightTab(y) << std::endl;
+    }
+
+    // Debug end
+
+
     for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i++) {
-        if(i % 2 == 0) {
-            if(i == SLM_YES) {
-            mButtons[i]->setPosition(SCREEN_WIDTH / 2, (initialSpace + titlePadding + (mMenuTextTextures->getLeftHeightTab(0) * 1)));
-            }
-            else if(i == TL_YES) {
-                mButtons[i]->setPosition(SCREEN_WIDTH / 2, (initialSpace + titlePadding + (mMenuTextTextures->getLeftHeightTab(0) * i)));
-            }
-            else if(i == TL_5) {
-                mButtons[i]->setPosition(SCREEN_WIDTH / 2, (initialSpace + titlePadding + (mMenuTextTextures->getLeftHeightTab(0) * (i - 1))));
-            }
-            else if(i == TC_BROWN) {
-                mButtons[i]->setPosition(SCREEN_WIDTH / 2, (initialSpace + titlePadding + (mMenuTextTextures->getLeftHeightTab(0) * (i - 2))));
-            }
-            else if(i == MT_JAZZY) {
-                mButtons[i]->setPosition(SCREEN_WIDTH / 2, (initialSpace + titlePadding + (mMenuTextTextures->getLeftHeightTab(0) * (i - 3))));
-            }
-            else if(i == PT_1) {
-                mButtons[i]->setPosition((((SCREEN_WIDTH - mPieceTheme1Texture->getWidth()) / 2) - mPieceTheme1Texture->getWidth() / 2), ((SCREEN_HEIGHT - mPieceTheme1Texture->getHeight()) / 2) + mPieceTheme1Texture->getHeight() / 2);
-            }
-            else if(i == BACK) {
-                mButtons[i]->setPosition(initialHorizontalSpace, SCREEN_HEIGHT - mMenuTextTextures->getRightHeightTab(i - 2));
-            }
+
+        int previousTextureWidth(0);
+        if(i != 0) {
+            previousTextureWidth = mMenuTextTextures->getRightWidthTab(i - 1);
         }
-        else {
-            if(i == SLM_NO) {
-                mButtons[i]->setPosition((SCREEN_WIDTH / 2) + (initialHorizontalSpace + mMenuTextTextures->getRightWidthTab(i - 1)), (initialSpace + titlePadding + (mMenuTextTextures->getLeftHeightTab(0) * 1)));
-            }
-            else if(i == TL_NO) {
-                mButtons[i]->setPosition((SCREEN_WIDTH / 2) + (initialHorizontalSpace + mMenuTextTextures->getRightWidthTab(i - 1)), (initialSpace + titlePadding + (mMenuTextTextures->getLeftHeightTab(0) * (i - 1))));
-            }
-            else if(i == TL_10) {
-                mButtons[i]->setPosition((SCREEN_WIDTH / 2) + (initialHorizontalSpace + mMenuTextTextures->getRightWidthTab(i - 1)), (initialSpace + titlePadding + (mMenuTextTextures->getLeftHeightTab(0) * (i - 2))));
-            }
-            else if(i == TC_GREY) {
-                mButtons[i]->setPosition((SCREEN_WIDTH / 2) + (initialHorizontalSpace + mMenuTextTextures->getRightWidthTab(i - 1)), (initialSpace + titlePadding + (mMenuTextTextures->getLeftHeightTab(0) * (i - 3))));
-            }
-            else if(i == MT_CLASSIC) {
-                mButtons[i]->setPosition((SCREEN_WIDTH / 2) + (initialHorizontalSpace + mMenuTextTextures->getRightWidthTab(i - 1)), (initialSpace + titlePadding + (mMenuTextTextures->getLeftHeightTab(0) * (i - 4))));
-            }
-            else if(i == PT_2) {
-                mButtons[i]->setPosition((((SCREEN_WIDTH - mPieceTheme1Texture->getWidth()) / 2) - mPieceTheme2Texture->getWidth() / 2) + mPieceTheme1Texture->getWidth() + hPadding, ((SCREEN_HEIGHT - mPieceTheme2Texture->getHeight()) / 2) + mPieceTheme2Texture->getHeight() / 2);
-            }
+        switch(i) {
+            case SLM_YES:
+                mButtons[i]->setPosition(center, startPosY);
+                break;
+            case SLM_NO:
+                mButtons[i]->setPosition(center + (bigPadding + previousTextureWidth), startPosY);
+                break;
+            case TL_YES:
+                mButtons[i]->setPosition(center, startPosY + (averageItemHeight * 1) + (bigPadding * 1));
+                break;
+            case TL_NO:
+                mButtons[i]->setPosition(center + (bigPadding + previousTextureWidth), startPosY + (averageItemHeight * 1) + (bigPadding * 1));
+                break;
+            case TL_5:
+                mButtons[i]->setPosition(center, startPosY + (averageItemHeight * 2) + (bigPadding * 2));
+                break;
+            case TL_10:
+                mButtons[i]->setPosition(center + (bigPadding + previousTextureWidth), startPosY + (averageItemHeight * 2) + (bigPadding * 2));
+                break;
+            case TC_BROWN:
+                mButtons[i]->setPosition(center, startPosY + (averageItemHeight * 3) + (bigPadding * 3));
+                break;
+            case TC_GREY:
+                mButtons[i]->setPosition(center + (bigPadding + previousTextureWidth), startPosY + (averageItemHeight * 3) + (bigPadding * 3));
+                break;
+            case MT_JAZZY:
+                mButtons[i]->setPosition(center, startPosY + (averageItemHeight * 4) + (bigPadding * 4));
+                break;
+            case MT_CLASSIC:
+                mButtons[i]->setPosition(center + (bigPadding + previousTextureWidth), startPosY + (averageItemHeight * 4) + (bigPadding * 4));
+                break;
+            case PT_1:
+                mButtons[i]->setPosition(pieceStartPosX, pieceStartPosY);
+                break;
+            case PT_2:
+                mButtons[i]->setPosition(pieceMaxPosX - piece2Width, pieceStartPosY);
+                break;
+            case BACK:
+                mButtons[i]->setPosition(padding, SCREEN_HEIGHT - mMenuTextTextures->getRightHeightTab(i - 2));
+                break;
+            default:
+                break;
         }
+
     }
 }
 

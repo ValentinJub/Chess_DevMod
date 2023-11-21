@@ -6,6 +6,7 @@ extern SDL_Renderer* gRenderer;
 extern SDL_Surface* gScreenSurface; 
 extern SDL_Surface* gCurrentSurface; 
 extern SDL_Window* gWindow;
+extern TTF_Font* gFont64;
 
 LTexture::LTexture(int x, int y) :
         mX(x),
@@ -69,8 +70,14 @@ bool LTexture::loadFromRenderedTextTabLeft(string menuStr[], TTF_Font* font, int
     bool success = true;
     SDL_Surface* textSurface = NULL;
     for(int i(0); i < size; i++) {
-    //Render text surface
-    textSurface = TTF_RenderText_Blended(font, menuStr[i].c_str(), textColor);
+
+    // we display the title with a bigger font size
+    if(i == 0) {
+        textSurface = TTF_RenderText_Blended(gFont64, menuStr[i].c_str(), textColor);
+    }
+    else {
+        textSurface = TTF_RenderText_Blended(font, menuStr[i].c_str(), textColor);
+    }
     if(textSurface == NULL)
     {
         printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
@@ -186,24 +193,33 @@ void LTexture::render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* cen
 void LTexture::renderFromTabLeftSide(int tabSize, SDL_Rect* clip) {
     int x(0),
         y(0);
-    const int initialVerticalSpace(5);
-    const int titlePadding(5);
-    const int initialHorizontalSpace(5);
+    const int   padding(5),
+                bigPadding(10);
+
+    int         titleHeight(0);
     for(int i(0); i < tabSize; i++) {
         // settings title is handled differently, we display it at the top
         if(i == 0) {
+            titleHeight = mLeftTabHeight[i];
             x = (SCREEN_WIDTH - mLeftTabWidth[i]) / 2;
-            y = (initialVerticalSpace + (mLeftTabHeight[0] * i));
+            y = (padding);
         }
-        // render the piece them header in the middle of the page
+        // render the piece theme header in the middle of the page
         else if(i == 7) {
             x = (SCREEN_WIDTH - mLeftTabWidth[i]) / 2;
-            y = ((SCREEN_WIDTH - mLeftTabWidth[i]) / 2) + mLeftTabHeight[i];
+            y = y + mLeftTabHeight[i] * 2;
         }
         // render the other option headers in a list style format 
         else {
-            x = initialHorizontalSpace;
-            y = (titlePadding + initialVerticalSpace + (mLeftTabHeight[0] * i));
+            // we add the title height to the initial space to avoid overlapping
+            if(i == 1) {
+                x = padding;
+                y = (bigPadding + titleHeight);
+            }
+            else {
+                x = padding;
+                y = (bigPadding + titleHeight + (mLeftTabHeight[1] * (i - 1)) + (bigPadding * (i - 1)));
+            }
         }
         SDL_Rect renderQuad = {x, y, mLeftTabWidth[i], mLeftTabHeight[i]};
 
@@ -219,40 +235,47 @@ void LTexture::renderFromTabLeftSide(int tabSize, SDL_Rect* clip) {
 }
 
 void LTexture::renderFromTabRightSide(int tabSize, SDL_Rect* clip) {
-    const int titlePadding(5);
-    const int initialHorizontalSpace(10);
-    const int initialSpace(5);
+    const int   padding(5),
+                bigPadding(10),
+                titleHeight(mLeftTabHeight[0]),
+                topY(bigPadding + titleHeight),
+                textureHeight(mRightTabHeight[0]);
     int leftX(0),
         leftY(0),
         rightX(0),
-        rightY(0);
-    int ii(1);
+        rightY(0),
+        inc(0);
     
     for(int i(0); i < tabSize; i+=2) {
         int y(i + 1);
         
         leftX = SCREEN_WIDTH / 2;
-        leftY = (initialSpace + titlePadding + (mLeftTabHeight[0] * ii));
-        
+        rightX = ((SCREEN_WIDTH / 2) + (mRightTabWidth[i] + bigPadding));
+
+        if(i == 0) {
+            leftY = topY;
+            rightY = topY;
+        }
+        else {
+            leftY = topY + (textureHeight * inc) + bigPadding * inc;
+            rightY = topY + (textureHeight * inc) + bigPadding * inc;
+        }
+
+        inc++;
+
         // back button
         if(i == 10) {
-            leftX = initialHorizontalSpace;
+            leftX = bigPadding;
             leftY = SCREEN_HEIGHT - mRightTabHeight[i];
         }
         
-        SDL_Rect renderQuad = {leftX, leftY, mRightTabWidth[i], mRightTabHeight[i]};
+        SDL_Rect renderQuadLeft = {leftX, leftY, mRightTabWidth[i], mRightTabHeight[i]};
+        SDL_Rect renderQuadRight = {rightX, rightY, mRightTabWidth[y], mRightTabHeight[y]};
+
+        SDL_RenderCopy(gRenderer, mRightMenuTexture[i], clip, &renderQuadLeft);        
+        SDL_RenderCopy(gRenderer, mRightMenuTexture[y], clip, &renderQuadRight);
+
         
-        // render to screen
-        SDL_RenderCopy(gRenderer, mRightMenuTexture[i], clip, &renderQuad);
-        
-        
-        rightX = ((SCREEN_WIDTH / 2) + (mRightTabWidth[i] + initialHorizontalSpace)) ;
-        rightY = (initialSpace + titlePadding + (mLeftTabHeight[0] * ii));
-        renderQuad = {rightX, rightY, mRightTabWidth[y], mRightTabHeight[y]};
-        
-        SDL_RenderCopy(gRenderer, mRightMenuTexture[y], clip, &renderQuad);
-        
-        ii++;
     }
 }
 
