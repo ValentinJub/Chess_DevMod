@@ -37,6 +37,7 @@ public:
     void handleEvent(SDL_Event* e, SDL_Point mouse); 
     void drawButtons();
     bool getRun() const;
+    void outlineSelected() const;
     void underlineSelected() const;
     void crossOut() const;
     bool getMouseFollow() const;

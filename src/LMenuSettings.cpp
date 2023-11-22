@@ -30,11 +30,17 @@ LMenu::LMenu(){
     //fill text menu into str[] from 2 txt files
     initMenuStrings();
     
+    // load the saved settings from the config file
     loadSettingsFromFile();
-    
+
+
+    // loads the texture that will be used for the piece theme 
     loadPieceThemeTextures();
     
+
+    // load the left hand side menu textures
     loadTextureFromTextLeft();
+    // load the right hand side menu textures
     loadTextureFromTextRight();
     
     mSound = loadChunk("SoundEffects/START.wav");
@@ -152,6 +158,84 @@ void LMenu::underlineSelected() const {
             for(int y(-2); y < 0; y++) {
                 //y is the offset to render a thicker line
                 SDL_RenderDrawLine(gRenderer, mButtons[i]->getX(), (mButtons[i]->getY() + mButtons[i]->getH() + y), (mButtons[i]->getX() + mButtons[i]->getW()), (mButtons[i]->getY() + mButtons[i]->getH() + y));
+            }
+        }
+    }
+}
+
+// renders the border of the selected options in the menu
+void LMenu::outlineSelected() const {
+
+    // the padding is the space between the border and the texture
+    const int padding = 2;
+
+    /* 
+        I want to render each corner of the rectangle separately
+        There will be 4 points (a, b, c, d) from which the lines will be drawn where:
+        - a is posX , posY 
+        - b is posX + width , posY
+        - c is posX , posY + height
+        - d is posX + width , posY + height
+        The lines will be drawn:
+        - from a to a + width /2 and from a to a + height / 2
+        - from b to b - width /2 and from b to b + height / 2 
+        - from c to c + width /2 and from c to c - height / 2
+        - from d to d - width /2 and from d to d - height / 2
+    */
+
+   // we render the border in black
+    SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);
+
+    // - 1 because we don't want to outline back nor do we want a segfault, mSettingsTable[12] doesn't exist
+    for(int i(0); i < TOTAL_CLICKABLE_ITEMS - 1; i++) {
+
+        // if the option is selected
+        if(mSettingsTable[i] == 1) {
+            
+            // point a is the top left corner of the rectangle
+            SDL_Point a = {mButtons[i]->getX() - padding, mButtons[i]->getY() - padding};
+            
+            // point b is the top right corner of the rectangle
+            SDL_Point b = {mButtons[i]->getX() + mButtons[i]->getW() + padding, mButtons[i]->getY() - padding};
+
+            // point c is the bottom left corner of the rectangle
+            SDL_Point c = {mButtons[i]->getX() - padding, mButtons[i]->getY() + mButtons[i]->getH() + padding};
+
+            // point d is the bottom right corner of the rectangle
+            SDL_Point d = {mButtons[i]->getX() + mButtons[i]->getW() + padding, mButtons[i]->getY() + mButtons[i]->getH() + padding};
+
+            // the offset is the how many times we render the line to make it thicker
+            const int offset = 2;
+
+            // the width of the texture:
+            int width = mButtons[i]->getW();
+            // the height of the texture:
+            int height = mButtons[i]->getH();
+
+            // the length of the lines that will be drawn is 1/4 of the width or height, whichever is smaller
+            const int length = (width < height) ? width / 4 : height / 4;
+
+            for(int j(0); j < offset; j++) {
+                // draw the lines from point a horizontally
+                SDL_RenderDrawLine(gRenderer, a.x, a.y - j, a.x + length, a.y - j); 
+                // draw the lines from point a vertically
+                SDL_RenderDrawLine(gRenderer, a.x - j, a.y, a.x - j, a.y + length);
+
+                // draw the lines from point b horizontally
+                SDL_RenderDrawLine(gRenderer, b.x, b.y - j, b.x - length, b.y - j);
+                // draw the lines from point b vertically
+                SDL_RenderDrawLine(gRenderer, b.x + j, b.y, b.x + j, b.y + length);
+
+                // draw the lines from point c horizontally
+                SDL_RenderDrawLine(gRenderer, c.x, c.y + j, c.x + length, c.y + j);
+                // draw the lines from point c vertically
+                SDL_RenderDrawLine(gRenderer, c.x - j, c.y, c.x - j, c.y - length);
+
+                // draw the lines from point d horizontally
+                SDL_RenderDrawLine(gRenderer, d.x, d.y + j, d.x - length, d.y + j);
+                // draw the lines from point d vertically
+                SDL_RenderDrawLine(gRenderer, d.x + j, d.y, d.x + j, d.y - length);
+
             }
         }
     }

@@ -43,11 +43,13 @@ void settings() {
 		menuSettings.renderPieceTheme();
 		menuSettings.renderSlider();
 		
-		menuSettings.underlineSelected(); 
-		menuSettings.crossOut(); 
+		
+		menuSettings.outlineSelected();
+		// menuSettings.underlineSelected(); 
+		// menuSettings.crossOut(); 
 		
 		// to check if hitbox is set properly
-		menuSettings.drawButtons();
+		// menuSettings.drawButtons();
 		
 		SDL_RenderPresent(gRenderer);
 	}
