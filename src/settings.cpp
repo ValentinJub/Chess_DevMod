@@ -39,14 +39,12 @@ void settings() {
 		gBackgroundTexture.render();
 		
 		menuSettings.renderLeftTexture();
-		menuSettings.renderRightTexture();
-		menuSettings.renderPieceTheme();
+		menuSettings.renderClickableTexture();
+		// menuSettings.renderPieceTheme();
 		menuSettings.renderSlider();
 		
 		
 		menuSettings.outlineSelected();
-		// menuSettings.underlineSelected(); 
-		// menuSettings.crossOut(); 
 		
 		// to check if hitbox is set properly
 		// menuSettings.drawButtons();

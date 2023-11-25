@@ -26,10 +26,10 @@ public:
     void initFont();
     void initCurrentItemList();
     void loadTextureFromTextLeft();
-    void loadTextureFromTextRight();
+    void loadClickableTexture();
     bool loadSettingsFromFile();    
     void renderLeftTexture();
-    void renderRightTexture();
+    void renderClickableTexture();
     void renderPieceTheme();
     void renderSlider();
     void setButtonPosition();
@@ -38,23 +38,32 @@ public:
     void drawButtons();
     bool getRun() const;
     void outlineSelected() const;
-    void underlineSelected() const;
-    void crossOut() const;
+    // deprecated functions
+    // void underlineSelected() const;
+    // void crossOut() const;
     bool getMouseFollow() const;
     void handleSliderMotion(SDL_Point mouse);
     
 private:
+    void setClickableTexturePosition();
+    void setOptionTexturePosition();
     void loadPieceThemeTextures();
     void saveSettingsToFile(); 
     bool mRun;
+
+    // holds the clickable textures position
+    SDL_Rect mClickableTexturePositions[TOTAL_CLICKABLE_ITEMS];
+
+    // holds the option menu textures position
+    SDL_Rect mOptionTexturePositions[LEFT_MENU];
+
     LSlider* mSlider = NULL;
     Mix_Chunk* mSound;
     //Create text menu and put it into mMenuStr[]
     void initMenuStrings();
     //menu textures
-    LTexture* mMenuTextTextures;
-    LTexture* mPieceTheme1Texture;
-    LTexture* mPieceTheme2Texture;
+    LTexture* mClickableMenuTexture[TOTAL_CLICKABLE_ITEMS]; //13
+    LTexture* mOptionMenuTexture[LEFT_MENU]; //7
     //menu buttons
     LButton* mButtons[TOTAL_CLICKABLE_ITEMS];
     //font used to render texture

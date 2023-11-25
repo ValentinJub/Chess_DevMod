@@ -13,11 +13,14 @@ extern LTexture gBackgroundTexture;
 
 LMenu::LMenu(){
     mFont = NULL;
-    mMenuTextTextures = new LTexture;
-    mPieceTheme1Texture = new LTexture;
-    mPieceTheme2Texture = new LTexture;
     for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i++) {
         mButtons[i] = new LButton;
+    }
+    for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i++) {
+        mClickableMenuTexture[i] = new LTexture;
+    }
+    for(int i(0); i < LEFT_MENU; i++) {
+        mOptionMenuTexture[i] = new LTexture;
     }
 
     // if the slider is not set to 100 then there will be some issues with
@@ -33,15 +36,13 @@ LMenu::LMenu(){
     // load the saved settings from the config file
     loadSettingsFromFile();
 
-
-    // loads the texture that will be used for the piece theme 
-    loadPieceThemeTextures();
-    
-
-    // load the left hand side menu textures
+    // load the left hand side menu textures, allows to get the width and height of each texture
     loadTextureFromTextLeft();
-    // load the right hand side menu textures
-    loadTextureFromTextRight();
+    // load the clickable menu textures, allows to get the width and height of each texture
+    loadClickableTexture();
+
+    setOptionTexturePosition();
+    setClickableTexturePosition();
     
     mSound = loadChunk("SoundEffects/START.wav");
     
@@ -55,29 +56,15 @@ LMenu::LMenu(){
 
 LMenu::~LMenu(){}
 void LMenu::free() {
-    mMenuTextTextures->freeLeftTab();
-    mMenuTextTextures->freeRightTab();
-    mPieceTheme1Texture->free();
-    mPieceTheme2Texture->free();
+    for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i++) {
+        delete mButtons[i];
+        mClickableMenuTexture[i]->free();
+    }
+    for(int i(0); i < LEFT_MENU; i++) {
+        mOptionMenuTexture[i]->free();
+    }
     mSound = NULL;
     mFont = NULL;
-}
-
-void LMenu::loadPieceThemeTextures() {
-    mPieceTheme1Texture->loadFromFile("Sprites/64/queen0.png");
-    mPieceTheme2Texture->loadFromFile("Sprites/64/queen1.png");
-}
-
-void LMenu::renderPieceTheme() {
-    int const   hPadding = 12,
-                startPosX = 243,
-                maxPosX = startPosX + 153,
-                startPosY = 359 + hPadding,
-                piece1Width = mPieceTheme1Texture->getWidth(),
-                piece2Width = mPieceTheme2Texture->getWidth();
-
-    mPieceTheme1Texture->render(startPosX, startPosY);
-    mPieceTheme2Texture->render(maxPosX - piece2Width, startPosY);
 }
 
 void LMenu::initMenuStrings() {
@@ -110,34 +97,20 @@ void LMenu::initMenuStrings() {
     }
 }
 
-void LMenu::initCurrentItemList() {
-    mSettingsTable[SLM_YES] = 0;
-    mSettingsTable[SLM_NO] = 1;
-    mSettingsTable[TL_YES] = 0;
-    mSettingsTable[TL_NO] = 1;
-    mSettingsTable[TL_5] = 0;
-    mSettingsTable[TL_10] = 0;
-    mSettingsTable[TC_BROWN] = 0;
-    mSettingsTable[TC_GREY] = 1;
-    mSettingsTable[MT_JAZZY] = 0;
-    mSettingsTable[MT_CLASSIC] = 1;
-    mSettingsTable[PT_1] = 1;
-    mSettingsTable[PT_2] = 0;
-}
-
-/*
-bool LMenu::initController() {
-    bool success = true;
-    mGameController->init();
-    if(mGameController->gc() == NULL) {
-        printf("failed to init controller! Error %s\n", SDL_GetError());
-        success = false;
-    }
-    return success;
-
-}
-
-*/
+// void LMenu::initCurrentItemList() {
+//     mSettingsTable[SLM_YES] = 0;
+//     mSettingsTable[SLM_NO] = 1;
+//     mSettingsTable[TL_YES] = 0;
+//     mSettingsTable[TL_NO] = 1;
+//     mSettingsTable[TL_5] = 0;
+//     mSettingsTable[TL_10] = 0;
+//     mSettingsTable[TC_BROWN] = 0;
+//     mSettingsTable[TC_GREY] = 1;
+//     mSettingsTable[MT_JAZZY] = 0;
+//     mSettingsTable[MT_CLASSIC] = 1;
+//     mSettingsTable[PT_1] = 1;
+//     mSettingsTable[PT_2] = 0;
+// }
 
 void LMenu::initFont() {
     mFont = TTF_OpenFont("resources/branda.ttf", 28);
@@ -150,18 +123,6 @@ bool LMenu::getRun() const {
     return mRun;
 }
 
-void LMenu::underlineSelected() const {
-    SDL_SetRenderDrawColor(gRenderer, 0, 0xFF, 0, 0xFF);
-    // - 1 because we don't want to underline back
-    for(int i(0); i < TOTAL_CLICKABLE_ITEMS - 1; i++) {
-        if(mSettingsTable[i] == 1) {
-            for(int y(-2); y < 0; y++) {
-                //y is the offset to render a thicker line
-                SDL_RenderDrawLine(gRenderer, mButtons[i]->getX(), (mButtons[i]->getY() + mButtons[i]->getH() + y), (mButtons[i]->getX() + mButtons[i]->getW()), (mButtons[i]->getY() + mButtons[i]->getH() + y));
-            }
-        }
-    }
-}
 
 // renders the border of the selected options in the menu
 void LMenu::outlineSelected() const {
@@ -205,7 +166,7 @@ void LMenu::outlineSelected() const {
             SDL_Point d = {mButtons[i]->getX() + mButtons[i]->getW() + padding, mButtons[i]->getY() + mButtons[i]->getH() + padding};
 
             // the offset is the how many times we render the line to make it thicker
-            const int offset = 2;
+            const int offset = 3;
 
             // the width of the texture:
             int width = mButtons[i]->getW();
@@ -236,19 +197,6 @@ void LMenu::outlineSelected() const {
                 // draw the lines from point d vertically
                 SDL_RenderDrawLine(gRenderer, d.x + j, d.y, d.x + j, d.y - length);
 
-            }
-        }
-    }
-}
-
-void LMenu::crossOut() const {
-    SDL_SetRenderDrawColor(gRenderer, 0xFF, 0, 0, 0xFF);
-    // - 1 because we don't want to cross out the back button
-    for(int i(0); i < TOTAL_CLICKABLE_ITEMS - 1; i++) {
-        if(mSettingsTable[i] == 0) {
-            for(int y(-1); y < 1; y++) {
-                //y is the offset to render a thicker line
-                SDL_RenderDrawLine(gRenderer, mButtons[i]->getX(), ((mButtons[i]->getY() + mButtons[i]->getH() / 2) + y), (mButtons[i]->getX() + mButtons[i]->getW()), ((mButtons[i]->getY() + mButtons[i]->getH() / 2) + y));
             }
         }
     }
@@ -421,36 +369,161 @@ void LMenu::saveSettingsToFile() {
         printf("Unable to load settings file!\n");
     }
 }
-/*
-SDL_GameController* LMenu::getGameController() {
-    return mGameController->gc();
-}
-
-LGameController* LMenu::getLGameController() {
-    return mGameController;
-}
-
-void LMenu::generateText(LGameController* controller){
-    mMenuTextTextures->fillScript(controller);
-}
-*/
 
 void LMenu::loadTextureFromTextLeft() {
     SDL_Color colorBlack = {0,0,0,0xFF};
-    mMenuTextTextures->loadFromRenderedTextTabLeft(mMenuLeftStr, mFont, LEFT_MENU, colorBlack);
+    // mMenuTextTextures->loadFromRenderedTextTabLeft(mMenuLeftStr, mFont, LEFT_MENU, colorBlack);
+    
+    for(int i(0); i < LEFT_MENU; i++) {
+        if(i == 0) {
+            mOptionMenuTexture[i]->loadFromRenderedText(mFont, mMenuLeftStr[i], colorBlack, true);
+        } 
+        else { 
+            mOptionMenuTexture[i]->loadFromRenderedText(mFont, mMenuLeftStr[i], colorBlack);
+        }
+    }
+
 }
-void LMenu::loadTextureFromTextRight() {
+void LMenu::loadClickableTexture() {
     SDL_Color colorBlack = {0,0,0,0xFF};
-    mMenuTextTextures->loadFromRenderedTextTabRight(mMenuRightStr, mFont, TOTAL_SETTINGS_RIGHT_MENU_TEXT_ITEMS, colorBlack);
+    // mMenuTextTextures->loadFromRenderedTextTabRight(mMenuRightStr, mFont, TOTAL_SETTINGS_RIGHT_MENU_TEXT_ITEMS, colorBlack);
+
+    for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i++) {
+        if(i == PT_1 || i == PT_2) {
+            if(i == PT_1) {
+                mClickableMenuTexture[i]->loadFromFile("Sprites/64/queen0.png");
+            }
+            else {
+                mClickableMenuTexture[i]->loadFromFile("Sprites/64/queen1.png");
+            }
+        }
+        else if(i  == BACK) {
+            mClickableMenuTexture[i]->loadFromRenderedText(mFont, mMenuRightStr[i - 2], colorBlack);
+        }
+        else {
+            mClickableMenuTexture[i]->loadFromRenderedText(mFont, mMenuRightStr[i], colorBlack);
+        }
+    }
 }
 
 void LMenu::renderLeftTexture() {
-    mMenuTextTextures->renderFromTabLeftSide(LEFT_MENU);
+    // mMenuTextTextures->renderFromTabLeftSide(LEFT_MENU);
+
+    for(int i(0); i < LEFT_MENU; i++) {
+        mOptionMenuTexture[i]->render(mOptionTexturePositions[i].x, mOptionTexturePositions[i].y);
+    }
 }
 
-void LMenu::renderRightTexture() {
-    mMenuTextTextures->renderFromTabRightSide(TOTAL_SETTINGS_RIGHT_MENU_TEXT_ITEMS);
+void LMenu::renderClickableTexture() {
+    for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i++) {
+        mClickableMenuTexture[i]->render(mClickableTexturePositions[i].x, mClickableTexturePositions[i].y);
+    }
 }
+
+void LMenu::setOptionTexturePosition() {
+     int x(0),
+        y(0);
+    const int   padding(5),
+                bigPadding(10),
+                titleHeight(mOptionMenuTexture[0]->getHeight());
+    for(int i(0); i < LEFT_MENU; i++) {
+        // settings title is handled differently, we display it at the top
+        if(i == 0) {
+            x = (SCREEN_WIDTH - mOptionMenuTexture[0]->getWidth()) / 2;
+            y = (padding);
+        }
+        // render the piece theme header in the middle of the page
+        else if(i == 7) {
+            x = (SCREEN_WIDTH -  mOptionMenuTexture[i]->getWidth()) / 2;
+            y = y +  mOptionMenuTexture[i]->getHeight() * 2;
+        }
+        // render the other option headers in a list style format 
+        else {
+            // we add the title height to the initial space to avoid overlapping
+            if(i == 1) {
+                x = padding;
+                y = (bigPadding + titleHeight);
+            }
+            else {
+                x = padding;
+                y = (bigPadding + titleHeight + (mOptionMenuTexture[i]->getHeight() * (i - 1)) + (bigPadding * (i - 1)));
+            }
+        }
+        mOptionTexturePositions[i] = {x, y, mOptionMenuTexture[i]->getWidth(), mOptionMenuTexture[i]->getHeight()};
+    }
+}
+
+// set the position of the right hand side textures
+void LMenu::setClickableTexturePosition() {
+    const int   padding(5),
+                bigPadding(10),
+                titleHeight(mOptionMenuTexture[0]->getHeight()),
+                topY(bigPadding + titleHeight),
+                textureHeight(mClickableMenuTexture[0]->getHeight());
+    int leftX(0),
+        leftY(0),
+        rightX(0),
+        rightY(0),
+        inc(0);
+
+    // the positionS FOR THE piece texture
+    const int   pieceStartPosX = 243,
+                hPadding = 12,
+                pieceMaxPosX = pieceStartPosX + 153,
+                pieceStartPosY = 359 + hPadding,
+                piece1Width = mClickableMenuTexture[PT_1]->getWidth(),
+                piece1Height = mClickableMenuTexture[PT_1]->getHeight(),
+                piece2Width = mClickableMenuTexture[PT_2]->getWidth(),
+                piece2Height = mClickableMenuTexture[PT_2]->getHeight();
+    
+    for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i+=2) {
+        int y(i + 1),
+            leftTabHeight(mClickableMenuTexture[i]->getHeight()),
+            leftTabWidth(mClickableMenuTexture[i]->getWidth()),
+            rightTabHeight(0),
+            rightTabWidth(0);
+        if(y < TOTAL_CLICKABLE_ITEMS) {
+            rightTabHeight = mClickableMenuTexture[y]->getHeight();
+            rightTabWidth = mClickableMenuTexture[y]->getWidth();
+        }
+        
+        leftX = SCREEN_WIDTH / 2;
+        rightX = ((SCREEN_WIDTH / 2) + (leftTabWidth + bigPadding));
+
+        leftY = topY + (textureHeight * inc) + bigPadding * inc;
+        rightY = topY + (textureHeight * inc) + bigPadding * inc;
+
+        if(i == 0) {
+            leftY = topY;
+            rightY = topY;
+        }
+        if(i == PT_1) {
+            leftX = pieceStartPosX;
+            leftY = pieceStartPosY;
+            leftTabWidth = piece1Width;
+            leftTabHeight = piece1Height;
+        }
+        if( y == PT_2) {
+            rightX = pieceMaxPosX - piece2Width;
+            rightY = pieceStartPosY;
+            rightTabWidth = piece2Width;
+            rightTabHeight = piece2Height;
+        }
+        if(i == BACK) {
+            leftX = bigPadding;
+            leftY = SCREEN_HEIGHT - leftTabHeight;
+        }
+
+        inc++;
+        
+        mClickableTexturePositions[i] = {leftX, leftY, leftTabWidth, leftTabHeight};
+        if(y < TOTAL_CLICKABLE_ITEMS) {
+            mClickableTexturePositions[y] = {rightX, rightY, rightTabWidth, rightTabHeight};
+        }
+    }
+}
+
+
 
 //function used to check the buttons box are set properly
 void LMenu::drawButtons() {
@@ -466,98 +539,13 @@ void LMenu::drawButtons() {
 }
 
 void LMenu::setButtonPosition() {
-    const int   padding(5),
-                bigPadding(10),
-                center(SCREEN_WIDTH / 2),
-                titleHeight(mMenuTextTextures->getLeftHeightTab(0)),
-                averageItemHeight(mMenuTextTextures->getRightHeightTab(0)),
-                startPosY(titleHeight + bigPadding);
-
-    const int   pieceStartPosX = 243,
-                hPadding = 12,
-                pieceMaxPosX = pieceStartPosX + 153,
-                pieceStartPosY = 359 + hPadding,
-                piece1Width = mPieceTheme1Texture->getWidth(),
-                piece2Width = mPieceTheme2Texture->getWidth();
-
-    // displays the height of each texture, just for debugging purposes
-
-    for(int y(0); y < 11; ++y) {
-        std::cout << "Right texture number: " << y << ", height: " << mMenuTextTextures->getRightHeightTab(y) << std::endl;
-    }
-    for(int y(0); y < LEFT_MENU; ++y) {
-        std::cout << "Left texture number: " << y << ", height: " << mMenuTextTextures->getLeftHeightTab(y) << std::endl;
-    }
-
-    // Debug end
-
-
-    for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i++) {
-
-        int previousTextureWidth(0);
-        if(i != 0) {
-            previousTextureWidth = mMenuTextTextures->getRightWidthTab(i - 1);
-        }
-        switch(i) {
-            case SLM_YES:
-                mButtons[i]->setPosition(center, startPosY);
-                break;
-            case SLM_NO:
-                mButtons[i]->setPosition(center + (bigPadding + previousTextureWidth), startPosY);
-                break;
-            case TL_YES:
-                mButtons[i]->setPosition(center, startPosY + (averageItemHeight * 1) + (bigPadding * 1));
-                break;
-            case TL_NO:
-                mButtons[i]->setPosition(center + (bigPadding + previousTextureWidth), startPosY + (averageItemHeight * 1) + (bigPadding * 1));
-                break;
-            case TL_5:
-                mButtons[i]->setPosition(center, startPosY + (averageItemHeight * 2) + (bigPadding * 2));
-                break;
-            case TL_10:
-                mButtons[i]->setPosition(center + (bigPadding + previousTextureWidth), startPosY + (averageItemHeight * 2) + (bigPadding * 2));
-                break;
-            case TC_BROWN:
-                mButtons[i]->setPosition(center, startPosY + (averageItemHeight * 3) + (bigPadding * 3));
-                break;
-            case TC_GREY:
-                mButtons[i]->setPosition(center + (bigPadding + previousTextureWidth), startPosY + (averageItemHeight * 3) + (bigPadding * 3));
-                break;
-            case MT_JAZZY:
-                mButtons[i]->setPosition(center, startPosY + (averageItemHeight * 4) + (bigPadding * 4));
-                break;
-            case MT_CLASSIC:
-                mButtons[i]->setPosition(center + (bigPadding + previousTextureWidth), startPosY + (averageItemHeight * 4) + (bigPadding * 4));
-                break;
-            case PT_1:
-                mButtons[i]->setPosition(pieceStartPosX, pieceStartPosY);
-                break;
-            case PT_2:
-                mButtons[i]->setPosition(pieceMaxPosX - piece2Width, pieceStartPosY);
-                break;
-            case BACK:
-                mButtons[i]->setPosition(padding, SCREEN_HEIGHT - mMenuTextTextures->getRightHeightTab(i - 2));
-                break;
-            default:
-                break;
-        }
-
+    for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i++) {  
+        mButtons[i]->setPosition(mClickableTexturePositions[i].x, mClickableTexturePositions[i].y);
     }
 }
 
 void LMenu::setButtonWH() {
     for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i++) {
-        if(i == PT_1) {
-            mButtons[i]->setWidthAndHeight(mPieceTheme1Texture->getWidth(), (mPieceTheme1Texture->getHeight()));
-        }
-        else if(i == PT_2) {
-            mButtons[i]->setWidthAndHeight(mPieceTheme2Texture->getWidth(), (mPieceTheme2Texture->getHeight()));
-        }
-        else if(i == BACK) {
-            mButtons[i]->setWidthAndHeight(mMenuTextTextures->getRightWidthTab(i - 2), (mMenuTextTextures->getRightHeightTab(i - 2)));
-        }
-        else {
-            mButtons[i]->setWidthAndHeight(mMenuTextTextures->getRightWidthTab(i), (mMenuTextTextures->getRightHeightTab(i)));
-        }
+        mButtons[i]->setWidthAndHeight(mClickableTexturePositions[i].w, mClickableTexturePositions[i].h);
     }
 }
