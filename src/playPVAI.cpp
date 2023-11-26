@@ -13,9 +13,11 @@ void playerVersusComputer() {
 	else if(!(board.loadPiecesTextures())) {
 		printf("Failed to load pieces textures");
 	}
+	// load pause screen texture
 	else if(!(board.loadPauseTexture())) {
 		printf("Failed to load pause texture");
 	}
+	// load out of time screen texture
 	else if(!(board.loadOutOfTimeTexture())) {
 		printf("Failed to load pause texture");
 	}
@@ -48,7 +50,7 @@ void playerVersusComputer() {
 				}
 				if(!(board.isPaused())) {
 					//select/unselect/move pieces/check for check/mate
-					//This is where all calculations happen
+					//This is where all the magic happens
 					board.handleEvents(&e);
 				}
 			}
@@ -57,6 +59,7 @@ void playerVersusComputer() {
 			SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 			SDL_RenderClear(gRenderer);
 			
+			// render background
 			gBackgroundTexture.render();
 			
 			//display tiles
@@ -70,10 +73,11 @@ void playerVersusComputer() {
 			//display deadpieces
 			board.renderDeadPieces();
 			
+			// if paused, display pause screen
 			if(board.isPaused()) {
 				board.renderPause();
 			}
-			
+
 			if(board.isBlackThinking()) {
 				board.pauseWhiteTimer();
 				SDL_Delay(1000);

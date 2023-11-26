@@ -40,7 +40,6 @@ void settings() {
 		
 		menuSettings.renderLeftTexture();
 		menuSettings.renderClickableTexture();
-		// menuSettings.renderPieceTheme();
 		menuSettings.renderSlider();
 		
 		
