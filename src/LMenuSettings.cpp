@@ -166,7 +166,7 @@ void LMenu::outlineSelected() const {
             SDL_Point d = {mButtons[i]->getX() + mButtons[i]->getW() + padding, mButtons[i]->getY() + mButtons[i]->getH() + padding};
 
             // the offset is the how many times we render the line to make it thicker
-            const int offset = 3;
+            const int offset = 2;
 
             // the width of the texture:
             int width = mButtons[i]->getW();
@@ -174,9 +174,33 @@ void LMenu::outlineSelected() const {
             int height = mButtons[i]->getH();
 
             // the length of the lines that will be drawn is 1/4 of the width or height, whichever is smaller
-            const int length = (width < height) ? width / 4 : height / 4;
+            int length = (width < height) ? width / 4 : height / 4;
 
             for(int j(0); j < offset; j++) {
+
+                // if j > 0 then we increase length by 1 to make the border thicker
+                // and we decrease the x,y value by 1 to make the border thicker
+                // if(j > 0) {
+                //     length++;
+                //     a.x--;
+                //     a.y--;
+                //     b.x++;
+                //     b.y--;
+                //     c.x--;
+                //     c.y++;
+                //     d.x++;
+                //     d.y++;
+                // }
+                
+
+                // draw the corners to smooth the angle
+                if(j > 0) {
+                    SDL_RenderDrawPoint(gRenderer, a.x - j, a.y - j);
+                    SDL_RenderDrawPoint(gRenderer, b.x + j, b.y - j);
+                    SDL_RenderDrawPoint(gRenderer, c.x - j, c.y + j);
+                    SDL_RenderDrawPoint(gRenderer, d.x + j, d.y + j);
+                }
+
                 // draw the lines from point a horizontally
                 SDL_RenderDrawLine(gRenderer, a.x, a.y - j, a.x + length, a.y - j); 
                 // draw the lines from point a vertically
