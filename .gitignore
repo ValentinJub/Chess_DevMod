@@ -41,3 +41,6 @@ Sprites/*
 src/include/*
 src/lib/*
 .vscode/*
+
+#
+Makefile
