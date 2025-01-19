@@ -105,7 +105,7 @@ bool CApp::init() {
 					mStartupSound = loadChunk("SoundEffects/gc.mp3"); 
 					mMenuClick = loadChunk("SoundEffects/START.wav"); 
 					mMenuMusic = loadMusic("Music/Menu/menu.mp3");
-					success = loadWindowIcon("Sprites/chess_icon.png");
+					// success = loadWindowIcon("Sprites/chess_icon.png");
 				}
 				//enable using rand n 
 				srand(time(0));
@@ -115,22 +115,22 @@ bool CApp::init() {
 	return success;
 }
 
-bool CApp::loadWindowIcon(std::string path) {
-	SDL_Surface* icon = IMG_Load(path.c_str());
-	if(icon == NULL) {
-		printf("Unable to load icon! SDL_image Error: %s\n", IMG_GetError());
-		return false;
-	}
-	try {
-		SDL_SetWindowIcon(mWindow->getWindow(), icon);
-		SDL_FreeSurface(icon);
-		return true;
-	}
-	catch(const char* msg) {
-		printf("%s\n", msg);
-		return false;
-	}
-}
+// bool CApp::loadWindowIcon(std::string path) {
+// 	SDL_Surface* icon = IMG_Load(path.c_str());
+// 	if(icon == NULL) {
+// 		printf("Unable to load icon! SDL_image Error: %s\n", IMG_GetError());
+// 		return false;
+// 	}
+// 	try {
+// 		SDL_SetWindowIcon(mWindow->getWindow(), icon);
+// 		SDL_FreeSurface(icon);
+// 		return true;
+// 	}
+// 	catch(const char* msg) {
+// 		printf("%s\n", msg);
+// 		return false;
+// 	}
+// }
 
 void CApp::handleEvents(SDL_Event* e) {
 	if(e->type == SDL_QUIT) {
