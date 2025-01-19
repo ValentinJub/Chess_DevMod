@@ -3,7 +3,6 @@
 #include "LTimer.h"
 
 extern SDL_Renderer* gRenderer;
-extern LTexture gWIPTexture;
 extern LTexture gBackgroundTexture;
 extern TTF_Font* gFont64; 
 extern TTF_Font* gFont32; 
@@ -159,10 +158,6 @@ bool loadTitle(LTexture titleTexture[TOTAL_TITLE_ITEMS]) {
 		printf("Unable to load rendered text!");
 		success = false;
 	}
-	else if(!(gWIPTexture.loadFromRenderedText(gFont32, "WIP Come Back Later..." , black))) {
-		printf("Unable to load rendered text!");
-		success = false;
-	}
 	return success;
 }
 
@@ -216,11 +211,4 @@ void wait10s() {
 	while(timer.getTicks() < 10000) {
 		SDL_Delay(25);
 	}
-}
-
-void renderWIP() {
-	SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-	SDL_RenderClear(gRenderer);
-	gWIPTexture.render((SCREEN_WIDTH - gWIPTexture.getWidth()) / 2, (SCREEN_HEIGHT - gWIPTexture.getHeight()) / 2);
-	SDL_RenderPresent(gRenderer);
 }

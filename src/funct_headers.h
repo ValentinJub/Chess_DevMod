@@ -22,7 +22,6 @@ void displayTitle(LTexture titleTexture[]);
 void displayMenu(LTexture menuTexture[]);
 void setButtons(LButton buttons[], LTexture textures[]);
 void unsetButtons(LButton menuButtons[TOTAL_MENU_ITEMS]);
-void renderWIP();
 void wait10s();
 void flushEvents();
 

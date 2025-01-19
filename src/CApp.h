@@ -11,6 +11,7 @@ headers for CApp
 
 #include "headers.h"
 #include "LTexture.h"
+#include "menu/LoadingScreen.h"
 #include "LButton.h"
 #include "LWindow.h"
 #include "LTimer.h"
@@ -22,21 +23,25 @@ headers for CApp
 class CApp {
 public:
 	CApp();
-	int execute();
+	int Execute();
+	
+private:
+	bool init();
+	bool initSDL();
+	bool initWindow();
+	bool initChunks();
 	void loop();
 	void handleEvents(SDL_Event* e);
-	bool init();
 	void close();
 	void playMusic();
 	void stopMusic();
 	bool loadWindowIcon(std::string path);
-private:
-	bool mIsRunning, mWaitBool, mButtonsSet;
+
+	bool mAppIsRunning, mShowTitleScreen, mButtonsSet;
+	LoadingScreen* mLoadingScreen;
 	LButton mMenuButtons[TOTAL_MENU_ITEMS];
 	LWindow* mWindow;
-	LTexture mTitleTextures[TOTAL_TITLE_ITEMS];
 	LTexture mMenuTextures[TOTAL_MENU_ITEMS];
-	Mix_Chunk* mStartupSound;
 	Mix_Chunk* mMenuClick;
 	Mix_Music* mMenuMusic;
 };

@@ -12,9 +12,9 @@ uint8_t gMusicVolume = MIX_MAX_VOLUME / 2;
 
 CApp::CApp() {
 	// responsible for running the program, pressing esc in the menu would close the program
-	mIsRunning = true;
+	mAppIsRunning = true;
 	// responsible for waiting for the title screen & music to finish before displaying the menu
-	mWaitBool = false;
+	mShowTitleScreen = true;
 	// Track when menu buttons are set
 	mButtonsSet = false;
 	// The window we'll be rendering to
@@ -26,18 +26,11 @@ void CApp::close() {
 	for(int i(0); i < TOTAL_MENU_ITEMS; i++) {
 		mMenuTextures[i].free();
 	}
-	// Free the title textures
-	for(int i(0); i < TOTAL_TITLE_ITEMS; i++) {
-		mTitleTextures[i].free();
-	}
-	
-
 
 	gWIPTexture.free();
 	gBackgroundTexture.free();
 	
-	Mix_FreeChunk(mStartupSound);
-	mStartupSound = NULL;
+	mLoadingScreen->Close();
 	
 	Mix_FreeChunk(mMenuClick);
 	mMenuClick = NULL;
@@ -61,58 +54,67 @@ void CApp::close() {
 	SDL_Quit();
 }
 
-bool CApp::init() {
-	bool success = true;
+bool CApp::initSDL() {
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
 		printf("SDL could not initialise! SDL_Error: %s\n", SDL_GetError());
-		success = false;
+		return false;
 	}
-	else {
-		//Set texture filtering to linear
-		if( !SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "1" ) ) {
-			printf( "Warning: Linear texture filtering not enabled!" );
-		}
-		//Create window
-		if(!(mWindow->init())) {
-			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
-			success = false;
-		}
-		else {
-			//Create renderer for window
-			gRenderer = mWindow->createRenderer();
-			if( gRenderer == NULL ) {
-				printf( "Renderer could not be created! SDL Error: %s\n", SDL_GetError() );
-				success = false;
-			}
-			else {
-				//Initialize PNG loading
-				int imgFlags = IMG_INIT_PNG;
-				if(!(IMG_Init(imgFlags) & imgFlags)) {
-					printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
-					success = false;
-				}
-				if(TTF_Init() == -1) {
-					printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
-					success = false;
-				}
-				// open 22.05KHz, signed 16bit in system byte order,
-				// stereo audio, using 2048 byte chunks
-				if( Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 ) {
-					printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
-					success = false;
-				}
-				else {
-					mStartupSound = loadChunk("SoundEffects/gc.mp3"); 
-					mMenuClick = loadChunk("SoundEffects/START.wav"); 
-					mMenuMusic = loadMusic("Music/Menu/menu.mp3");
-					// success = loadWindowIcon("Sprites/chess_icon.png");
-				}
-				//enable using rand n 
-				srand(time(0));
-			}
-		}
+	//Set texture filtering to linear
+	if( !SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "1" ) ) {
+		printf( "Warning: Linear texture filtering not enabled!" );
 	}
-	return success;
+
+	//Initialize PNG loading
+	if(!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
+		printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
+		return false;
+	}
+	if(TTF_Init() == -1) {
+		printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
+		return false;
+	}
+	if( Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 ) {
+		printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
+		return false;
+	}
+	return true;
+}
+
+bool CApp::initWindow() {
+	if(!mWindow->init()) {
+		printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
+		return false;
+	}
+	gRenderer = mWindow->createRenderer();
+	if( gRenderer == NULL ) {
+		printf( "Renderer could not be created! SDL Error: %s\n", SDL_GetError() );
+		return false;
+	}
+	return true;
+}
+
+bool CApp::initChunks() {
+	mMenuClick = loadChunk("SoundEffects/START.wav"); 
+	mMenuMusic = loadMusic("Music/Menu/menu.mp3");
+	return true;
+}
+
+bool CApp::init() {
+	if(!initSDL()) {
+		return false;
+	}
+	if(!initWindow()) {
+		return false;
+	}
+	if(!initChunks()) {
+		return false;
+	}
+	if (mShowTitleScreen) {
+		mLoadingScreen = new LoadingScreen;
+		mLoadingScreen->loadTitle();
+	}
+	srand(time(0));
+	return true;
 }
 
 // bool CApp::loadWindowIcon(std::string path) {
@@ -134,12 +136,12 @@ bool CApp::init() {
 
 void CApp::handleEvents(SDL_Event* e) {
 	if(e->type == SDL_QUIT) {
-		mIsRunning = false;
+		mAppIsRunning = false;
 	}
 	else if(e->type == SDL_KEYDOWN) {
 		switch(e->key.keysym.sym) {
 			case SDLK_ESCAPE:
-				mIsRunning = false;
+				mAppIsRunning = false;
 				break;
 			case SDLK_1:
 				stopMusic();
@@ -216,14 +218,9 @@ void CApp::loop() {
 	while(SDL_PollEvent(&e) > 0) {
 		handleEvents(&e);
 	}
-	//Title screen
-	if(mWaitBool) {
-		displayTitle(mTitleTextures);
-		Mix_PlayChannel(-1, mStartupSound, 0);
-		while(Mix_Playing(-1) > 0) {
-			SDL_Delay(16);
-		}
-		mWaitBool = false;
+	if(mShowTitleScreen) {
+		mLoadingScreen->Show();
+		mShowTitleScreen = false;
 	}
 	else { 
 		playMusic();
@@ -237,31 +234,20 @@ void CApp::loop() {
 	
 }
 
-int CApp::execute() {
-	//Initialise SDL and sub-system
+int CApp::Execute() {
 	if(!init()) {
 		printf("Failed to initialise!");
 	}
 	else {
-		//load title textures
-		if(!loadTitle(mTitleTextures)) {
-			printf("Failed to load title media!");
-		}
-		//load menu textures
-		else if(!loadMenu(mMenuTextures)) {
+		if(!loadMenu(mMenuTextures)) {
 			printf("Failed to load menu media!");
 		}
 		else {
-			while(mIsRunning) {
-				//main loop
-				//->eventHandler
-				//->displayTitle
-				//->displayMenu
+			while(mAppIsRunning) {
 				loop();
 			}
 		}
 	}
-	//Close SDL and sub-system
 	CApp::close();
 	return 0;
 }
