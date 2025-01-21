@@ -9,16 +9,12 @@ headers for CApp
 #ifndef H_CAPP
 #define H_CAPP
 
-#include "headers.h"
+#include "utils/util.h"
 #include "LTexture.h"
-#include "menu/LoadingScreen.h"
+#include "menu/headers.h"
 #include "LButton.h"
 #include "LWindow.h"
 #include "LTimer.h"
-#include "funct_headers.h"
-#include "settings.h"
-#include "playPVAI.h"
-#include "playPVP.h"
 
 class CApp {
 public:
@@ -29,21 +25,17 @@ private:
 	bool init();
 	bool initSDL();
 	bool initWindow();
-	bool initChunks();
+	bool initMenu(bool initTitle = true);
+	void close();
+	void closeSDL();
 	void loop();
 	void handleEvents(SDL_Event* e);
-	void close();
-	void playMusic();
-	void stopMusic();
-	bool loadWindowIcon(std::string path);
+	// bool loadWindowIcon(std::string path);
 
-	bool mAppIsRunning, mShowTitleScreen, mButtonsSet;
-	LoadingScreen* mLoadingScreen;
-	LButton mMenuButtons[TOTAL_MENU_ITEMS];
-	LWindow* mWindow;
-	LTexture mMenuTextures[TOTAL_MENU_ITEMS];
-	Mix_Chunk* mMenuClick;
-	Mix_Music* mMenuMusic;
+	bool mAppIsRunning, mShowTitleScreen;
+	LTitle * mLoadingScreen;
+	LMain * mMainMenu;
+	LWindow* mWindow; // This is the program's window
 };
 
 #endif
