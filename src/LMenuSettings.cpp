@@ -76,7 +76,7 @@ void LMenu::initMenuStrings() {
         for(int i(0); i < LEFT_MENU; i++) {
             std::string line;
             std::getline(settingsLeft, line);
-            std::cout << line << std::endl;
+            // std::cout << line << std::endl;
             mMenuLeftStr[i] = line;
         }
         settingsLeft.close();
@@ -90,7 +90,7 @@ void LMenu::initMenuStrings() {
         for(int i(0); i < TOTAL_SETTINGS_RIGHT_MENU_TEXT_ITEMS; i++) {
             std::string line;
             std::getline(settingsRight, line);
-            std::cout << line << std::endl;
+            // std::cout << line << std::endl;
             mMenuRightStr[i] = line;
         }
         settingsRight.close();
