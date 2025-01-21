@@ -13,7 +13,7 @@ The slider is used to change the volume of the music and the sound effects.
 #ifndef LSLIDER_H
 #define LSLIDER_H
 
-#include "headers.h"
+#include "utils/util.h"
 #include "LTexture.h"
 #include "LDot.h"
 #include <cmath>

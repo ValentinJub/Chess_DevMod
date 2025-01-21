@@ -1,4 +1,5 @@
-#include "headers.h"
+#include "utils/util.h"
+#include "com/constantes.h"
 #include "LTexture.h"
 
 #ifndef LDOT_H

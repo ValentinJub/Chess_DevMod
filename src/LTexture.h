@@ -1,7 +1,7 @@
 #ifndef HEADER_LTEXTURE
 #define HEADER_LTEXTURE
 
-#include "headers.h"
+#include "utils/util.h"
 
 
 class LTexture {

@@ -17,8 +17,7 @@ Board also contains settings such as tile colors, legal move displayed on map...
 #ifndef HEADER_LBOARDPVAI
 #define HEADER_LBOARDPVAI
 
-#include "headers.h"
-#include "funct_headers.h"
+#include "utils/util.h"
 #include "fstream"
 #include "iostream"
 #include "vector"

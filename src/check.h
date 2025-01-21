@@ -1,7 +1,8 @@
 #ifndef CHECK_H
 #define CHECK_H
 
-#include "headers.h"
+#include "utils/util.h"
+#include "com/constantes.h"
 #include "vector"
 
 void showMove(const int map[SPL][SPL], int const pieceType, int const pieceXPos, const int pieceYPos, std::vector<int> *tilePosX, std::vector<int> *tilePosY, bool preCheck = false);

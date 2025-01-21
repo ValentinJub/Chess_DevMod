@@ -9,7 +9,7 @@ Function prototypes for playPVAI.cpp
 #ifndef HEADER_PLAYPVAI
 #define HEADER_PLAYPVAI
 
-#include "headers.h"
+#include "utils/util.h"
 #include "LTexture.h"
 #include "LBoardPVAI.h"
 

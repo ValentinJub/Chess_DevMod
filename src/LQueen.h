@@ -8,7 +8,7 @@ Prototypes and const for LQueen piece object
 #ifndef HEADER_LQUEEN
 #define HEADER_LQUEEN
 
-#include "headers.h"
+#include "utils/util.h"
 #include "LPiece.h"
 #include "vector"
 #include "LBishop.h"
