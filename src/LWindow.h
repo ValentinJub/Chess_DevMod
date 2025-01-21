@@ -1,7 +1,8 @@
 #ifndef LWINDOW_H
 #define LWINDOW_H
 
-#include "headers.h"
+#include "utils/util.h"
+#include "com/constantes.h"
 
 class LWindow
 {

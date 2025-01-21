@@ -169,9 +169,11 @@ int LTexture::y() {
 }
 
 void LTexture::setX(int x) {
+    // std::cout << "Setting x to " << x << std::endl;
     mX = x;
 }
 
 void LTexture::setY(int y) {
+    // std::cout << "Setting y to " << y << std::endl;
     mY = y;
 }

@@ -9,6 +9,12 @@ main const
 #ifndef HEADER_CONSTANTES
 #define HEADER_CONSTANTES
 
+#include "SDL2/SDL.h"
+
+const SDL_Color COLOR_BLACK = {0,0,0,0xFF};
+const SDL_Color COLOR_WHITE = {0xFF,0xFF,0xFF,0xFF};
+const SDL_Color COLOR_RED = {0xFF,0,0,0xFF};
+
 const int SCREEN_WIDTH = 64*10;
 const int SCREEN_HEIGHT = 64*10;
 const int NBR_OF_MUSIC = 7;

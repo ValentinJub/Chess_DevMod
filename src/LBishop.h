@@ -8,7 +8,7 @@ Prototypes and const for LBishop piece object
 #ifndef HEADER_LBISHOP
 #define HEADER_LBISHOP
 
-#include "headers.h"
+#include "utils/util.h"
 #include "LPiece.h"
 #include "vector"
 

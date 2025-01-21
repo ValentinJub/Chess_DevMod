@@ -8,14 +8,14 @@ Prototypes and const for LMenuclass
 #ifndef LMENUSETTINGS_H
 #define LMENUSETTINGS_H
 
-#include "headers.h"
+#include "utils/util.h"
+#include "com/constantes.h"
 #include "iostream"
 #include "sstream"
 #include "fstream"
 #include "LTexture.h"
 #include "LButton.h"
 #include "LSlider.h"
-#include "funct_headers.h"
 
 class LMenu {
 public:

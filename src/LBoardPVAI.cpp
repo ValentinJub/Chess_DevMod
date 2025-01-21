@@ -309,24 +309,22 @@ bool LBoardPVAI::loadTileTextures() {
 }
 
 bool LBoardPVAI::loadPauseTexture() {
-	SDL_Color white = {0xFF, 0xFF, 0xFF, 0xFF};
 	bool success = true;
 	if(!(mPauseBackgroundTexture->loadFromFile("Sprites/blackScreen.png"))) success = false;
 	else {
 		mPauseBackgroundTexture->setAlpha(127);
 		mPauseBackgroundTexture->setBlendMode(SDL_BLENDMODE_BLEND);
 	}
-	if(!(mPauseTextTexture->loadFromRenderedText(gFont64, "Pause", white))) success = false;
+	if(!(mPauseTextTexture->loadFromRenderedText(gFont64, "Pause", COLOR_WHITE))) success = false;
 	return success;
 }
 
 bool LBoardPVAI::loadOutOfTimeTexture() {
-	SDL_Color white = {0xFF, 0xFF, 0xFF, 0xFF};
 	if(!mPauseBackgroundTexture) {
 		std::cerr << "mPauseBackgroundTexture is NULL, we must have failed to load it in LBoardPVAI::loadPauseTexture()" << std::endl;
 		return false;
 	}
-	if(!(mOutOfTimeTexture->loadFromRenderedText(gFont64, "Out of time!", white))) {
+	if(!(mOutOfTimeTexture->loadFromRenderedText(gFont64, "Out of time!", COLOR_WHITE))) {
 		std::cerr << "Failed to load out of time texture in LBoardPVAI::loadOutOfTimeTexture()" << std::endl;
 		return false;
 	}
@@ -1052,8 +1050,6 @@ bool LBoardPVAI::pollDiscoverAttack(const int mapCopy[SPL][SPL], const int piece
 void LBoardPVAI::renderTimer() {
 	//only render time if TL_YES == 1 in mSettingsTable
 	if(mSettingsTable[TL_YES] == 1) {
-		SDL_Color black = {0,0,0,0xFF};
-		
 		// total amount of seconds left (total time - time passed)
 		int wtime = mTimeLimit - (mWhiteTimer.getTicks() / 1000);
 
@@ -1080,7 +1076,7 @@ void LBoardPVAI::renderTimer() {
 		else whiteTimeText << std::to_string(wminutes) + ":" + "0" + std::to_string(ws);
 		
 		// load the time text texture and render
-		mWhiteTimerTexture->loadFromRenderedText(gFont64, whiteTimeText.str().c_str(), black);
+		mWhiteTimerTexture->loadFromRenderedText(gFont64, whiteTimeText.str().c_str(), COLOR_BLACK);
 		mWhiteTimerTexture->render(0,SCREEN_HEIGHT - OFFSET);
 	}
 }
@@ -1901,7 +1897,7 @@ void LBoardPVAI::renderScore() {
 	blackScore = MAX - whiteScore;
 	whiteScore = MAX - a;
 	
-	SDL_Color black = {0,0,0,0xFF};
+	
 	std::stringstream whiteScoreStr;
 	std::stringstream blackScoreStr;
 	
@@ -1909,8 +1905,8 @@ void LBoardPVAI::renderScore() {
 	blackScoreStr << std::to_string(blackScore);
 	
 	
-	mWhiteScoreTexture->loadFromRenderedText(gFont64, whiteScoreStr.str().c_str(), black);
-	mBlackScoreTexture->loadFromRenderedText(gFont64, blackScoreStr.str().c_str(), black);
+	mWhiteScoreTexture->loadFromRenderedText(gFont64, whiteScoreStr.str().c_str(), COLOR_BLACK);
+	mBlackScoreTexture->loadFromRenderedText(gFont64, blackScoreStr.str().c_str(), COLOR_BLACK);
 	
 	if(mSettingsTable[TL_NO]) {
 		mWhiteScoreTexture->render(0, SCREEN_HEIGHT - 64);

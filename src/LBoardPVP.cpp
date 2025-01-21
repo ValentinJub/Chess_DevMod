@@ -298,14 +298,13 @@ bool LBoardPVP::loadTileTextures() {
 }
 
 bool LBoardPVP::loadPauseTexture() {
-	SDL_Color white = {0xFF, 0xFF, 0xFF, 0xFF};
 	bool success = true;
 	if(!(mPauseBackgroundTexture->loadFromFile("Sprites/blackScreen.png"))) success = false;
 	else {
 		mPauseBackgroundTexture->setAlpha(127);
 		mPauseBackgroundTexture->setBlendMode(SDL_BLENDMODE_BLEND);
 	}
-	if(!(mPauseTextTexture->loadFromRenderedText(gFont64, "Pause", white))) success = false;
+	if(!(mPauseTextTexture->loadFromRenderedText(gFont64, "Pause", COLOR_WHITE))) success = false;
 	return success;
 }
 
@@ -314,12 +313,11 @@ bool LBoardPVP::loadPauseTexture() {
 // alternatively we could load two textures but considering we are not going 
 // to use one it would be a waste of memory
 bool LBoardPVP::loadOutOfTimeTexture() {
-	SDL_Color white = {0xFF, 0xFF, 0xFF, 0xFF};
 	if(mWhiteTimerRanOut) {
-		if(!(mOutOfTimeTexture->loadFromRenderedText(gFont64, "White ran out of time!", white))) return false;
+		if(!(mOutOfTimeTexture->loadFromRenderedText(gFont64, "White ran out of time!", COLOR_WHITE))) return false;
 	}
 	else if(mBlackTimerRanOut) {
-		if(!(mOutOfTimeTexture->loadFromRenderedText(gFont64, "Black ran out of time!", white))) return false;
+		if(!(mOutOfTimeTexture->loadFromRenderedText(gFont64, "Black ran out of time!", COLOR_WHITE))) return false;
 	}
 	return true;
 }
@@ -1042,8 +1040,6 @@ bool LBoardPVP::pollDiscoverAttack(int piece, int posX, int posY) {
 void LBoardPVP::renderTimer() {
 	//only render time if TL_YES == 1 in mSettingsTable
 	if(mSettingsTable[TL_YES] == 1) {
-		SDL_Color black = {0,0,0,0xFF};
-		
 		// white timer total time left in seconds
 		int wtime = mTimeLimit - (mWhiteTimer.getTicks() / 1000);
 
@@ -1065,7 +1061,7 @@ void LBoardPVP::renderTimer() {
 		}
 		else whiteTimeText << std::to_string(wminutes) + ":" + "0" + std::to_string(ws);
 		
-		mWhiteTimerTexture->loadFromRenderedText(gFont64, whiteTimeText.str().c_str(), black);
+		mWhiteTimerTexture->loadFromRenderedText(gFont64, whiteTimeText.str().c_str(), COLOR_BLACK);
 		mWhiteTimerTexture->render(0,SCREEN_HEIGHT - 64);
 		
 		// black timer total time left in seconds
@@ -1086,7 +1082,7 @@ void LBoardPVP::renderTimer() {
 		std::stringstream blackTimeText;
 		if(bs > 9) blackTimeText << std::to_string(bminutes) + ":" + std::to_string(bs);
 		else blackTimeText << std::to_string(bminutes) + ":" + "0" + std::to_string(bs);
-		mBlackTimerTexture->loadFromRenderedText(gFont64, blackTimeText.str().c_str(), black);
+		mBlackTimerTexture->loadFromRenderedText(gFont64, blackTimeText.str().c_str(), COLOR_BLACK);
 		mBlackTimerTexture->render(0,0);
 	}
 }
@@ -1115,15 +1111,14 @@ void LBoardPVP::renderScore() {
 	blackScore = MAX - whiteScore;
 	whiteScore = MAX - a;
 	
-	SDL_Color black = {0,0,0,0xFF};
 	std::stringstream whiteScoreStr;
 	std::stringstream blackScoreStr;
 
 	whiteScoreStr << std::to_string(whiteScore);
 	blackScoreStr << std::to_string(blackScore);
 	
-	mWhiteScoreTexture->loadFromRenderedText(gFont64, whiteScoreStr.str().c_str(), black);
-	mBlackScoreTexture->loadFromRenderedText(gFont64, blackScoreStr.str().c_str(), black);
+	mWhiteScoreTexture->loadFromRenderedText(gFont64, whiteScoreStr.str().c_str(), COLOR_BLACK);
+	mBlackScoreTexture->loadFromRenderedText(gFont64, blackScoreStr.str().c_str(), COLOR_BLACK);
 	
 	if(mSettingsTable[TL_NO]) {
 		mWhiteScoreTexture->render(0, SCREEN_HEIGHT - 64);

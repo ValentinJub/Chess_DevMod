@@ -8,7 +8,7 @@ Prototypes and const for LKing piece object
 #ifndef HEADER_LKING
 #define HEADER_LKING
 
-#include "headers.h"
+#include "utils/util.h"
 #include "LPiece.h"
 #include "vector"
 #include "check.h"

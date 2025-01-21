@@ -9,7 +9,6 @@ headers for all files - do not put L*.h!!!!
 #ifndef HEADER_HEADERS
 #define HEADER_HEADERS
 
-#include "utils/constantes.h"
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_ttf.h"
@@ -18,5 +17,6 @@ headers for all files - do not put L*.h!!!!
 #include <string>
 #include <sstream>
 #include <iostream>
+
 
 #endif

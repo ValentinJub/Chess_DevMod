@@ -9,7 +9,7 @@ LPiece is the parent class of all chess pieces.
 #ifndef HEADER_LPIECE
 #define HEADER_LPIECE
 
-#include "utils/constantes.h"
+#include "com/constantes.h"
 
 class LPiece {
     public: 

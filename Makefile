@@ -1,9 +1,8 @@
 CXX = g++
 
-CFLAGS = -Wall -std=c++11
+CFLAGS = -Wall -std=c++11 -ferror-limit=100
 
-CPPFLAGS = -I src/include
-
+CPPFLAGS = -I src/com
 
 all:
-	$(CXX) $(CFLAGS) $(CPPFLAGS) src/*.cpp -o main -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer 
+	$(CXX) $(CFLAGS) $(CPPFLAGS) src/*.cpp src/menu/*.cpp src/utils/*.cpp -o main -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer 
