@@ -3,9 +3,6 @@
 using std::string;
 
 extern SDL_Renderer* gRenderer;
-extern SDL_Surface* gScreenSurface; 
-extern SDL_Surface* gCurrentSurface; 
-extern SDL_Window* gWindow;
 extern TTF_Font* gFont64;
 
 LTexture::LTexture(int x, int y) :
