@@ -31,9 +31,6 @@
 *.out
 *.app
 
-# conf files
-resources/*.config
-
 # Specific folders: Music, SoundEffects, Sprites
 Music/*
 SoundEffects/*
@@ -43,8 +40,7 @@ src/lib/*
 .vscode/*
 
 #
-main
 Makefile
 .gitignore
-chess
 *.dSYM
+build/*
