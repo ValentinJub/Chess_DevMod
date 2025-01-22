@@ -26,7 +26,7 @@ LSlider::LSlider(int width, int height, int posX, int posY) {
 
 bool LSlider::loadDotTexture() {
     bool success = true;
-    if(!mDotTexture->loadFromFile("sprites/dot.png", true)) {
+    if(!mDotTexture->loadFromFile(SPRITE_DOT, true)) {
         std::cerr << "Failed to load dot texture!" << std::endl;
         success = false;
     }

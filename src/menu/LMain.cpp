@@ -29,14 +29,14 @@ bool LMain::init() {
 	else if(!(mMenuTextures[DEVMODE].loadFromRenderedText(gFont64, MENU_DEVMODE_STR.c_str() , COLOR_BLACK))) {
 		success = false;
 	}
-	else if(!(gBackgroundTexture.loadFromFile("Sprites/Background/bg1.jpg"))) {
+	else if(!(gBackgroundTexture.loadFromFile(SPRITE_BACKGROUND))) {
 		success = false;
 	}
     
     this->setTexturePositions();
     this->setButtons();
 
-    mMenuMusic = loadMusic("Music/Menu/menu.mp3");
+    mMenuMusic = loadMusic(MUSIC_MENU);
 
 	return success;
 }

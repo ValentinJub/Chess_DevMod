@@ -11,6 +11,38 @@ main const
 
 #include "SDL2/SDL.h"
 
+// Resource paths
+
+extern const char* FONT_BRANDA;
+extern const char* MUSIC_CLASSIC;
+extern const char* MUSIC_JAZZY;
+extern const char* MUSIC_MENU;
+
+extern const char* CHUNK_CHIME;
+extern const char* CHUNK_CHECK;
+extern const char* CHUNK_CHECKMATE;
+extern const char* CHUNK_ERROR;
+extern const char* CHUNK_MOVE;
+extern const char* CHUNK_CASTLE;
+extern const char* CHUNK_CAPTURE;
+extern const char* CHUNK_VICTORY;
+extern const char* CHUNK_DEFEAT;
+
+extern const char* FILE_SETTINGS;
+extern const char* FILE_SETTINGS_LEFT;
+extern const char* FILE_SETTINGS_RIGHT;
+extern const char* FILE_MAP;
+
+extern const char* SPRITE_BACKGROUND;
+extern const char* SPRITE_BACKGROUND_FULLBLACK;
+extern const char* SPRITE_PIECE_SHEET;
+extern const char* SPRITE_PIECE_SHEET_32;
+extern const char* SPRITE_RETRO_PIECE_SHEET;
+extern const char* SPRITE_BOARD;
+extern const char* SPRITE_DOT;
+extern const char* SPRITE_QUEEN_NORMAL;
+extern const char* SPRITE_QUEEN_RETRO;
+
 const SDL_Color COLOR_BLACK = {0,0,0,0xFF};
 const SDL_Color COLOR_WHITE = {0xFF,0xFF,0xFF,0xFF};
 const SDL_Color COLOR_RED = {0xFF,0,0,0xFF};

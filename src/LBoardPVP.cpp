@@ -71,15 +71,15 @@ LBoardPVP::LBoardPVP() {
 	mBRook2HasMoved = false;
 	
 	//load sound effect
-	mBingo = loadChunk("SoundEffects/chime.wav");
-	mCheck = loadChunk("SoundEffects/checkUS.wav");
-	mCheckMate = loadChunk("SoundEffects/checkMateUS.wav");
-	mError = loadChunk("SoundEffects/error.wav");
-	mPawnForward = loadChunk("SoundEffects/pawnForward.wav");
-	mCastling = loadChunk("SoundEffects/0-0-0.wav");
-	mPieceFall = loadChunk("SoundEffects/drop3.wav");
-	mVictory = loadChunk("SoundEffects/victoryOrchestra.wav");
-	mDefeat = loadChunk("SoundEffects/gameOver.wav");
+	mBingo = loadChunk(CHUNK_CHIME);
+	mCheck = loadChunk(CHUNK_CHECK);
+	mCheckMate = loadChunk(CHUNK_CHECKMATE);
+	mError = loadChunk(CHUNK_ERROR);
+	mPawnForward = loadChunk(CHUNK_MOVE);
+	mCastling = loadChunk(CHUNK_CASTLE);
+	mPieceFall = loadChunk(CHUNK_CAPTURE);
+	mVictory = loadChunk(CHUNK_VICTORY);
+	mDefeat = loadChunk(CHUNK_DEFEAT);
 	
 	//start white and black timer and pause the black as white plays first
 	if(mSettingsTable[TL_YES]) {
@@ -112,14 +112,14 @@ void LBoardPVP::initGameSettings() {
 	//Set music
 	if(mSettingsTable[MT_CLASSIC]) {
 		for(int i(0); i < NBR_OF_MUSIC; i++) {
-			std::string str = "Music/Classic/class" + std::to_string(i) + ".mp3";
+			std::string str = MUSIC_CLASSIC + std::to_string(i) + ".mp3";
 			mMusic[i] = loadMusic(str.c_str());
 		}
 	}
 	//Jazzy
 	else {
 		for(int i(0); i < NBR_OF_MUSIC; i++) {
-			std::string str = "Music/Jazz/jazz" + std::to_string(i) + ".mp3";
+			std::string str = MUSIC_JAZZY + std::to_string(i) + ".mp3";
 			mMusic[i] = loadMusic(str.c_str());
 		}
 	}
@@ -253,7 +253,7 @@ void LBoardPVP::stopBlackTimer() {
 
 void LBoardPVP::readSettingsFromFile() {
 	std::ifstream settings;
-    settings.open("resources/settings.config", std::ios::in);
+    settings.open(FILE_SETTINGS, std::ios::in);
     if(settings.is_open()) {
 		// minus 1 because we don't want to read the back button
         for(int i(0); i < TOTAL_CLICKABLE_ITEMS - 1; i++) {
@@ -275,31 +275,31 @@ bool LBoardPVP::loadPiecesTextures() {
 	bool success = true;
 	if(mPieceTheme == 0) {
 		//regular piece
-		if(!(mPieceTexture->loadFromFile("Sprites/64/pieceSpritesheet.png"))) success = false;
-		else if(!(mHighlightedPieceTexture->loadFromFile("Sprites/64/pieceSpritesheet.png"))) success = false;
+		if(!(mPieceTexture->loadFromFile(SPRITE_PIECE_SHEET))) success = false;
+		else if(!(mHighlightedPieceTexture->loadFromFile(SPRITE_PIECE_SHEET))) success = false;
 		else mHighlightedPieceTexture->setColor(255,0,0);
 		//score piece
-		if(!(mMiniPieceTexture->loadFromFile("Sprites/32/spritesheet32.png"))) success = false;
+		if(!(mMiniPieceTexture->loadFromFile(SPRITE_PIECE_SHEET_32))) success = false;
 	} else if(mPieceTheme == 1) {
-		if(!(mPieceTexture->loadFromFile("Sprites/64/retroPieceSpriteSheet.png"))) success = false;
-		else if(!(mHighlightedPieceTexture->loadFromFile("Sprites/64/retroPieceSpritesheet.png"))) success = false;
+		if(!(mPieceTexture->loadFromFile(SPRITE_RETRO_PIECE_SHEET))) success = false;
+		else if(!(mHighlightedPieceTexture->loadFromFile(SPRITE_RETRO_PIECE_SHEET))) success = false;
 		else mHighlightedPieceTexture->setColor(255,0,0);
-		if(!(mMiniPieceTexture->loadFromFile("Sprites/32/spritesheet32.png"))) success = false;
+		if(!(mMiniPieceTexture->loadFromFile(SPRITE_PIECE_SHEET_32))) success = false;
 	}
 	return success; 
 }
 
 bool LBoardPVP::loadTileTextures() {
 	bool success = true;
-	if(!(mTileTexture->loadFromFile("Sprites/64/board.png"))) success = false;
-	else if(!(mHighlightedTileTexture->loadFromFile("Sprites/64/board.png"))) success = false;
+	if(!(mTileTexture->loadFromFile(SPRITE_BOARD))) success = false;
+	else if(!(mHighlightedTileTexture->loadFromFile(SPRITE_BOARD))) success = false;
 	else mHighlightedTileTexture->setColor(255,0,0);
 	return success;
 }
 
 bool LBoardPVP::loadPauseTexture() {
 	bool success = true;
-	if(!(mPauseBackgroundTexture->loadFromFile("Sprites/blackScreen.png"))) success = false;
+	if(!(mPauseBackgroundTexture->loadFromFile(SPRITE_BACKGROUND_FULLBLACK))) success = false;
 	else {
 		mPauseBackgroundTexture->setAlpha(127);
 		mPauseBackgroundTexture->setBlendMode(SDL_BLENDMODE_BLEND);
@@ -794,7 +794,7 @@ bool LBoardPVP::checkPromotion(int x, int y) {
 }
 		
 bool LBoardPVP::initMap() {
-	std::ifstream map( "resources/map.map" );
+	std::ifstream map( FILE_MAP );
 	bool success = true;
 	if(map.fail()) {
 		printf( "Unable to load map file!\n" );

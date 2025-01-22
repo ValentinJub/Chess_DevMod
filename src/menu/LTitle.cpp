@@ -11,16 +11,13 @@ void LTitle::free() {
     mTitleTexture[AUTHOR].free();
 }
 
+bool LTitle::init() {
+	return this->loadTitle();
+}
+
 bool LTitle::loadTitle() {
 	bool success = true;
-	gFont64 = TTF_OpenFont( "resources/branda.ttf", 64 );
-	gFont32 = TTF_OpenFont( "resources/branda.ttf", 32 );
-	
-	if( gFont64 == NULL  || gFont32 == NULL) {
-			printf( "Failed to load resources/valentin font! SDL_ttf Error: %s\n", TTF_GetError() );
-			success = false;
-	}
-	else if(!(mTitleTexture[TITLE].loadFromRenderedText(gFont64, TITLE_STR.c_str() , COLOR_BLACK))) {
+	if(!(mTitleTexture[TITLE].loadFromRenderedText(gFont64, TITLE_STR.c_str() , COLOR_BLACK))) {
 		printf("Unable to load rendered text!");
 		success = false;
 	}
