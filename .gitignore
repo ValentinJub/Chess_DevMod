@@ -31,10 +31,7 @@
 *.out
 *.app
 
-# Specific folders: Music, SoundEffects, Sprites
-Music/*
-SoundEffects/*
-Sprites/*
+
 src/include/*
 src/lib/*
 .vscode/*
