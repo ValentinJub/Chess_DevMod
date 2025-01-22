@@ -18,7 +18,7 @@ extern SDL_Renderer* gRenderer;
 extern LTexture gBackgroundTexture;
 
 void settings() {
-	LMenu menuSettings;
+	LSettings menuSettings;
 	
 	SDL_Event e;
 	
