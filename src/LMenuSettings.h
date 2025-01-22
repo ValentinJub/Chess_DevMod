@@ -1,5 +1,5 @@
 /*
-LMenu.h
+LSettings.h
 by Valentin
 --------------
 Prototypes and const for LMenuclass
@@ -17,10 +17,10 @@ Prototypes and const for LMenuclass
 #include "LButton.h"
 #include "LSlider.h"
 
-class LMenu {
+class LSettings {
 public:
-    LMenu();
-    ~LMenu();
+    LSettings();
+    ~LSettings();
     void free();
     bool initController();
     void initFont();
@@ -58,7 +58,6 @@ private:
     SDL_Rect mOptionTexturePositions[LEFT_MENU];
 
     LSlider* mSlider = NULL;
-    Mix_Chunk* mSound;
     //Create text menu and put it into mMenuStr[]
     void initMenuStrings();
     //menu textures

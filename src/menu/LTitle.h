@@ -4,6 +4,7 @@
 #include "../utils/util.h"
 #include "../com/constantes.h"
 #include "../LTexture.h"
+#include "LMenu.h"
 
 extern TTF_Font* gFont64; 
 extern TTF_Font* gFont32;
@@ -15,14 +16,15 @@ const std::string TITLE_STR = "Chess";
 const std::string TITLE_AUTHOR_STR = "by Valentin with Love";
 
 
-class LTitle {
+class LTitle : public LMenu {
 
 public:
     LTitle();
     void free();
-    bool loadTitle();
+    bool init();
     void render();
 private:
+    bool loadTitle();
 	Mix_Chunk* mStartupSound;
     LTexture mTitleTexture[TOTAL_TITLE_ITEMS];
 };

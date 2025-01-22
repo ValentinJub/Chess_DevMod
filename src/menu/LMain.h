@@ -5,6 +5,7 @@
 #include "../LTexture.h"
 #include "../LButton.h"
 #include "../settings.h"
+#include "LMenu.h"
 #include "../com/constantes.h"
 #include "../playPVAI.h"
 #include "../playPVP.h"
@@ -20,7 +21,7 @@ const std::string MENU_PLAY_AI_STR = "Play vs AI";
 const std::string MENU_SETTINGS_STR = "Game Settings";
 const std::string MENU_DEVMODE_STR = "Developer Mode";
 
-class LMain {
+class LMain : public LMenu {
 
 public:
     LMain();

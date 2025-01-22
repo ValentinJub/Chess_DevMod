@@ -1,8 +1,8 @@
 /*
-LMenu.cpp
+LSettings.cpp
 by Valentin
 --------------
-Methods for LMenu class
+Methods for LSettings class
 
 */
 
@@ -11,7 +11,7 @@ Methods for LMenu class
 extern SDL_Renderer* gRenderer;
 extern LTexture gBackgroundTexture;
 
-LMenu::LMenu(){
+LSettings::LSettings(){
     mFont = NULL;
     for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i++) {
         mButtons[i] = new LButton;
@@ -44,7 +44,6 @@ LMenu::LMenu(){
     setOptionTexturePosition();
     setClickableTexturePosition();
     
-    mSound = loadChunk("SoundEffects/START.wav");
     
     //texture have to be created before calling these 2
     setButtonWH();
@@ -54,8 +53,8 @@ LMenu::LMenu(){
     
 }
 
-LMenu::~LMenu(){}
-void LMenu::free() {
+LSettings::~LSettings(){}
+void LSettings::free() {
     for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i++) {
         delete mButtons[i];
         mClickableMenuTexture[i]->free();
@@ -63,12 +62,11 @@ void LMenu::free() {
     for(int i(0); i < LEFT_MENU; i++) {
         mOptionMenuTexture[i]->free();
     }
-    mSound = NULL;
     mFont = NULL;
 }
 
-void LMenu::initMenuStrings() {
-    std::ifstream settingsLeft("resources/setl.config");
+void LSettings::initMenuStrings() {
+    std::ifstream settingsLeft(FILE_SETTINGS_LEFT);
     if(settingsLeft.fail()) {
         printf("Unable to load settings file!\n");
     }
@@ -81,7 +79,7 @@ void LMenu::initMenuStrings() {
         }
         settingsLeft.close();
     }
-    std::ifstream settingsRight("resources/setr.config");
+    std::ifstream settingsRight(FILE_SETTINGS_RIGHT);
     if(settingsRight.fail()) {
         printf("Unable to load settings file!\n");
     }
@@ -97,7 +95,7 @@ void LMenu::initMenuStrings() {
     }
 }
 
-// void LMenu::initCurrentItemList() {
+// void LSettings::initCurrentItemList() {
 //     mSettingsTable[SLM_YES] = 0;
 //     mSettingsTable[SLM_NO] = 1;
 //     mSettingsTable[TL_YES] = 0;
@@ -112,20 +110,20 @@ void LMenu::initMenuStrings() {
 //     mSettingsTable[PT_2] = 0;
 // }
 
-void LMenu::initFont() {
-    mFont = TTF_OpenFont("resources/branda.ttf", 28);
+void LSettings::initFont() {
+    mFont = TTF_OpenFont(FONT_BRANDA, 28);
     if(mFont == NULL) {
         printf("Failed to load resources/valentin font! SDL_ttf Error: %s\n", TTF_GetError());
     }
 }
 
-bool LMenu::getRun() const {
+bool LSettings::getRun() const {
     return mRun;
 }
 
 
 // renders the border of the selected options in the menu
-void LMenu::outlineSelected() const {
+void LSettings::outlineSelected() const {
 
     // the padding is the space between the border and the texture
     const int padding = 2;
@@ -226,19 +224,19 @@ void LMenu::outlineSelected() const {
     }
 }
 
-void LMenu::renderSlider() {
+void LSettings::renderSlider() {
     mSlider->renderSlider();
 }
 
-void LMenu::handleSliderMotion(SDL_Point mouse) {
+void LSettings::handleSliderMotion(SDL_Point mouse) {
     mSlider->handleMotion(mouse);
 }
 
-bool LMenu::getMouseFollow() const {
+bool LSettings::getMouseFollow() const {
     return mSlider->getMouseFollow();
 }
 
-void LMenu::handleEvent(SDL_Event* e, SDL_Point mouse) {
+void LSettings::handleEvent(SDL_Event* e, SDL_Point mouse) {
     if(e->type == SDL_QUIT) {
         mRun = false;
     }
@@ -353,9 +351,9 @@ void LMenu::handleEvent(SDL_Event* e, SDL_Point mouse) {
     }
 }
 
-bool LMenu::loadSettingsFromFile() {
+bool LSettings::loadSettingsFromFile() {
     std::ifstream settings;
-    settings.open("resources/settings.config", std::ios::in);
+    settings.open(FILE_SETTINGS, std::ios::in);
     if(settings.is_open()) {
         // - 1 because we don't want to load back
         for(int i(0); i < TOTAL_CLICKABLE_ITEMS - 1; i++) {
@@ -375,9 +373,9 @@ bool LMenu::loadSettingsFromFile() {
     }
 }
 
-void LMenu::saveSettingsToFile() {
+void LSettings::saveSettingsToFile() {
     std::ofstream settings;
-        settings.open("resources/settings.config", std::ios::trunc);
+        settings.open(FILE_SETTINGS, std::ios::trunc);
     if(settings.is_open()) {
         // - 1 because we don't want to save back
         for(int i(0); i < TOTAL_CLICKABLE_ITEMS - 1; i++) {
@@ -394,7 +392,7 @@ void LMenu::saveSettingsToFile() {
     }
 }
 
-void LMenu::loadTextureFromTextLeft() {
+void LSettings::loadTextureFromTextLeft() {
     SDL_Color colorBlack = {0,0,0,0xFF};
     // mMenuTextTextures->loadFromRenderedTextTabLeft(mMenuLeftStr, mFont, LEFT_MENU, colorBlack);
     
@@ -408,17 +406,17 @@ void LMenu::loadTextureFromTextLeft() {
     }
 
 }
-void LMenu::loadClickableTexture() {
+void LSettings::loadClickableTexture() {
     SDL_Color colorBlack = {0,0,0,0xFF};
     // mMenuTextTextures->loadFromRenderedTextTabRight(mMenuRightStr, mFont, TOTAL_SETTINGS_RIGHT_MENU_TEXT_ITEMS, colorBlack);
 
     for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i++) {
         if(i == PT_1 || i == PT_2) {
             if(i == PT_1) {
-                mClickableMenuTexture[i]->loadFromFile("Sprites/64/queen0.png");
+                mClickableMenuTexture[i]->loadFromFile(SPRITE_QUEEN_NORMAL);
             }
             else {
-                mClickableMenuTexture[i]->loadFromFile("Sprites/64/queen1.png");
+                mClickableMenuTexture[i]->loadFromFile(SPRITE_QUEEN_RETRO);
             }
         }
         else if(i  == BACK) {
@@ -430,7 +428,7 @@ void LMenu::loadClickableTexture() {
     }
 }
 
-void LMenu::renderLeftTexture() {
+void LSettings::renderLeftTexture() {
     // mMenuTextTextures->renderFromTabLeftSide(LEFT_MENU);
 
     for(int i(0); i < LEFT_MENU; i++) {
@@ -438,13 +436,13 @@ void LMenu::renderLeftTexture() {
     }
 }
 
-void LMenu::renderClickableTexture() {
+void LSettings::renderClickableTexture() {
     for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i++) {
         mClickableMenuTexture[i]->render(mClickableTexturePositions[i].x, mClickableTexturePositions[i].y);
     }
 }
 
-void LMenu::setOptionTexturePosition() {
+void LSettings::setOptionTexturePosition() {
      int x(0),
         y(0);
     const int   padding(5),
@@ -478,7 +476,7 @@ void LMenu::setOptionTexturePosition() {
 }
 
 // set the position of the right hand side textures
-void LMenu::setClickableTexturePosition() {
+void LSettings::setClickableTexturePosition() {
     const int   padding(5),
                 bigPadding(10),
                 titleHeight(mOptionMenuTexture[0]->getHeight()),
@@ -550,7 +548,7 @@ void LMenu::setClickableTexturePosition() {
 
 
 //function used to check the buttons box are set properly
-void LMenu::drawButtons() {
+void LSettings::drawButtons() {
     for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i++) {
         SDL_Rect r;
         r.x = mButtons[i]->getX();
@@ -562,13 +560,13 @@ void LMenu::drawButtons() {
     }
 }
 
-void LMenu::setButtonPosition() {
+void LSettings::setButtonPosition() {
     for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i++) {  
         mButtons[i]->setPosition(mClickableTexturePositions[i].x, mClickableTexturePositions[i].y);
     }
 }
 
-void LMenu::setButtonWH() {
+void LSettings::setButtonWH() {
     for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i++) {
         mButtons[i]->setWidthAndHeight(mClickableTexturePositions[i].w, mClickableTexturePositions[i].h);
     }
