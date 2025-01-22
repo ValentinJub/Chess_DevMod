@@ -1,12 +1,12 @@
 #include "CApp.h"
 
-SDL_Renderer* gRenderer = NULL; 
+SDL_Renderer* gRenderer; 
 LTexture gBackgroundTexture;
-TTF_Font* gFont64 = NULL;
-TTF_Font* gFont32 = NULL;
+TTF_Font* gFont64;
+TTF_Font* gFont32;
 
 // Global music volume, between 0 and 128.
-uint8_t gMusicVolume = MIX_MAX_VOLUME / 2;
+uint8_t gMusicVolume;
 
 
 CApp::CApp() {
@@ -15,21 +15,28 @@ CApp::CApp() {
 	mWindow = new LWindow;
 }
 
-void CApp::close() {
-	gBackgroundTexture.free();
-	
+void CApp::free() {
 	mLoadingScreen->free();
 	mMainMenu->free();
 	mWindow->free();
-	mWindow = NULL;
-	
-	TTF_CloseFont(gFont64);
-	gFont64 = NULL;
-	TTF_CloseFont(gFont32);
-	gFont32 = NULL;
-	
-	SDL_DestroyRenderer(gRenderer);
+	this->freeGlobalVars();
 	this->closeSDL();	
+}
+
+void CApp::freeGlobalVars() {
+	gBackgroundTexture.free();
+	if(gFont64 != NULL) {
+		TTF_CloseFont(gFont64);
+		gFont64 = NULL;
+	}
+	if(gFont32 != NULL) {
+		TTF_CloseFont(gFont32);
+		gFont32 = NULL;
+	}
+	if (gRenderer != NULL) {
+		SDL_DestroyRenderer(gRenderer);
+		gRenderer = NULL;
+	}
 }
 
 void CApp::closeSDL() {
@@ -70,18 +77,13 @@ bool CApp::initWindow() {
 		printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
 		return false;
 	}
-	gRenderer = mWindow->createRenderer();
-	if( gRenderer == NULL ) {
-		printf( "Renderer could not be created! SDL Error: %s\n", SDL_GetError() );
-		return false;
-	}
 	return true;
 }
 
 bool CApp::initMenu(bool initTitle) {
 	if(initTitle) {
 		mLoadingScreen = new LTitle;
-		if(!mLoadingScreen->loadTitle()) {
+		if(!mLoadingScreen->init()) {
 			return false;
 		}
 	}
@@ -92,9 +94,32 @@ bool CApp::initMenu(bool initTitle) {
 	return true;
 }
 
+bool CApp::initGlobalVars() {
+	gRenderer = mWindow->createRenderer();
+	if( gRenderer == NULL ) {
+		printf( "Renderer could not be created! SDL Error: %s\n", SDL_GetError() );
+		return false;
+	}
+	if(!gBackgroundTexture.loadFromFile(SPRITE_BACKGROUND)) {
+		return false;
+	}
+	gFont64 = TTF_OpenFont( FONT_BRANDA, 64 );
+	if (gFont64 == NULL) {
+		printf( "Failed to load resources/valentin font! SDL_ttf Error: %s\n", TTF_GetError() );
+		return false;
+	}
+	gFont32 = TTF_OpenFont( FONT_BRANDA, 32 );
+	if (gFont32 == NULL) {
+		printf( "Failed to load resources/valentin font! SDL_ttf Error: %s\n", TTF_GetError() );
+		return false;
+	}
+	gMusicVolume = MIX_MAX_VOLUME / 2;
+	return true;
+}
+
 bool CApp::init() {
 	srand(time(0));
-	return initSDL() && initWindow() && initMenu();
+	return initSDL() && initWindow() && initGlobalVars() && initMenu();
 }
 
 // bool CApp::loadWindowIcon(std::string path) {
@@ -146,6 +171,6 @@ int CApp::Execute() {
 			loop();
 		}
 	}
-	CApp::close();
+	CApp::free();
 	return 0;
 }

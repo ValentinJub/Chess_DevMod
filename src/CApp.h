@@ -26,8 +26,10 @@ private:
 	bool initSDL();
 	bool initWindow();
 	bool initMenu(bool initTitle = true);
-	void close();
+	bool initGlobalVars();
+	void free();
 	void closeSDL();
+	void freeGlobalVars();
 	void loop();
 	void handleEvents(SDL_Event* e);
 	// bool loadWindowIcon(std::string path);
