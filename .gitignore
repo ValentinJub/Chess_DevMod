@@ -44,3 +44,5 @@ Makefile
 .gitignore
 *.dSYM
 build/*
+
+resources/settings.config
