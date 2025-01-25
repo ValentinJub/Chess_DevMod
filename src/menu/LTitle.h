@@ -1,5 +1,5 @@
-#ifndef LOADINGSCREEN_H
-#define LOADINGSCREEN_H
+#ifndef LTITLE_H
+#define LTITLE_H
 
 #include "../utils/util.h"
 #include "../com/constantes.h"
