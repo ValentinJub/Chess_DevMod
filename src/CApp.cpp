@@ -9,14 +9,17 @@ TTF_Font* gFont32;
 uint8_t gMusicVolume;
 
 
-CApp::CApp() {
+CApp::CApp(bool showTitleScreen) {
 	mAppIsRunning = true;
-	mShowTitleScreen = false;
+	mShowTitleScreen = showTitleScreen;
 	mWindow = new LWindow;
 }
 
 void CApp::free() {
-	mLoadingScreen->free();
+	if (mLoadingScreen != NULL) {
+		mLoadingScreen->free();
+		mLoadingScreen = NULL;
+	}
 	mMainMenu->free();
 	mWindow->free();
 	this->freeGlobalVars();
@@ -69,6 +72,8 @@ bool CApp::initSDL() {
 		printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
 		return false;
 	}
+	// set volume for all channels
+	Mix_Volume(-1, MIX_MAX_VOLUME / 2);
 	return true;
 }
 
@@ -80,8 +85,8 @@ bool CApp::initWindow() {
 	return true;
 }
 
-bool CApp::initMenu(bool initTitle) {
-	if(initTitle) {
+bool CApp::initMenus() {
+	if(mShowTitleScreen) {
 		mLoadingScreen = new LTitle;
 		if(!mLoadingScreen->init()) {
 			return false;
@@ -119,7 +124,7 @@ bool CApp::initGlobalVars() {
 
 bool CApp::init() {
 	srand(time(0));
-	return initSDL() && initWindow() && initGlobalVars() && initMenu();
+	return initSDL() && initWindow() && initGlobalVars() && initMenus();
 }
 
 // bool CApp::loadWindowIcon(std::string path) {
@@ -153,16 +158,13 @@ void CApp::loop() {
 	if(mShowTitleScreen) {
 		mLoadingScreen->render();
 		mShowTitleScreen = false;
-	}
-	else { 
-		mMainMenu->playMusic();
-		mMainMenu->render();
-		SDL_Delay(16);
-	}
-	
+	}			
+	mMainMenu->playMusic();
+	mMainMenu->render();
+	SDL_Delay(16);
 }
 
-int CApp::Execute() {
+int CApp::exec() {
 	if(!init()) {
 		printf("Failed to initialise!");
 	}

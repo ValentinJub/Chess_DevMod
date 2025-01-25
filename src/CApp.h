@@ -18,14 +18,14 @@ headers for CApp
 
 class CApp {
 public:
-	CApp();
-	int Execute();
+	CApp(bool showTitleScreen);
+	int exec();
 	
 private:
 	bool init();
 	bool initSDL();
 	bool initWindow();
-	bool initMenu(bool initTitle = true);
+	bool initMenus();
 	bool initGlobalVars();
 	void free();
 	void closeSDL();
