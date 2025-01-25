@@ -29,15 +29,9 @@ bool LMain::init() {
 	else if(!(mMenuTextures[DEVMODE].loadFromRenderedText(gFont64, MENU_DEVMODE_STR.c_str() , COLOR_BLACK))) {
 		success = false;
 	}
-	else if(!(gBackgroundTexture.loadFromFile(SPRITE_BACKGROUND))) {
-		success = false;
-	}
-    
     this->setTexturePositions();
     this->setButtons();
-
-    mMenuMusic = loadMusic(MUSIC_MENU);
-
+    mMenuMusic = Util::loadMusic(MUSIC_MENU);
 	return success;
 }
 
@@ -199,10 +193,7 @@ void LMain::flushEvents() {
 
 void LMain::playMusic() {
 	if(Mix_PlayingMusic() == 0) {
-		// loop infinitely menu music
 		Mix_PlayMusic(mMenuMusic, -1);
-		// set volume 
-		Mix_Volume(-1, gMusicVolume);
 		Mix_VolumeMusic(gMusicVolume);
 	}
 }
