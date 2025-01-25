@@ -38,7 +38,7 @@ src/lib/*
 
 #
 Makefile
-.gitignore
+.DS_Store
 *.dSYM
 build/*
 
