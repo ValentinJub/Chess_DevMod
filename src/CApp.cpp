@@ -1,6 +1,7 @@
 #include "CApp.h"
 
-SDL_Renderer* gRenderer; 
+SDL_Renderer* gRenderer;
+LStateMachine* gStateMachine; 
 LTexture gBackgroundTexture;
 TTF_Font* gFont64;
 TTF_Font* gFont32;
@@ -16,11 +17,7 @@ CApp::CApp(bool showTitleScreen) {
 }
 
 void CApp::free() {
-	if (mLoadingScreen != NULL) {
-		mLoadingScreen->free();
-		mLoadingScreen = NULL;
-	}
-	mMainMenu->free();
+	gStateMachine->free();
 	mWindow->free();
 	this->freeGlobalVars();
 	this->closeSDL();	
@@ -85,16 +82,24 @@ bool CApp::initWindow() {
 	return true;
 }
 
+// bool CApp::initMenus() {
+// 	if(mShowTitleScreen) {
+// 		mLoadingScreen = new LTitle;
+// 		if(!mLoadingScreen->init()) {
+// 			return false;
+// 		}
+// 	}
+// 	mMainMenu = new LMain;
+// 	if(!mMainMenu->init()) {
+// 		return false;
+// 	}
+// 	return true;
+// }
+
 bool CApp::initMenus() {
+	gStateMachine->push(new LMainMenuState);
 	if(mShowTitleScreen) {
-		mLoadingScreen = new LTitle;
-		if(!mLoadingScreen->init()) {
-			return false;
-		}
-	}
-	mMainMenu = new LMain;
-	if(!mMainMenu->init()) {
-		return false;
+		gStateMachine->push(new LStartState);
 	}
 	return true;
 }
@@ -119,6 +124,7 @@ bool CApp::initGlobalVars() {
 		return false;
 	}
 	gMusicVolume = MIX_MAX_VOLUME / 2;
+	gStateMachine = new LStateMachine;
 	return true;
 }
 
@@ -144,35 +150,37 @@ bool CApp::init() {
 // 	}
 // }
 
-void CApp::handleEvents(SDL_Event* e) {
-	if(mMainMenu->handleEvents(e)) {
-		mAppIsRunning = false;
-	}
-}
+// void CApp::handleEvents(SDL_Event* e) {
+// 	if(mMainMenu->handleEvents(e)) {
+// 		mAppIsRunning = false;
+// 	}
+// }
 
-void CApp::loop() {
-	SDL_Event e;
-	while(SDL_PollEvent(&e) > 0) {
-		handleEvents(&e);
-	}
-	if(mShowTitleScreen) {
-		mLoadingScreen->render();
-		mShowTitleScreen = false;
-	}			
-	mMainMenu->playMusic();
-	mMainMenu->render();
-	SDL_Delay(16);
-}
+// void CApp::update() {
+// 	// SDL_Event e;
+// 	// while(SDL_PollEvent(&e) > 0) {
+// 	// 	handleEvents(&e);
+// 	// }
+// 	// if(mShowTitleScreen) {
+// 	// 	mLoadingScreen->render();
+// 	// 	mShowTitleScreen = false;
+// 	// }			
+// 	// mMainMenu->playMusic();
+// 	// mMainMenu->render();
+// 	// SDL_Delay(16);
+	
+// }
 
 int CApp::exec() {
-	if(!init()) {
+	if(!this->init()) {
 		printf("Failed to initialise!");
 	}
 	else {
 		while(mAppIsRunning) {
-			loop();
+			mAppIsRunning = gStateMachine->update();
+			gStateMachine->render();
 		}
 	}
-	CApp::free();
+	this->free();
 	return 0;
 }

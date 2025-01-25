@@ -1,29 +1,33 @@
-#ifndef LTITLE_H
-#define LTITLE_H
+#ifndef LSTARTSTATE_H 
+#define LSTARTSTATE_H   
 
 #include "../utils/util.h"
 #include "../com/constantes.h"
 #include "../LTexture.h"
-#include "LMenu.h"
+#include "LState.h"
+#include "LStateMachine.h"
 
 extern TTF_Font* gFont64; 
 extern TTF_Font* gFont32;
 extern SDL_Renderer* gRenderer;
 extern LTexture gBackgroundTexture;
-
+extern LStateMachine* gStateMachine;
 
 const std::string TITLE_STR = "Chess";
 const std::string TITLE_AUTHOR_STR = "by Valentin with Love";
 
 
-class LTitle : public LMenu {
+class LStartState : public LState {
 
 public:
-    LTitle();
-    void free();
-    bool init();
+    LStartState();
+    void enter();
+    void exit();
+    void update();
     void render();
 private:
+    void free();
+    bool init();
     bool loadTitle();
 	Mix_Chunk* mStartupSound;
     LTexture mTitleTexture[TOTAL_TITLE_ITEMS];

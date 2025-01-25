@@ -5,15 +5,19 @@ LStateMachine::LStateMachine() {
     // Empty for now
 }
 
-LStateMachine::~LStateMachine() {
+void LStateMachine::free() {
     while(!mStates.empty()) {
         mStates.top()->exit();
         mStates.pop();
     }
 }
 
-void LStateMachine::update() {
+bool LStateMachine::update() {
+    if(mStates.empty()) {
+        return false;
+    }
     mStates.top()->update();
+    return true;
 }
 
 void LStateMachine::render() {

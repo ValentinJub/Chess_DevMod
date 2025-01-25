@@ -1,10 +1,46 @@
-#include "LMain.h"
+#include "LMainMenuState.h"
 
-LMain::LMain() {
+LMainMenuState::LMainMenuState() {
     mButtonsAreSet = false;
+	if(!this->init()) {
+		printf("Failed to initialise LMainMenuState");
+	}
 }
 
-void LMain::free() {
+void LMainMenuState::enter() {
+	this->init();
+}
+
+void LMainMenuState::exit() {
+	this->stopMusic();
+	this->unsetButtons();
+	this->free();
+}
+
+void LMainMenuState::update() {
+	this->playMusic();
+	SDL_Event e;
+	while(SDL_PollEvent(&e) > 0) {
+		this->handleEvents(&e);
+	}
+}
+
+void LMainMenuState::render() {
+	SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+	SDL_RenderClear(gRenderer);
+	
+	//render BG 1st
+	gBackgroundTexture.render();
+
+	mMenuTextures[PLAY_AI].render(mMenuTextures[PLAY_AI].x(), mMenuTextures[PLAY_AI].y());
+	mMenuTextures[SETTINGS].render(mMenuTextures[SETTINGS].x(), mMenuTextures[SETTINGS].y());
+	mMenuTextures[PLAY].render(mMenuTextures[PLAY].x(), mMenuTextures[PLAY].y());
+	mMenuTextures[DEVMODE].render(mMenuTextures[DEVMODE].x(), mMenuTextures[DEVMODE].y());
+
+	SDL_RenderPresent(gRenderer);
+}
+
+void LMainMenuState::free() {
     for(int i(0); i < TOTAL_MENU_ITEMS; i++) {
         mMenuTextures[i].free();
     }
@@ -15,7 +51,7 @@ void LMain::free() {
 	mMenuMusic = NULL;
 }
 
-bool LMain::init() {
+bool LMainMenuState::init() {
 	bool success = true; 
 	if(!(mMenuTextures[PLAY].loadFromRenderedText(gFont64, MENU_PLAY_STR.c_str() , COLOR_BLACK))) {
 		success = false;
@@ -35,7 +71,7 @@ bool LMain::init() {
 	return success;
 }
 
-void LMain::setTexturePositions() {
+void LMainMenuState::setTexturePositions() {
     // std::cout << "Setting texture positions" << std::endl;
     mMenuTextures[PLAY_AI].setX((SCREEN_WIDTH - mMenuTextures[PLAY_AI].getWidth()) / 2);
     mMenuTextures[PLAY_AI].setY((SCREEN_HEIGHT / 2) - (mMenuTextures[PLAY_AI].getHeight())); 
@@ -47,7 +83,7 @@ void LMain::setTexturePositions() {
     mMenuTextures[DEVMODE].setY(mMenuTextures[SETTINGS].y() + mMenuTextures[SETTINGS].getHeight());
 }
 
-void LMain::highlightSelected(int position) {
+void LMainMenuState::highlightSelected(int position) {
 	switch(position) {
 		case PLAY:
 			mMenuTextures[PLAY].loadFromRenderedText(gFont64, MENU_PLAY_STR.c_str() , COLOR_RED);
@@ -84,7 +120,8 @@ void LMain::highlightSelected(int position) {
     this->setTexturePositions();
 }
 
-bool LMain::handleEvents(SDL_Event* e) {
+
+bool LMainMenuState::handleEvents(SDL_Event* e) {
     if(handleKeyEvents(e)) {
         return true;
     }
@@ -92,14 +129,14 @@ bool LMain::handleEvents(SDL_Event* e) {
     return false;
 }
 
-bool LMain::handleKeyEvents(SDL_Event* e) {
+bool LMainMenuState::handleKeyEvents(SDL_Event* e) {
 	if(e->type == SDL_QUIT) {
-		return true;
+		gStateMachine->pop();
 	} 
     else if(e->type == SDL_KEYDOWN) {
         switch(e->key.keysym.sym) {
             case SDLK_ESCAPE:
-                return true;
+				gStateMachine->pop();
             case SDLK_1:
                 stopMusic();
                 playPVP();
@@ -118,7 +155,7 @@ bool LMain::handleKeyEvents(SDL_Event* e) {
     return false;
 }
 
-void LMain::handleMouseEvents(SDL_Event* e) {
+void LMainMenuState::handleMouseEvents(SDL_Event* e) {
     for(int i(0); i < TOTAL_MENU_ITEMS; i++) {
 		if(mMenuButtons[i].handleInside(e)) {
 			highlightSelected(i);
@@ -152,23 +189,7 @@ void LMain::handleMouseEvents(SDL_Event* e) {
 	}
 }
 
-
-void LMain::render() {
-	SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-	SDL_RenderClear(gRenderer);
-	
-	//render BG 1st
-	gBackgroundTexture.render();
-
-	mMenuTextures[PLAY_AI].render(mMenuTextures[PLAY_AI].x(), mMenuTextures[PLAY_AI].y());
-	mMenuTextures[SETTINGS].render(mMenuTextures[SETTINGS].x(), mMenuTextures[SETTINGS].y());
-	mMenuTextures[PLAY].render(mMenuTextures[PLAY].x(), mMenuTextures[PLAY].y());
-	mMenuTextures[DEVMODE].render(mMenuTextures[DEVMODE].x(), mMenuTextures[DEVMODE].y());
-
-	SDL_RenderPresent(gRenderer);
-}
-
-void LMain::setButtons() {
+void LMainMenuState::setButtons() {
 	for(int i(0); i < TOTAL_MENU_ITEMS; i++) {
 		mMenuButtons[i].setWidthAndHeight(mMenuTextures[i].getWidth(), mMenuTextures[i].getHeight());
 		mMenuButtons[i].setPosition(mMenuTextures[i].x(), mMenuTextures[i].y());
@@ -177,7 +198,7 @@ void LMain::setButtons() {
     mButtonsAreSet = true;
 }
 
-void LMain::unsetButtons() {
+void LMainMenuState::unsetButtons() {
 	for(int i(0); i < TOTAL_MENU_ITEMS; i++) {
 		mMenuButtons[i].setWidthAndHeight(1,1);
 		mMenuButtons[i].setPosition(0,0);
@@ -186,20 +207,20 @@ void LMain::unsetButtons() {
     mButtonsAreSet = false;
 }
 
-void LMain::flushEvents() {
+void LMainMenuState::flushEvents() {
 	SDL_PumpEvents();
 	SDL_FlushEvents(SDL_MOUSEMOTION, SDL_MOUSEBUTTONUP);
 }
 
-void LMain::playMusic() {
+void LMainMenuState::playMusic() {
 	if(Mix_PlayingMusic() == 0) {
 		Mix_PlayMusic(mMenuMusic, -1);
 		Mix_VolumeMusic(gMusicVolume);
 	}
 }
 
-void LMain::stopMusic() {
+void LMainMenuState::stopMusic() {
 	if(Mix_PlayingMusic()) {
-		Mix_FadeOutMusic(300);
+		Mix_HaltMusic();
 	}
 }
