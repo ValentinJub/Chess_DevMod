@@ -11,7 +11,9 @@ headers for all files - do not put L*.h!!!!
 
 #include "../com/headers.h"
 
-Mix_Music* loadMusic(const char *src);
-Mix_Chunk* loadChunk(const char *src);
-
+namespace Util {
+    bool showTitleScreen(int argc, char *argv[]);
+    Mix_Music* loadMusic(const char *src);
+    Mix_Chunk* loadChunk(const char *src);
+}
 #endif
