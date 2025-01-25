@@ -11,7 +11,8 @@ Methods for LSlider class
 extern SDL_Renderer* gRenderer;
 extern TTF_Font* gFont32;
 extern uint8_t gMusicVolume;
-using std::floor, std::ceil;
+using std::floor;
+using std::ceil;
 
 LSlider::LSlider(int width, int height, int posX, int posY) {
     setSliderWidthAndHeight(width, height);
@@ -103,7 +104,7 @@ bool LSlider::handleEvents( SDL_Event* e, SDL_Point mouse ) {
     SDL_Point dotPosition = mDot->getDotPosition();
 
     if(e->type == SDL_MOUSEBUTTONDOWN) {
-        if((e->button.button == SDL_BUTTON_LEFT)) {
+        if(e->button.button == SDL_BUTTON_LEFT) {
             //Mouse is to the left of the button, it's outside
             if( mouse.x < dotPosition.x )
             {
