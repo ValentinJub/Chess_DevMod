@@ -73,15 +73,15 @@ LBoardPVAI::LBoardPVAI() {
 	mBRook2HasMoved = false;
 	
 	//load sound effect
-	mBingo = loadChunk(CHUNK_CHIME);
-	mCheck = loadChunk(CHUNK_CHECK);
-	mCheckMate = loadChunk(CHUNK_CHECKMATE);
-	mError = loadChunk(CHUNK_ERROR);
-	mPawnForward = loadChunk(CHUNK_MOVE);
-	mCastling = loadChunk(CHUNK_CASTLE);
-	mPieceFall = loadChunk(CHUNK_CAPTURE);
-	mVictory = loadChunk(CHUNK_VICTORY);
-	mDefeat = loadChunk(CHUNK_DEFEAT);
+	mBingo = Util::loadChunk(CHUNK_CHIME);
+	mCheck = Util::loadChunk(CHUNK_CHECK);
+	mCheckMate = Util::loadChunk(CHUNK_CHECKMATE);
+	mError = Util::loadChunk(CHUNK_ERROR);
+	mPawnForward = Util::loadChunk(CHUNK_MOVE);
+	mCastling = Util::loadChunk(CHUNK_CASTLE);
+	mPieceFall = Util::loadChunk(CHUNK_CAPTURE);
+	mVictory = Util::loadChunk(CHUNK_VICTORY);
+	mDefeat = Util::loadChunk(CHUNK_DEFEAT);
 	
 	//start white and black timer and pause the black as white plays first
 	if(mSettingsTable[TL_YES]) {
@@ -138,14 +138,14 @@ void LBoardPVAI::initGameSettings() {
 	if(mSettingsTable[MT_CLASSIC]) {
 		for(int i(0); i < NBR_OF_MUSIC; i++) {
 			std::string str = MUSIC_CLASSIC + std::to_string(i) + ".mp3";
-			mMusic[i] = loadMusic(str.c_str());
+			mMusic[i] = Util::loadMusic(str.c_str());
 		}
 	}
 	//Jazzy
 	else {
 		for(int i(0); i < NBR_OF_MUSIC; i++) {
 			std::string str = MUSIC_JAZZY + std::to_string(i) + ".mp3";
-			mMusic[i] = loadMusic(str.c_str());
+			mMusic[i] = Util::loadMusic(str.c_str());
 		}
 	}
 	//Piece Theme 

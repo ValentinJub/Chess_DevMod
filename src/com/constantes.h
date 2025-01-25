@@ -27,6 +27,7 @@ extern const char* CHUNK_CASTLE;
 extern const char* CHUNK_CAPTURE;
 extern const char* CHUNK_VICTORY;
 extern const char* CHUNK_DEFEAT;
+extern const char* CHUNK_TITLE;
 
 extern const char* FILE_SETTINGS;
 extern const char* FILE_SETTINGS_LEFT;
