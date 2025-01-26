@@ -1,11 +1,13 @@
-#ifndef MAINMENU_H
-#define MAINMENU_H
+#ifndef LMAINMENUSTATE_H
+#define LMAINMENUSTATE_H
 
 #include "../utils/util.h"
 #include "../LTexture.h"
 #include "../LButton.h"
 #include "../settings.h"
-#include "LMenu.h"
+#include "LState.h"
+#include "LStateMachine.h"
+#include "../factories/LMediaFactory.h"
 #include "../com/constantes.h"
 #include "../playPVAI.h"
 #include "../playPVP.h"
@@ -13,7 +15,9 @@
 extern TTF_Font* gFont64; 
 extern TTF_Font* gFont32;
 extern SDL_Renderer* gRenderer;
-extern LTexture gBackgroundTexture;
+extern LTexture* gBackgroundTexture;
+extern LMediaFactory* gMediaFactory;
+extern LStateMachine* gStateMachine;
 extern uint8_t gMusicVolume;
 
 const std::string MENU_PLAY_STR = "Play PvP";
@@ -21,18 +25,22 @@ const std::string MENU_PLAY_AI_STR = "Play vs AI";
 const std::string MENU_SETTINGS_STR = "Game Settings";
 const std::string MENU_DEVMODE_STR = "Developer Mode";
 
-class LMain : public LMenu {
+class LMainMenuState : public LState {
 
 public:
-    LMain();
-    void free();
-    bool handleEvents(SDL_Event* e);
-    bool handleKeyEvents(SDL_Event* e);
-    void handleMouseEvents(SDL_Event* e);
-    bool init();
-    bool loadMenu(LTexture menuTextures[]);
-    void highlightSelected(int position = 3);
+    LMainMenuState();
+    void enter();
+    void exit();
+    void update();
     void render();
+
+private:
+    bool init();
+    void free();
+    void handleEvents(SDL_Event* e);
+    void handleKeyEvents(SDL_Event* e);
+    void handleMouseEvents(SDL_Event* e);
+    void highlightSelected(int position = 3);
     void setButtons();
     void setTexturePositions();
     void unsetButtons();
@@ -40,10 +48,9 @@ public:
     void playMusic();
 	void stopMusic();
 
-private:
     bool mButtonsAreSet;
-    LTexture mMenuTextures[TOTAL_MENU_ITEMS];
-    LButton mMenuButtons[TOTAL_MENU_ITEMS];
+    LTexture* mMenuTextures[TOTAL_MENU_ITEMS];
+    LButton* mMenuButtons[TOTAL_MENU_ITEMS];
 	Mix_Chunk* mMenuClick;
 	Mix_Music* mMenuMusic;
 };

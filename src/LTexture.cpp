@@ -5,17 +5,22 @@ using std::string;
 extern SDL_Renderer* gRenderer;
 extern TTF_Font* gFont64;
 
-LTexture::LTexture(int x, int y) :
+LTexture::LTexture(int x, int y, int w, int h) :
         mX(x),
-        mY(y)
+        mY(y),
+        mWidth(w),
+        mHeight(h)
     {
         mTexture = NULL;
-        mWidth = 0;
-        mHeight = 0;
     }
 
 LTexture::~LTexture() {
     free();
+}
+
+void LTexture::createImg(SDL_Texture* texture) {
+    mTexture = texture;
+    // SDL_QueryTexture(mTexture, NULL, NULL, &mWidth, &mHeight);
 }
 
 #if defined(SDL_TTF_MAJOR_VERSION)
@@ -163,6 +168,11 @@ int LTexture::x() {
 
 int LTexture::y() {
     return mY;
+}
+
+void LTexture::setPos(int x, int y) {
+    this->setX(x);
+    this->setY(y);
 }
 
 void LTexture::setX(int x) {

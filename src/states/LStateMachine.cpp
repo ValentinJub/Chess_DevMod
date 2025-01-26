@@ -1,23 +1,29 @@
 #include "LStateMachine.h"
 #include "LState.h"
+#include <SDL2/SDL.h>
 
 LStateMachine::LStateMachine() {
     // Empty for now
 }
 
-LStateMachine::~LStateMachine() {
+void LStateMachine::free() {
     while(!mStates.empty()) {
         mStates.top()->exit();
         mStates.pop();
     }
 }
 
-void LStateMachine::update() {
+bool LStateMachine::update() {
     mStates.top()->update();
+    if(mStates.empty()) {
+        return false;
+    }
+    return true;
 }
 
 void LStateMachine::render() {
     mStates.top()->render();
+    SDL_Delay(16);
 }
 
 void LStateMachine::push(LState* state) {

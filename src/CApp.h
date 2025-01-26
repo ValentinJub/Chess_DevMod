@@ -11,10 +11,13 @@ headers for CApp
 
 #include "utils/util.h"
 #include "LTexture.h"
-#include "menu/headers.h"
 #include "LButton.h"
 #include "LWindow.h"
 #include "LTimer.h"
+#include "states/LStateMachine.h"
+#include "states/LMainMenuState.h"
+#include "states/LStartState.h"
+#include "factories/LMediaFactory.h"
 
 class CApp {
 public:
@@ -30,13 +33,11 @@ private:
 	void free();
 	void closeSDL();
 	void freeGlobalVars();
-	void loop();
+	void update();
 	void handleEvents(SDL_Event* e);
 	// bool loadWindowIcon(std::string path);
 
 	bool mAppIsRunning, mShowTitleScreen;
-	LTitle * mLoadingScreen;
-	LMain * mMainMenu;
 	LWindow* mWindow; // This is the program's window
 };
 

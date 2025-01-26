@@ -24,8 +24,8 @@ class LState;
 class LStateMachine {
     public:
         LStateMachine();
-        ~LStateMachine();
-        void update();
+        void free();
+        bool update();
         void render();
         void push(LState* state);
         void pop();
