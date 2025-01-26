@@ -93,7 +93,7 @@ bool CApp::initMenus() {
 }
 
 bool CApp::initGlobalVars() {
-	gMediaFactory = new LMediaFactory;
+	gMediaFactory = gMediaFactory->Instance();
 	gRenderer = mWindow->createRenderer();
 	if( gRenderer == NULL ) {
 		printf( "Renderer could not be created! SDL Error: %s\n", SDL_GetError() );

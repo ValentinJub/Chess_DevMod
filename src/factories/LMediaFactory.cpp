@@ -1,5 +1,14 @@
 #include "LMediaFactory.h"
 
+LMediaFactory* LMediaFactory::mInstance = nullptr; // Define the static member variable
+
+LMediaFactory* LMediaFactory::Instance() {
+    if(mInstance == 0) {
+        mInstance = new LMediaFactory();
+    }
+    return mInstance;
+}
+
 LTexture* LMediaFactory::getImg(const std::string& path) {
     if(mImgCache.find(path) == mImgCache.end()) {
         SDL_Texture* newTexture = loadImg(path);

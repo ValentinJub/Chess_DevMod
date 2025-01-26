@@ -9,7 +9,7 @@ extern SDL_Renderer* gRenderer;
 
 class LMediaFactory : public LFactory {
 public:
-    LMediaFactory() {}
+    static LMediaFactory* Instance();
     LTexture* getImg(const std::string& path) override;
     LTexture* getTxt(const std::string& text, TTF_Font* font, SDL_Color color) override;
     Mix_Chunk* getChunk(const char* path) override;
@@ -21,8 +21,10 @@ public:
         mMusicCache.clear();
     }
     ~LMediaFactory() {}
+protected:
+    LMediaFactory() {}
 private:
-
+    static LMediaFactory* mInstance;
     struct SDLTextureDeleter {
         void operator()(SDL_Texture* txt) const {
             if(txt != nullptr) {
