@@ -7,11 +7,14 @@ LMainMenuState::LMainMenuState() {
 	}
 }
 
-void LMainMenuState::enter() {
+void LMainMenuState::enter(LObserver* observer) {
+	mAppObserver = observer;
+	this->Attach(observer);
 	this->init();
 }
 
 void LMainMenuState::exit() {
+	this->Detach(mAppObserver);
 	this->stopMusic();
 	this->unsetButtons();
 	this->free();
@@ -127,11 +130,13 @@ void LMainMenuState::handleEvents(SDL_Event* e) {
 
 void LMainMenuState::handleKeyEvents(SDL_Event* e) {
 	if(e->type == SDL_QUIT) {
+		this->Notify();
 		gStateMachine->pop();
 	} 
     else if(e->type == SDL_KEYDOWN) {
         switch(e->key.keysym.sym) {
             case SDLK_ESCAPE:
+				this->Notify();
 				gStateMachine->pop();
 				break;
             case SDLK_1:

@@ -114,13 +114,17 @@ bool CApp::initGlobalVars() {
 		return false;
 	}
 	gMusicVolume = MIX_MAX_VOLUME / 2;
-	gStateMachine = new LStateMachine;
+	gStateMachine = new LStateMachine(this);
 	return true;
 }
 
 bool CApp::init() {
 	srand(time(0));
 	return initSDL() && initWindow() && initGlobalVars() && initMenus();
+}
+
+void CApp::poll(LSubject* subject) {
+	mAppIsRunning = false;
 }
 
 // bool CApp::loadWindowIcon(std::string path) {
@@ -145,7 +149,8 @@ int CApp::exec() {
 		printf("Failed to initialise!");
 	}
 	else {
-		while(gStateMachine->update()) {
+		while(this->mAppIsRunning) {
+			gStateMachine->update();
 			gStateMachine->render();
 		}
 	}

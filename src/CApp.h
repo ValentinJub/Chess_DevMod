@@ -18,8 +18,9 @@ headers for CApp
 #include "states/LMainMenuState.h"
 #include "states/LStartState.h"
 #include "factories/LMediaFactory.h"
+#include "com/LObserver.h"
 
-class CApp {
+class CApp : public LObserver {
 public:
 	CApp(bool showTitleScreen);
 	int exec();
@@ -34,6 +35,7 @@ private:
 	void closeSDL();
 	void freeGlobalVars();
 	void update();
+	void poll(LSubject* subject);
 	void handleEvents(SDL_Event* e);
 	// bool loadWindowIcon(std::string path);
 

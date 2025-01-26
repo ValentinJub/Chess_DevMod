@@ -43,3 +43,4 @@ Makefile
 build/*
 
 resources/settings.config
+chess

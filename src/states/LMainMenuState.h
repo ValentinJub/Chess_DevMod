@@ -11,6 +11,8 @@
 #include "com/constantes.h"
 #include "playPVAI.h"
 #include "playPVP.h"
+#include "com/LObserver.h"
+#include "com/LSubject.h"
 
 extern TTF_Font* gFont64; 
 extern TTF_Font* gFont32;
@@ -25,11 +27,11 @@ const std::string MENU_PLAY_AI_STR = "Play vs AI";
 const std::string MENU_SETTINGS_STR = "Game Settings";
 const std::string MENU_DEVMODE_STR = "Developer Mode";
 
-class LMainMenuState : public LState {
+class LMainMenuState : public LState, public LSubject {
 
 public:
     LMainMenuState();
-    void enter();
+    void enter(LObserver* observer);
     void exit();
     void update();
     void render();
@@ -53,6 +55,7 @@ private:
     LButton* mMenuButtons[TOTAL_MENU_ITEMS];
 	Mix_Chunk* mMenuClick;
 	Mix_Music* mMenuMusic;
+    LObserver* mAppObserver;
 };
 
 

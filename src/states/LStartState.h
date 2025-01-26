@@ -7,6 +7,8 @@
 #include "LState.h"
 #include "LStateMachine.h"
 #include "factories/LMediaFactory.h"
+#include "com/LObserver.h"
+#include "com/LSubject.h"
 
 extern TTF_Font* gFont64; 
 extern TTF_Font* gFont32;
@@ -19,11 +21,11 @@ const std::string TITLE_STR = "Chess";
 const std::string TITLE_AUTHOR_STR = "by Valentin with Love";
 
 
-class LStartState : public LState {
+class LStartState : public LState, public LSubject {
 
 public:
     LStartState();
-    void enter();
+    void enter(LObserver* observer);
     void exit();
     void update();
     void render();
@@ -34,6 +36,7 @@ private:
     void loadSound();
 	Mix_Chunk* mStartupSound;
     LTexture* mTitleTexture[TOTAL_TITLE_ITEMS];
+    LObserver* mObserver;
 };
 
 #endif

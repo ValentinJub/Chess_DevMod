@@ -15,10 +15,12 @@
 #ifndef LSTATE_H
 #define LSTATE_H
 
+class LObserver;
+
 
 class LState {
 public:
-    virtual void enter() = 0;
+    virtual void enter(LObserver* observer) = 0;
     virtual void exit() = 0;
     virtual void render() = 0;
     virtual void update() = 0;

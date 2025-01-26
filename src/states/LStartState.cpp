@@ -4,12 +4,15 @@ LStartState::LStartState() {
     
 }
 
-void LStartState::enter() {
+void LStartState::enter(LObserver* observer) {
+	mObserver = observer;
+	this->Attach(observer);
 	this->init();
 	Mix_PlayChannel(-1, mStartupSound, 0);
 }
 
 void LStartState::exit() {
+	this->Detach(mObserver);
 	this->free();
 }
 
@@ -18,6 +21,7 @@ void LStartState::update() {
 	while(SDL_PollEvent(&e) > 0) {
 		if(e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_q)) {
 			gStateMachine->pop();
+			this->Notify();
 		}
 	}
 	// The title screen will only be displayed while the music is playing

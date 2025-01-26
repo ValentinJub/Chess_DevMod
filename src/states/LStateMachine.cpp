@@ -2,9 +2,7 @@
 #include "LState.h"
 #include <SDL2/SDL.h>
 
-LStateMachine::LStateMachine() {
-    // Empty for now
-}
+LStateMachine::LStateMachine(LObserver* appObserver) : mAppObserver(appObserver) {}
 
 void LStateMachine::free() {
     while(!mStates.empty()) {
@@ -13,22 +11,19 @@ void LStateMachine::free() {
     }
 }
 
-bool LStateMachine::update() {
+void LStateMachine::update() {
     mStates.top()->update();
-    if(mStates.empty()) {
-        return false;
-    }
-    return true;
 }
 
 void LStateMachine::render() {
+    if(mStates.empty()) return;
     mStates.top()->render();
     SDL_Delay(16);
 }
 
 void LStateMachine::push(LState* state) {
     mStates.push(state);
-    state->enter();
+    state->enter(mAppObserver);
 }
 
 void LStateMachine::pop() {

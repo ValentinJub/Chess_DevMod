@@ -18,19 +18,21 @@ It would be desirable to keep some states in memory such as the main menu, the s
 #define LSTATEMACHINE_H
 
 #include <stack>
+#include "com/LObserver.h"
 
 class LState;
 
 class LStateMachine {
     public:
-        LStateMachine();
+        LStateMachine(LObserver *appObserver);
         void free();
-        bool update();
+        void update();
         void render();
         void push(LState* state);
         void pop();
     private:
         std::stack<LState*> mStates;
+        LObserver* mAppObserver;
 };
 
 #endif
