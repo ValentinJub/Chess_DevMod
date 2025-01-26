@@ -1,7 +1,7 @@
 #include "playPVP.h"
 
 extern SDL_Renderer* gRenderer;
-extern LTexture gBackgroundTexture;
+extern LTexture* gBackgroundTexture;
 
 void playPVP() {
 	LBoardPVP board;
@@ -52,7 +52,7 @@ void playPVP() {
 			SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 			SDL_RenderClear(gRenderer);
 			
-			gBackgroundTexture.render();
+			gBackgroundTexture->render();
 			
 			//establish possible moves if a piece is selected
 			board.showLegalMove();

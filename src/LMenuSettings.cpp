@@ -9,7 +9,7 @@ Methods for LSettings class
 #include "LMenuSettings.h"
 
 extern SDL_Renderer* gRenderer;
-extern LTexture gBackgroundTexture;
+extern LTexture* gBackgroundTexture;
 
 LSettings::LSettings(){
     mFont = NULL;

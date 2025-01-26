@@ -15,7 +15,7 @@ Settings menu allowing to select various options such as:
 #include "settings.h"
 
 extern SDL_Renderer* gRenderer;
-extern LTexture gBackgroundTexture;
+extern LTexture* gBackgroundTexture;
 
 void settings() {
 	LSettings menuSettings;
@@ -36,7 +36,7 @@ void settings() {
 		SDL_SetRenderDrawColor(gRenderer, 0XFF, 0xFF, 0xFF, 0xFF);
 		SDL_RenderClear(gRenderer);
 		
-		gBackgroundTexture.render();
+		gBackgroundTexture->render();
 		
 		menuSettings.renderLeftTexture();
 		menuSettings.renderClickableTexture();

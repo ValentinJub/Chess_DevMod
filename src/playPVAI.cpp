@@ -1,7 +1,7 @@
 #include "playPVAI.h"
 
 extern SDL_Renderer* gRenderer;
-extern LTexture gBackgroundTexture;
+extern LTexture* gBackgroundTexture;
 
 void playerVersusComputer() {
 	LBoardPVAI board;
@@ -60,7 +60,7 @@ void playerVersusComputer() {
 			SDL_RenderClear(gRenderer);
 			
 			// render background
-			gBackgroundTexture.render();
+			gBackgroundTexture->render();
 			
 			//display tiles
 			board.renderTile();

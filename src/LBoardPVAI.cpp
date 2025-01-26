@@ -8,7 +8,7 @@ Methods for class LBoardPVAI
 
 #include "LBoardPVAI.h"
 
-extern LTexture gBackgroundTexture;
+extern LTexture* gBackgroundTexture;
 
 using std::vector;
 extern TTF_Font* gFont64;
@@ -1287,7 +1287,7 @@ void LBoardPVAI::renderBeforeBlackPlays() {
 	SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 	SDL_RenderClear(gRenderer);
 	
-	gBackgroundTexture.render();
+	gBackgroundTexture->render();
 	
 	//display tiles
 	renderTile();
