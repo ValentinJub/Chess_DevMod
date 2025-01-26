@@ -8,17 +8,14 @@ Methods for LButtons class
 
 #include "LButton.h"
 
-LButton::LButton()
-{
-    mPosition.x = 0;
-    mPosition.y = 0;
-    mWidth = 0;
-    mHeight = 0;
-
+LButton::LButton(int x, int y, int w, int h) {
+    mPosition.x = x;
+    mPosition.y = y;
+    mWidth = w;
+    mHeight = h;
 }
 
-void LButton::setPosition( int x, int y )
-{
+void LButton::setPosition( int x, int y ) {
     mPosition.x = x;
     mPosition.y = y;
 }

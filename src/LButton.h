@@ -15,7 +15,7 @@ Prototypes and const for LButtons class
 class LButton
 {
     public:
-        LButton();
+        LButton(int x = 0, int y = 0, int w = 0, int h = 0);
         //Sets top left position
         void setPosition( int x, int y );
         void setWidthAndHeight(int width, int height);
