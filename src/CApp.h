@@ -17,6 +17,7 @@ headers for CApp
 #include "states/LStateMachine.h"
 #include "states/LMainMenuState.h"
 #include "states/LStartState.h"
+#include "factories/LMediaFactory.h"
 
 class CApp {
 public:

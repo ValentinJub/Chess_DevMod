@@ -30,19 +30,19 @@ void LMainMenuState::render() {
 	SDL_RenderClear(gRenderer);
 	
 	//render BG 1st
-	gBackgroundTexture.render();
+	gBackgroundTexture->render();
 
-	mMenuTextures[PLAY_AI].render(mMenuTextures[PLAY_AI].x(), mMenuTextures[PLAY_AI].y());
-	mMenuTextures[SETTINGS].render(mMenuTextures[SETTINGS].x(), mMenuTextures[SETTINGS].y());
-	mMenuTextures[PLAY].render(mMenuTextures[PLAY].x(), mMenuTextures[PLAY].y());
-	mMenuTextures[DEVMODE].render(mMenuTextures[DEVMODE].x(), mMenuTextures[DEVMODE].y());
+	mMenuTextures[PLAY_AI]->render(mMenuTextures[PLAY_AI]->x(), mMenuTextures[PLAY_AI]->y());
+	mMenuTextures[SETTINGS]->render(mMenuTextures[SETTINGS]->x(), mMenuTextures[SETTINGS]->y());
+	mMenuTextures[PLAY]->render(mMenuTextures[PLAY]->x(), mMenuTextures[PLAY]->y());
+	mMenuTextures[DEVMODE]->render(mMenuTextures[DEVMODE]->x(), mMenuTextures[DEVMODE]->y());
 
 	SDL_RenderPresent(gRenderer);
 }
 
 void LMainMenuState::free() {
     for(int i(0); i < TOTAL_MENU_ITEMS; i++) {
-        mMenuTextures[i].free();
+        mMenuTextures[i]->free();
     }
     Mix_FreeChunk(mMenuClick);
 	mMenuClick = NULL;
@@ -52,68 +52,67 @@ void LMainMenuState::free() {
 }
 
 bool LMainMenuState::init() {
-	bool success = true; 
-	if(!(mMenuTextures[PLAY].loadFromRenderedText(gFont64, MENU_PLAY_STR.c_str() , COLOR_BLACK))) {
-		success = false;
-	}
-	else if(!(mMenuTextures[PLAY_AI].loadFromRenderedText(gFont64, MENU_PLAY_AI_STR.c_str() , COLOR_BLACK))) {
-		success = false;
-	}
-	else if(!(mMenuTextures[SETTINGS].loadFromRenderedText(gFont64, MENU_SETTINGS_STR.c_str() , COLOR_BLACK))) {
-		success = false;
-	}
-	else if(!(mMenuTextures[DEVMODE].loadFromRenderedText(gFont64, MENU_DEVMODE_STR.c_str() , COLOR_BLACK))) {
-		success = false;
-	}
+	mMenuTextures[PLAY] = gMediaFactory->getTxt(MENU_PLAY_STR, gFont64, COLOR_BLACK);
+	mMenuTextures[PLAY_AI] = gMediaFactory->getTxt(MENU_PLAY_AI_STR, gFont64, COLOR_BLACK);
+	mMenuTextures[SETTINGS] = gMediaFactory->getTxt(MENU_SETTINGS_STR, gFont64, COLOR_BLACK);
+	mMenuTextures[DEVMODE] = gMediaFactory->getTxt(MENU_DEVMODE_STR, gFont64, COLOR_BLACK);
+    mMenuMusic = Util::loadMusic(MUSIC_MENU);
     this->setTexturePositions();
     this->setButtons();
-    mMenuMusic = Util::loadMusic(MUSIC_MENU);
-	return success;
+
+	return mMenuTextures[PLAY] != NULL && mMenuTextures[PLAY_AI] != NULL && mMenuTextures[SETTINGS] != NULL && mMenuTextures[DEVMODE] != NULL && mMenuMusic != NULL;	
 }
 
 void LMainMenuState::setTexturePositions() {
-    // std::cout << "Setting texture positions" << std::endl;
-    mMenuTextures[PLAY_AI].setX((SCREEN_WIDTH - mMenuTextures[PLAY_AI].getWidth()) / 2);
-    mMenuTextures[PLAY_AI].setY((SCREEN_HEIGHT / 2) - (mMenuTextures[PLAY_AI].getHeight())); 
-    mMenuTextures[SETTINGS].setX((SCREEN_WIDTH - mMenuTextures[SETTINGS].getWidth()) / 2);
-    mMenuTextures[SETTINGS].setY(mMenuTextures[PLAY_AI].y() + mMenuTextures[PLAY_AI].getHeight());
-    mMenuTextures[PLAY].setX((SCREEN_WIDTH - mMenuTextures[PLAY].getWidth()) / 2);
-    mMenuTextures[PLAY].setY(mMenuTextures[PLAY_AI].y() - mMenuTextures[PLAY].getHeight());
-    mMenuTextures[DEVMODE].setX((SCREEN_WIDTH - mMenuTextures[DEVMODE].getWidth()) / 2);
-    mMenuTextures[DEVMODE].setY(mMenuTextures[SETTINGS].y() + mMenuTextures[SETTINGS].getHeight());
+	mMenuTextures[PLAY_AI]->setPos(
+		(SCREEN_WIDTH - mMenuTextures[PLAY_AI]->getWidth()) / 2, 
+		(SCREEN_HEIGHT / 2) - (mMenuTextures[PLAY_AI]->getHeight())
+	); 
+	mMenuTextures[SETTINGS]->setPos(
+		(SCREEN_WIDTH - mMenuTextures[SETTINGS]->getWidth()) / 2, 
+		mMenuTextures[PLAY_AI]->y() + mMenuTextures[PLAY_AI]->getHeight()
+	);
+	mMenuTextures[PLAY]->setPos(
+		(SCREEN_WIDTH - mMenuTextures[PLAY]->getWidth()) / 2,
+		mMenuTextures[PLAY_AI]->y() - mMenuTextures[PLAY]->getHeight()
+	);
+	mMenuTextures[DEVMODE]->setPos(
+		(SCREEN_WIDTH - mMenuTextures[DEVMODE]->getWidth()) / 2,
+		mMenuTextures[SETTINGS]->y() + mMenuTextures[SETTINGS]->getHeight()
+	);
 }
 
 void LMainMenuState::highlightSelected(int position) {
 	switch(position) {
 		case PLAY:
-			mMenuTextures[PLAY].loadFromRenderedText(gFont64, MENU_PLAY_STR.c_str() , COLOR_RED);
-			mMenuTextures[PLAY_AI].loadFromRenderedText(gFont64, MENU_PLAY_AI_STR.c_str() , COLOR_BLACK);
-			mMenuTextures[SETTINGS].loadFromRenderedText(gFont64, MENU_SETTINGS_STR.c_str() , COLOR_BLACK);
-			mMenuTextures[DEVMODE].loadFromRenderedText(gFont64, MENU_DEVMODE_STR.c_str() , COLOR_BLACK);
+			mMenuTextures[PLAY] = gMediaFactory->getTxt(MENU_PLAY_STR, gFont64, COLOR_RED);
+			mMenuTextures[PLAY_AI] = gMediaFactory->getTxt(MENU_PLAY_AI_STR, gFont64, COLOR_BLACK);
+			mMenuTextures[SETTINGS] = gMediaFactory->getTxt(MENU_SETTINGS_STR, gFont64, COLOR_BLACK);
+			mMenuTextures[DEVMODE] = gMediaFactory->getTxt(MENU_DEVMODE_STR, gFont64, COLOR_BLACK);
 			break;
 		case PLAY_AI:
-			mMenuTextures[PLAY].loadFromRenderedText(gFont64, MENU_PLAY_STR.c_str() , COLOR_BLACK);
-			mMenuTextures[PLAY_AI].loadFromRenderedText(gFont64, MENU_PLAY_AI_STR.c_str() , COLOR_RED);
-			mMenuTextures[SETTINGS].loadFromRenderedText(gFont64, MENU_SETTINGS_STR.c_str() , COLOR_BLACK);
-			mMenuTextures[DEVMODE].loadFromRenderedText(gFont64, MENU_DEVMODE_STR.c_str() , COLOR_BLACK);
+			mMenuTextures[PLAY] = gMediaFactory->getTxt(MENU_PLAY_STR, gFont64, COLOR_BLACK);
+			mMenuTextures[PLAY_AI] = gMediaFactory->getTxt(MENU_PLAY_AI_STR, gFont64, COLOR_RED);
+			mMenuTextures[SETTINGS] = gMediaFactory->getTxt(MENU_SETTINGS_STR, gFont64, COLOR_BLACK);
+			mMenuTextures[DEVMODE] = gMediaFactory->getTxt(MENU_DEVMODE_STR, gFont64, COLOR_BLACK);
 			break;
 		case SETTINGS:
-			mMenuTextures[PLAY].loadFromRenderedText(gFont64, MENU_PLAY_STR.c_str() , COLOR_BLACK);
-			mMenuTextures[PLAY_AI].loadFromRenderedText(gFont64, MENU_PLAY_AI_STR.c_str() , COLOR_BLACK);
-			mMenuTextures[SETTINGS].loadFromRenderedText(gFont64, MENU_SETTINGS_STR.c_str() , COLOR_RED);
-			mMenuTextures[DEVMODE].loadFromRenderedText(gFont64, MENU_DEVMODE_STR.c_str() , COLOR_BLACK);
+			mMenuTextures[PLAY] = gMediaFactory->getTxt(MENU_PLAY_STR, gFont64, COLOR_BLACK);
+			mMenuTextures[PLAY_AI] = gMediaFactory->getTxt(MENU_PLAY_AI_STR, gFont64, COLOR_BLACK);
+			mMenuTextures[SETTINGS] = gMediaFactory->getTxt(MENU_SETTINGS_STR, gFont64, COLOR_RED);
+			mMenuTextures[DEVMODE] = gMediaFactory->getTxt(MENU_DEVMODE_STR, gFont64, COLOR_BLACK);
 			break;
 		case DEVMODE:
-			mMenuTextures[PLAY].loadFromRenderedText(gFont64, MENU_PLAY_STR.c_str() , COLOR_BLACK);
-			mMenuTextures[PLAY_AI].loadFromRenderedText(gFont64, MENU_PLAY_AI_STR.c_str() , COLOR_BLACK);
-			mMenuTextures[SETTINGS].loadFromRenderedText(gFont64, MENU_SETTINGS_STR.c_str() , COLOR_BLACK);
-			mMenuTextures[DEVMODE].loadFromRenderedText(gFont64, MENU_DEVMODE_STR.c_str() , COLOR_RED);
+			mMenuTextures[PLAY] = gMediaFactory->getTxt(MENU_PLAY_STR, gFont64, COLOR_BLACK);
+			mMenuTextures[PLAY_AI] = gMediaFactory->getTxt(MENU_PLAY_AI_STR, gFont64, COLOR_BLACK);
+			mMenuTextures[SETTINGS] = gMediaFactory->getTxt(MENU_SETTINGS_STR, gFont64, COLOR_BLACK);
+			mMenuTextures[DEVMODE] = gMediaFactory->getTxt(MENU_DEVMODE_STR, gFont64, COLOR_RED);
 			break;
 		default: 
-			mMenuTextures[PLAY].loadFromRenderedText(gFont64, MENU_PLAY_STR.c_str() , COLOR_BLACK);
-			mMenuTextures[PLAY_AI].loadFromRenderedText(gFont64, MENU_PLAY_AI_STR.c_str() , COLOR_BLACK);
-			mMenuTextures[SETTINGS].loadFromRenderedText(gFont64, MENU_SETTINGS_STR.c_str() , COLOR_BLACK);
-			mMenuTextures[DEVMODE].loadFromRenderedText(gFont64, MENU_DEVMODE_STR.c_str() , COLOR_BLACK);
+			mMenuTextures[PLAY] = gMediaFactory->getTxt(MENU_PLAY_STR, gFont64, COLOR_BLACK);
+			mMenuTextures[PLAY_AI] = gMediaFactory->getTxt(MENU_PLAY_AI_STR, gFont64, COLOR_BLACK);
+			mMenuTextures[SETTINGS] = gMediaFactory->getTxt(MENU_SETTINGS_STR, gFont64, COLOR_BLACK);
+			mMenuTextures[DEVMODE] = gMediaFactory->getTxt(MENU_DEVMODE_STR, gFont64, COLOR_BLACK);
 			break;
 	}
     // Re-loading the textures with the new color will remove the position of the textures, so we need to reset them
@@ -121,15 +120,12 @@ void LMainMenuState::highlightSelected(int position) {
 }
 
 
-bool LMainMenuState::handleEvents(SDL_Event* e) {
-    if(handleKeyEvents(e)) {
-        return true;
-    }
-    handleMouseEvents(e);
-    return false;
+void LMainMenuState::handleEvents(SDL_Event* e) {
+    this->handleKeyEvents(e);
+    this->handleMouseEvents(e);
 }
 
-bool LMainMenuState::handleKeyEvents(SDL_Event* e) {
+void LMainMenuState::handleKeyEvents(SDL_Event* e) {
 	if(e->type == SDL_QUIT) {
 		gStateMachine->pop();
 	} 
@@ -137,6 +133,7 @@ bool LMainMenuState::handleKeyEvents(SDL_Event* e) {
         switch(e->key.keysym.sym) {
             case SDLK_ESCAPE:
 				gStateMachine->pop();
+				break;
             case SDLK_1:
                 stopMusic();
                 playPVP();
@@ -152,14 +149,13 @@ bool LMainMenuState::handleKeyEvents(SDL_Event* e) {
                 break;
             }
 	}
-    return false;
 }
 
 void LMainMenuState::handleMouseEvents(SDL_Event* e) {
     for(int i(0); i < TOTAL_MENU_ITEMS; i++) {
-		if(mMenuButtons[i].handleInside(e)) {
+		if(mMenuButtons[i]->handleInside(e)) {
 			highlightSelected(i);
-			if(mMenuButtons[i].handleClick(e)) {
+			if(mMenuButtons[i]->handleClick(e)) {
 				if(i == PLAY) {
 					stopMusic();
 					playPVP();
@@ -191,19 +187,21 @@ void LMainMenuState::handleMouseEvents(SDL_Event* e) {
 
 void LMainMenuState::setButtons() {
 	for(int i(0); i < TOTAL_MENU_ITEMS; i++) {
-		mMenuButtons[i].setWidthAndHeight(mMenuTextures[i].getWidth(), mMenuTextures[i].getHeight());
-		mMenuButtons[i].setPosition(mMenuTextures[i].x(), mMenuTextures[i].y());
+		mMenuButtons[i] = new LButton(
+			mMenuTextures[i]->x(), 
+			mMenuTextures[i]->y(), 
+			mMenuTextures[i]->getWidth(), 
+			mMenuTextures[i]->getHeight()
+		);
 	}
-    // std::cout << "Buttons are now set" << std::endl;
     mButtonsAreSet = true;
 }
 
 void LMainMenuState::unsetButtons() {
 	for(int i(0); i < TOTAL_MENU_ITEMS; i++) {
-		mMenuButtons[i].setWidthAndHeight(1,1);
-		mMenuButtons[i].setPosition(0,0);
+		mMenuButtons[i]->setWidthAndHeight(1,1);
+		mMenuButtons[i]->setPosition(0,0);
 	}
-    // std::cout << "Buttons are now unset" << std::endl;
     mButtonsAreSet = false;
 }
 

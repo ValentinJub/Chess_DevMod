@@ -6,11 +6,13 @@
 #include "../LTexture.h"
 #include "LState.h"
 #include "LStateMachine.h"
+#include "../factories/LMediaFactory.h"
 
 extern TTF_Font* gFont64; 
 extern TTF_Font* gFont32;
 extern SDL_Renderer* gRenderer;
-extern LTexture gBackgroundTexture;
+extern LTexture* gBackgroundTexture;
+extern LMediaFactory* gMediaFactory;
 extern LStateMachine* gStateMachine;
 
 const std::string TITLE_STR = "Chess";
@@ -28,9 +30,10 @@ public:
 private:
     void free();
     bool init();
-    bool loadTitle();
+    void loadTexture();
+    void loadSound();
 	Mix_Chunk* mStartupSound;
-    LTexture mTitleTexture[TOTAL_TITLE_ITEMS];
+    LTexture* mTitleTexture[TOTAL_TITLE_ITEMS];
 };
 
 #endif

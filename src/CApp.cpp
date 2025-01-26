@@ -1,8 +1,9 @@
 #include "CApp.h"
 
 SDL_Renderer* gRenderer;
-LStateMachine* gStateMachine; 
-LTexture gBackgroundTexture;
+LStateMachine* gStateMachine;
+LMediaFactory* gMediaFactory;
+LTexture* gBackgroundTexture;
 TTF_Font* gFont64;
 TTF_Font* gFont32;
 
@@ -17,14 +18,15 @@ CApp::CApp(bool showTitleScreen) {
 }
 
 void CApp::free() {
-	gStateMachine->free();
-	mWindow->free();
 	this->freeGlobalVars();
+	mWindow->free();
 	this->closeSDL();	
 }
 
 void CApp::freeGlobalVars() {
-	gBackgroundTexture.free();
+	gMediaFactory->free();
+	gBackgroundTexture->free();
+	gStateMachine->free();
 	if(gFont64 != NULL) {
 		TTF_CloseFont(gFont64);
 		gFont64 = NULL;
@@ -82,20 +84,6 @@ bool CApp::initWindow() {
 	return true;
 }
 
-// bool CApp::initMenus() {
-// 	if(mShowTitleScreen) {
-// 		mLoadingScreen = new LTitle;
-// 		if(!mLoadingScreen->init()) {
-// 			return false;
-// 		}
-// 	}
-// 	mMainMenu = new LMain;
-// 	if(!mMainMenu->init()) {
-// 		return false;
-// 	}
-// 	return true;
-// }
-
 bool CApp::initMenus() {
 	gStateMachine->push(new LMainMenuState);
 	if(mShowTitleScreen) {
@@ -105,12 +93,14 @@ bool CApp::initMenus() {
 }
 
 bool CApp::initGlobalVars() {
+	gMediaFactory = new LMediaFactory;
 	gRenderer = mWindow->createRenderer();
 	if( gRenderer == NULL ) {
 		printf( "Renderer could not be created! SDL Error: %s\n", SDL_GetError() );
 		return false;
 	}
-	if(!gBackgroundTexture.loadFromFile(SPRITE_BACKGROUND)) {
+	gBackgroundTexture = gMediaFactory->getImg(SPRITE_BACKGROUND);
+	if(gBackgroundTexture == NULL) {
 		return false;
 	}
 	gFont64 = TTF_OpenFont( FONT_BRANDA, 64 );
@@ -150,34 +140,12 @@ bool CApp::init() {
 // 	}
 // }
 
-// void CApp::handleEvents(SDL_Event* e) {
-// 	if(mMainMenu->handleEvents(e)) {
-// 		mAppIsRunning = false;
-// 	}
-// }
-
-// void CApp::update() {
-// 	// SDL_Event e;
-// 	// while(SDL_PollEvent(&e) > 0) {
-// 	// 	handleEvents(&e);
-// 	// }
-// 	// if(mShowTitleScreen) {
-// 	// 	mLoadingScreen->render();
-// 	// 	mShowTitleScreen = false;
-// 	// }			
-// 	// mMainMenu->playMusic();
-// 	// mMainMenu->render();
-// 	// SDL_Delay(16);
-	
-// }
-
 int CApp::exec() {
 	if(!this->init()) {
 		printf("Failed to initialise!");
 	}
 	else {
-		while(mAppIsRunning) {
-			mAppIsRunning = gStateMachine->update();
+		while(gStateMachine->update()) {
 			gStateMachine->render();
 		}
 	}
