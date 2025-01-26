@@ -1,16 +1,16 @@
 #ifndef LMAINMENUSTATE_H
 #define LMAINMENUSTATE_H
 
-#include "../utils/util.h"
-#include "../LTexture.h"
-#include "../LButton.h"
-#include "../settings.h"
+#include "utils/util.h"
+#include "LTexture.h"
+#include "LButton.h"
+#include "settings.h"
 #include "LState.h"
 #include "LStateMachine.h"
-#include "../factories/LMediaFactory.h"
-#include "../com/constantes.h"
-#include "../playPVAI.h"
-#include "../playPVP.h"
+#include "factories/LMediaFactory.h"
+#include "com/constantes.h"
+#include "playPVAI.h"
+#include "playPVP.h"
 
 extern TTF_Font* gFont64; 
 extern TTF_Font* gFont32;

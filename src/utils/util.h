@@ -9,7 +9,7 @@ headers for all files - do not put L*.h!!!!
 #ifndef HEADER_UTIL
 #define HEADER_UTIL
 
-#include "../com/headers.h"
+#include "com/headers.h"
 
 namespace Util {
     bool showTitleScreen(int argc, char *argv[]);

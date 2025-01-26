@@ -1,12 +1,12 @@
 #ifndef LSTARTSTATE_H 
 #define LSTARTSTATE_H   
 
-#include "../utils/util.h"
-#include "../com/constantes.h"
-#include "../LTexture.h"
+#include "utils/util.h"
+#include "com/constantes.h"
+#include "LTexture.h"
 #include "LState.h"
 #include "LStateMachine.h"
-#include "../factories/LMediaFactory.h"
+#include "factories/LMediaFactory.h"
 
 extern TTF_Font* gFont64; 
 extern TTF_Font* gFont32;
