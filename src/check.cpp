@@ -9,7 +9,7 @@ bool isKingChecked(const int mapCopy[SPL][SPL], const int piece, const int desX,
 	//make a local copy of the map to preview the move
 	//if the move checks its own color - pollDiscoverAttack 
 	//returns true, error sound is played + no move
-	int map[SPL][SPL] = {0};
+	int map[SPL][SPL] = {{0}};
 	for(int a(0); a < SPL; a++) {
 		for(int b(0); b < SPL; b++) {
 			map[a][b] = mapCopy[a][b];

@@ -40,10 +40,12 @@ class LTexture {
     private:
     SDL_Texture* mTexture;
     
-    int mHeight;
-    int mWidth;
     int mX;
     int mY;
+    int mWidth;
+    int mHeight;
+    
+    
 };
 
 #endif

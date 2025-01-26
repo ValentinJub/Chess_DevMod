@@ -48,7 +48,7 @@ void LStartState::free() {
     mTitleTexture[AUTHOR]->free();
 }
 
-bool LStartState::init() {
+void LStartState::init() {
 	this->loadTexture();
 	this->loadSound();
 }

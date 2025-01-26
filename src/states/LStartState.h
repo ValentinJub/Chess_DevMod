@@ -29,7 +29,7 @@ public:
     void render();
 private:
     void free();
-    bool init();
+    void init();
     void loadTexture();
     void loadSound();
 	Mix_Chunk* mStartupSound;

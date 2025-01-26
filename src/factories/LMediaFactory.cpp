@@ -1,9 +1,8 @@
 #include "LMediaFactory.h"
 
 LTexture* LMediaFactory::getImg(const std::string& path) {
-    SDL_Texture* newTexture;
     if(mImgCache.find(path) == mImgCache.end()) {
-        newTexture = loadImg(path);
+        SDL_Texture* newTexture = loadImg(path);
         if(newTexture == NULL) return nullptr;
         mImgCache[path] = std::unique_ptr<SDL_Texture, LMediaFactory::SDLTextureDeleter>(newTexture);
     }
@@ -12,7 +11,6 @@ LTexture* LMediaFactory::getImg(const std::string& path) {
 
 LTexture* LMediaFactory::getTxt(const std::string& text, TTF_Font* font, SDL_Color color) {
     TextKey key = {text, font, color};
-    SDL_Texture* newTexture;
     if(mTxtCache.find(key) == mTxtCache.end()) {
         SDL_Texture* newTexture = loadText(text, font, color);
         if(newTexture == NULL) return nullptr;

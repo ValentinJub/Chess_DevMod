@@ -477,8 +477,7 @@ void LSettings::setOptionTexturePosition() {
 
 // set the position of the right hand side textures
 void LSettings::setClickableTexturePosition() {
-    const int   padding(5),
-                bigPadding(10),
+    const int   bigPadding(10),
                 titleHeight(mOptionMenuTexture[0]->getHeight()),
                 topY(bigPadding + titleHeight),
                 textureHeight(mClickableMenuTexture[0]->getHeight());

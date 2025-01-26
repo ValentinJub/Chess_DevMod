@@ -760,6 +760,8 @@ bool LBoardPVP::castling(int piece, int destinationPosX, int destinationPosY) {
 			return true;
 		case NO_MOVE:
 			return false;
+		default:
+			return false;
 	}
 }
 
@@ -929,7 +931,7 @@ bool LBoardPVP::pollDiscoverAttack(int piece, int posX, int posY) {
 	//make a local copy of the map to preview the move
 	//if the move checks its own color - cancel the move 
 	//in the movePiece() function
-	int map[SPL][SPL] = {0};
+	int map[SPL][SPL] = {{0}};
 	for(int a(0); a < SPL; a++) {
 		for(int b(0); b < SPL; b++) {
 			map[a][b] = mMap[a][b];
@@ -1195,7 +1197,7 @@ bool LBoardPVP::checkMate() {
 	bool checkMate = true;
 	
 	//local copy of the mMap to not mess with anything
-	int map[SPL][SPL] = {0};
+	int map[SPL][SPL] = {{0}};
 	for(int a(0); a < SPL; a++) {
 		for(int b(0); b < SPL; b++) {
 			map[a][b] = mMap[a][b];
@@ -1256,7 +1258,7 @@ bool LBoardPVP::checkMate() {
 					//for each possible move
 					for(int i(0); i < size; i++) {
 						//copy of local copy of the map to preview the moves
-						int mapCopy[SPL][SPL] = {0};
+						int mapCopy[SPL][SPL] = {{0}};
 						for(int a(0); a < SPL; a++) {
 							for(int b(0); b < SPL; b++) {
 								mapCopy[a][b] = map[a][b];
@@ -1328,7 +1330,7 @@ bool LBoardPVP::checkMate() {
 					//for each possible move
 					for(int i(0); i < size; i++) {
 						//copy of local copy of the map to preview the moves
-						int mapCopy[SPL][SPL] = {0};
+						int mapCopy[SPL][SPL] = {{0}};
 						for(int a(0); a < SPL; a++) {
 							for(int b(0); b < SPL; b++) {
 								mapCopy[a][b] = map[a][b];

@@ -807,6 +807,8 @@ bool LBoardPVAI::castling(int piece, int desPosX, int desPosY, int srcPosX, int 
 			return true;
 		case NO_MOVE:
 			return false;
+		default:
+			return false;
 	}
 }
 
@@ -979,7 +981,7 @@ bool LBoardPVAI::pollDiscoverAttack(const int mapCopy[SPL][SPL], const int piece
 	//make a local copy of the map to preview the move
 	//if the move checks its own color - pollDiscoverAttack 
 	//returns true, error sound is played + no move
-	int map[SPL][SPL] = {0};
+	int map[SPL][SPL] = {{0}};
 	for(int a(0); a < SPL; a++) {
 		for(int b(0); b < SPL; b++) {
 			map[a][b] = mapCopy[a][b];
@@ -1101,7 +1103,7 @@ bool LBoardPVAI::checkMate() {
 	bool checkMate = true;
 	
 	//local copy of the mMap to not mess with anything
-	int map[SPL][SPL] = {0};
+	int map[SPL][SPL] = {{0}};
 	for(int a(0); a < SPL; a++) {
 		for(int b(0); b < SPL; b++) {
 			map[a][b] = mMap[a][b];
@@ -1136,7 +1138,7 @@ bool LBoardPVAI::checkMate() {
 					//for each possible move
 					for(int i(0); i < size; i++) {
 						//copy of local copy of the map to preview the moves
-						int mapCopy[SPL][SPL] = {0};
+						int mapCopy[SPL][SPL] = {{0}};
 						for(int a(0); a < SPL; a++) {
 							for(int b(0); b < SPL; b++) {
 								mapCopy[a][b] = map[a][b];
@@ -1185,7 +1187,7 @@ bool LBoardPVAI::checkMate() {
 					int size = destPosX.size();
 					for(int i(0); i < size; i++) {
 						//copy of local copy of the map to preview the moves
-						int mapCopy[SPL][SPL] = {0};
+						int mapCopy[SPL][SPL] = {{0}};
 						for(int a(0); a < SPL; a++) {
 							for(int b(0); b < SPL; b++) {
 								mapCopy[a][b] = map[a][b];
@@ -1262,7 +1264,7 @@ void LBoardPVAI::blackTurn() {
 				int size = destPosX.size();
 				for(int i(0); i < size; i++) {
 					//copy of local copy of the map to preview the moves
-					int mapCopy[SPL][SPL] = {0};
+					int mapCopy[SPL][SPL] = {{0}};
 					for(int a(0); a < SPL; a++) {
 						for(int b(0); b < SPL; b++) {
 							mapCopy[a][b] = mMap[a][b];

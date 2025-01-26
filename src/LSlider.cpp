@@ -44,15 +44,11 @@ LSlider::~LSlider() {
 }
 
 int LSlider::getVolume() const {
-    if(mSliderWidth < 100) {
-        float res = ((mDot->getDotPosition().x - mSliderPosition.x + LDot::DOT_WIDTH / 2) / (mSliderWidth * 1.0)) * 100.0;
-        return res;
-    }
-    else if(mSliderWidth == 100) return mDot->getDotPosition().x - (mSliderPosition.x - LDot::DOT_WIDTH / 2);
-    else if(mSliderWidth > 100) {
-        float coeff = (mSliderWidth / 100.0);
-        return (mDot->getDotPosition().x - mSliderPosition.x + LDot::DOT_WIDTH / 2) / coeff;
-    }
+    if(mSliderWidth < 100) return static_cast<int>(
+        ((mDot->getDotPosition().x - mSliderPosition.x + LDot::DOT_WIDTH / 2) / (mSliderWidth * 1.0)) * 100.0
+    );
+    else if(mSliderWidth == 100) return static_cast<int>(mDot->getDotPosition().x - (mSliderPosition.x - LDot::DOT_WIDTH / 2));
+    return static_cast<int>((mDot->getDotPosition().x - mSliderPosition.x + LDot::DOT_WIDTH / 2) / (mSliderWidth / 100.0));
 }
 
 void LSlider::renderVolume() {
