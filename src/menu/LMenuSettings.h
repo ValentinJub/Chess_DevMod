@@ -1,5 +1,5 @@
 /*
-LSettings.h
+LMenuSettings.h
 by Valentin
 --------------
 Prototypes and const for LMenuclass
@@ -10,6 +10,9 @@ Prototypes and const for LMenuclass
 
 #include "utils/util.h"
 #include "com/constantes.h"
+#include "com/LObserver.h"
+#include "com/LSubject.h"
+#include "states/LStateMachine.h"
 #include "iostream"
 #include "sstream"
 #include "fstream"
@@ -17,10 +20,12 @@ Prototypes and const for LMenuclass
 #include "LButton.h"
 #include "LSlider.h"
 
-class LSettings {
+class LMenuSettings : public LSubject {
 public:
-    LSettings();
-    ~LSettings();
+    LMenuSettings(LObserver* observer);
+    ~LMenuSettings();
+    void update();
+    void render();
     void free();
     bool initController();
     void initFont();
@@ -34,7 +39,7 @@ public:
     void renderSlider();
     void setButtonPosition();
     void setButtonWH();
-    void handleEvent(SDL_Event* e, SDL_Point mouse); 
+    void handleEvents(SDL_Event* e, SDL_Point mouse); 
     void drawButtons();
     bool getRun() const;
     void outlineSelected() const;
@@ -45,6 +50,7 @@ public:
     void handleSliderMotion(SDL_Point mouse);
     
 private:
+    LObserver* mAppObserver;
     void setClickableTexturePosition();
     void setOptionTexturePosition();
     void loadPieceThemeTextures();
