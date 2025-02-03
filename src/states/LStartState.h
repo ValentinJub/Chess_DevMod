@@ -29,6 +29,7 @@ private:
     void loadTexture();
     LTexture* mTitleTexture[TOTAL_TITLE_ITEMS];
     LObserver* mObserver;
+    std::shared_ptr<spdlog::logger> mLogger;
 };
 
 #endif

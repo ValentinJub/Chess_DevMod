@@ -8,9 +8,18 @@ extern LMediaFactory* gMediaFactory;
 extern LChunkPlayer* gChunkPlayer;
 extern LStateMachine* gStateMachine;
 
-LStartState::LStartState() {};
+LStartState::LStartState() {
+	try {
+		mLogger = spdlog::basic_logger_mt("LStartState", "logs/CApp.log");
+	}
+	catch(const spdlog::spdlog_ex& ex) {
+		std::cerr << "Log init failed: " << ex.what() << std::endl;
+	}
+};
 
 void LStartState::enter(LObserver* observer) {
+	// change the name of the logger
+	mLogger->info("Entering Start State");
 	mObserver = observer;
 	this->Attach(observer);
 	this->init();
@@ -18,6 +27,7 @@ void LStartState::enter(LObserver* observer) {
 }
 
 void LStartState::exit() {
+	mLogger->info("Exiting Start State");
 	this->Detach(mObserver);
 	this->free();
 }
@@ -26,6 +36,7 @@ void LStartState::update() {
 	SDL_Event e;
 	while(SDL_PollEvent(&e) > 0) {
 		if(e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_q)) {
+			mLogger->info("Detected quit signal");
 			this->Notify();
 			gStateMachine->pop();
 		}

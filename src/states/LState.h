@@ -15,6 +15,8 @@
 #ifndef LSTATE_H
 #define LSTATE_H
 
+#include <com/logger.h>
+
 class LObserver;
 
 

@@ -1,0 +1,33 @@
+[2025-02-03 20:24:58.552] [CApp] [info] --------------Logger created--------------
+[2025-02-03 20:24:58.558] [CApp] [info] Renderer created
+[2025-02-03 20:24:58.563] [CApp] [info] Background texture created
+[2025-02-03 20:24:58.564] [CApp] [info] Fonts created
+[2025-02-03 20:51:22.777] [CApp] [info] --------------A new debug session begins--------------
+[2025-02-03 20:51:29.520] [CApp] [info] Exiting...
+[2025-02-03 20:51:22.793] [StartState] [info] Entering Start State
+[2025-02-03 20:51:27.867] [StartState] [info] Exiting Start State
+[2025-02-03 20:55:12.029] [CApp] [debug] --------------A new debug session begins--------------
+[2025-02-03 20:55:12.034] [CApp] [debug] Renderer created
+[2025-02-03 20:55:12.040] [CApp] [debug] Background texture created
+[2025-02-03 20:55:12.040] [CApp] [debug] Fonts created
+[2025-02-03 20:55:17.855] [CApp] [info] Exiting...
+[2025-02-03 20:55:17.855] [CApp] [debug] Freeing global variables...
+[2025-02-03 20:55:12.044] [StartState] [info] Entering Start State
+[2025-02-03 20:55:17.110] [StartState] [info] Exiting Start State
+[2025-02-03 21:01:06.930] [CApp] [debug] --------------A new debug session begins--------------
+[2025-02-03 21:01:06.935] [CApp] [debug] Renderer created
+[2025-02-03 21:01:06.941] [CApp] [debug] Background texture created
+[2025-02-03 21:01:06.942] [CApp] [debug] Fonts created
+[2025-02-03 21:01:12.729] [CApp] [info] Exiting...
+[2025-02-03 21:01:12.729] [CApp] [debug] Freeing global variables...
+[2025-02-03 21:01:06.946] [LStartState] [info] Entering Start State
+[2025-02-03 21:01:12.009] [LStartState] [info] Exiting Start State
+[2025-02-03 21:04:56.297] [CApp] [debug] --------------A new debug session begins--------------
+[2025-02-03 21:04:56.303] [CApp] [debug] Renderer created
+[2025-02-03 21:04:56.308] [CApp] [debug] Background texture created
+[2025-02-03 21:04:56.309] [CApp] [debug] Fonts created
+[2025-02-03 21:04:56.313] [LStartState] [info] Entering Start State
+[2025-02-03 21:05:00.198] [LStartState] [info] Detected quit signal
+[2025-02-03 21:05:00.198] [LStartState] [info] Exiting Start State
+[2025-02-03 21:05:00.214] [CApp] [info] Exiting...
+[2025-02-03 21:05:00.214] [CApp] [debug] Freeing global variables...

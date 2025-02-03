@@ -8,6 +8,7 @@ LChunkPlayer* gChunkPlayer;
 LTexture* gBackgroundTexture;
 TTF_Font* gFont64;
 TTF_Font* gFont32;
+std::shared_ptr<spdlog::logger> gLogger;
 
 // Global music volume, between 0 and 128.
 uint8_t gMusicVolume;
@@ -26,6 +27,7 @@ void CApp::free() {
 }
 
 void CApp::freeGlobalVars() {
+	spdlog::debug("Freeing global variables...");
 	gMediaFactory->free();
 	gBackgroundTexture->free();
 	gStateMachine->free();
@@ -97,28 +99,43 @@ bool CApp::initMenus() {
 }
 
 bool CApp::initGlobalVars() {
+	try {
+		gLogger = spdlog::basic_logger_mt("CApp", "logs/CApp.log");
+		spdlog::set_default_logger(gLogger);
+		spdlog::set_level(spdlog::level::debug);
+		spdlog::flush_every(std::chrono::milliseconds(5));
+	}
+	catch(const spdlog::spdlog_ex& ex) {
+		std::cerr << "Log init failed: " << ex.what() << std::endl;
+		return false;
+	}
+	spdlog::debug("--------------A new debug session begins--------------");
 	gMediaFactory = LMediaFactory::Instance();
 	gMusicPlayer = LMusicPlayer::Instance();
 	gChunkPlayer = LChunkPlayer::Instance();
 	gRenderer = mWindow->createRenderer();
 	if( gRenderer == NULL ) {
-		printf( "Renderer could not be created! SDL Error: %s\n", SDL_GetError() );
+		spdlog::error("Renderer could not be created! SDL Error: {}", SDL_GetError());
 		return false;
 	}
+	spdlog::debug("Renderer created");
 	gBackgroundTexture = gMediaFactory->getImg(SPRITE_BACKGROUND);
 	if(gBackgroundTexture == NULL) {
+		spdlog::error("Failed to load background texture!");
 		return false;
 	}
+	spdlog::debug("Background texture created");
 	gFont64 = TTF_OpenFont( FONT_BRANDA, 64 );
 	if (gFont64 == NULL) {
-		printf( "Failed to load resources/valentin font! SDL_ttf Error: %s\n", TTF_GetError() );
+		spdlog::error("Failed to load {} font! SDL_ttf Error: {}", FONT_BRANDA, TTF_GetError());
 		return false;
 	}
 	gFont32 = TTF_OpenFont( FONT_BRANDA, 32 );
 	if (gFont32 == NULL) {
-		printf( "Failed to load resources/valentin font! SDL_ttf Error: %s\n", TTF_GetError() );
+		spdlog::error("Failed to load {} font! SDL_ttf Error: {}", FONT_BRANDA, TTF_GetError());
 		return false;
 	}
+	spdlog::debug("Fonts created");
 	gMusicVolume = MIX_MAX_VOLUME / 2;
 	gStateMachine = new LStateMachine(this);
 	return true;
@@ -152,7 +169,7 @@ void CApp::poll(LSubject* subject) {
 
 int CApp::exec() {
 	if(!this->init()) {
-		printf("Failed to initialise!");
+		spdlog::error("Critical failure: failed to initialize!");
 	}
 	else {
 		while(this->mAppIsRunning) {
@@ -160,6 +177,7 @@ int CApp::exec() {
 			gStateMachine->render();
 		}
 	}
+	spdlog::info("Exiting...");
 	this->free();
 	return 0;
 }

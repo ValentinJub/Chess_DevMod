@@ -10,6 +10,7 @@ headers for CApp
 #define H_CAPP
 
 #include "utils/util.h"
+#include <memory>
 #include "LTexture.h"
 #include "LButton.h"
 #include "LWindow.h"
@@ -21,6 +22,7 @@ headers for CApp
 #include "com/LObserver.h"
 #include "sound/LMusicPlayer.h"
 #include "sound/LChunkPlayer.h"
+#include "com/logger.h"
 
 class CApp : public LObserver {
 public:
@@ -36,9 +38,7 @@ private:
 	void free();
 	void closeSDL();
 	void freeGlobalVars();
-	void update();
 	void poll(LSubject* subject);
-	void handleEvents(SDL_Event* e);
 	// bool loadWindowIcon(std::string path);
 
 	bool mAppIsRunning, mShowTitleScreen;
