@@ -13,12 +13,49 @@ Prototypes and const for LMenuclass
 #include "com/LObserver.h"
 #include "com/LSubject.h"
 #include "states/LStateMachine.h"
+#include "factories/LMediaFactory.h"
 #include "iostream"
 #include "sstream"
 #include "fstream"
-#include "LTexture.h"
+#include "LTextureClickable.h"
 #include "LButton.h"
 #include "LSlider.h"
+#include <array>
+
+const std::array<std::string, LEFT_MENU> MENU_LEFT_TEXT = {
+    "Settings",
+    "Show Legal Moves",
+    "Use Timer",
+    "Time Limit",
+    "Tile Color",
+    "Music Theme",
+    "Volume",
+    "Piece Theme"
+};
+
+const std::array<std::string, TOTAL_SETTINGS_RIGHT_MENU_TEXT_ITEMS> MENU_RIGHT_TEXT = {
+    "Yes",
+    "No",
+    "Yes",
+    "No",
+    "5m",
+    "10m",
+    "Brown",
+    "Grey",
+    "Jazzy",
+    "Classic",
+    "Back.."
+};
+
+struct OptionValues {
+    int showLegalMoves;
+    int useTimer;
+    int timeLimit;
+    int tileColor;
+    int musicTheme;
+    int volume;
+    int pieceTheme;
+};
 
 class LMenuSettings : public LSubject {
 public:
@@ -27,56 +64,41 @@ public:
     void update();
     void render();
     void free();
-    bool initController();
+
+private:
     void initFont();
-    void initCurrentItemList();
-    void loadTextureFromTextLeft();
-    void loadClickableTexture();
-    bool loadSettingsFromFile();    
+
+    void loadTextures();
+    void loadLeftSideTextures();
+    void loadRightSideTextures();
+
+    void setButtons();
+    
+    void loadSavedSettings();    
+    
     void renderLeftTexture();
     void renderClickableTexture();
-    void renderPieceTheme();
     void renderSlider();
-    void setButtonPosition();
-    void setButtonWH();
+    
+   
     void handleEvents(SDL_Event* e, SDL_Point mouse); 
     void drawButtons();
-    bool getRun() const;
     void outlineSelected() const;
-    // deprecated functions
-    // void underlineSelected() const;
-    // void crossOut() const;
     bool getMouseFollow() const;
     void handleSliderMotion(SDL_Point mouse);
-    
-private:
-    LObserver* mAppObserver;
+   
     void setClickableTexturePosition();
     void setOptionTexturePosition();
-    void loadPieceThemeTextures();
     void saveSettingsToFile(); 
-    bool mRun;
+    void setBorders();
 
-    // holds the clickable textures position
-    SDL_Rect mClickableTexturePositions[TOTAL_CLICKABLE_ITEMS];
-
-    // holds the option menu textures position
-    SDL_Rect mOptionTexturePositions[LEFT_MENU];
-
+    bool mShowButtonOutline = false;
+    LObserver* mAppObserver;
     LSlider* mSlider = NULL;
-    //Create text menu and put it into mMenuStr[]
-    void initMenuStrings();
-    //menu textures
-    LTexture* mClickableMenuTexture[TOTAL_CLICKABLE_ITEMS]; //13
+    LTextureClickable* mClickableMenuTexture[TOTAL_CLICKABLE_ITEMS]; //13
     LTexture* mOptionMenuTexture[LEFT_MENU]; //7
-    //menu buttons
-    LButton* mButtons[TOTAL_CLICKABLE_ITEMS];
-    //font used to render texture
     TTF_Font* mFont;
-    //no need including back as it's not a setting
-    int mSettingsTable[TOTAL_CLICKABLE_ITEMS - 1]; //minus back
-    std::string mMenuLeftStr[LEFT_MENU];
-    std::string mMenuRightStr[TOTAL_SETTINGS_RIGHT_MENU_TEXT_ITEMS];
+    OptionValues mOptionValues;
 };
 
 #endif
