@@ -5,13 +5,15 @@ using std::string;
 extern SDL_Renderer* gRenderer;
 extern TTF_Font* gFont64;
 
-LTexture::LTexture(int x, int y, int w, int h) :
+LTexture::LTexture(int x, int y, int w, int h, SDL_Texture* texture) :
         mX(x),
         mY(y),
         mWidth(w),
-        mHeight(h)
+        mHeight(h),
+        mTexture(texture)
     {
-        mTexture = NULL;
+        mVelX = 0;
+        mVelY = 0;
     }
 
 LTexture::~LTexture() {
@@ -20,81 +22,6 @@ LTexture::~LTexture() {
 
 void LTexture::createImg(SDL_Texture* texture) {
     mTexture = texture;
-    // SDL_QueryTexture(mTexture, NULL, NULL, &mWidth, &mHeight);
-}
-
-#if defined(SDL_TTF_MAJOR_VERSION)
-bool LTexture::loadFromRenderedText(TTF_Font* font, string textureText, SDL_Color textColor, bool isTitle)
-{
-    //Get rid of preexisting texture
-    free();
-
-    if(isTitle) {
-        font = gFont64;
-    }
-    //Render text surface
-    SDL_Surface* textSurface = TTF_RenderText_Blended(font, textureText.c_str(), textColor);
-    if(textSurface == NULL)
-    {
-        printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
-    }
-    else
-    {
-        //Create texture from surface pixels
-        mTexture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
-        if(mTexture == NULL)
-        {
-            printf("Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError());
-        }
-        else
-        {
-            //Get image dimensions
-            mWidth = textSurface->w;
-            mHeight = textSurface->h;
-        }
-
-        //Get rid of old surface
-        SDL_FreeSurface(textSurface);
-    }
-    
-    //Return success
-    return mTexture != NULL;
-}
-#endif 
-
-bool LTexture::loadFromFile(std::string path, bool colorKey, Uint8 red, Uint8 green, Uint8 blue) {
-    //Get rid of pre-existing texture
-    free();
-
-    //The final texture
-    SDL_Texture* newTexture = NULL;
-
-    //Load image at specified path
-    SDL_Surface* loadedSurface = IMG_Load(path.c_str());
-    if(loadedSurface == NULL) {
-        printf("Unable to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError());
-    }
-    else {
-        //Color key image
-        if(colorKey) {
-            SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, red, green, blue));
-        }
-        //Create texture from surface pixels
-        newTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface);
-        if(newTexture == NULL) {
-            printf("Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
-        }
-        else {
-            //Get image dimensions
-            mWidth = loadedSurface->w;
-            mHeight = loadedSurface->h;
-        }
-        //Get rid of old loaded surface
-        SDL_FreeSurface(loadedSurface);
-    }
-    //Return success
-    mTexture = newTexture;
-    return mTexture != NULL;
 }
 
 void LTexture::render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* center, SDL_RendererFlip flip) {
@@ -109,19 +36,16 @@ void LTexture::render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* cen
 
     // render to screen
     SDL_RenderCopyEx(gRenderer, mTexture, clip, &renderQuad, angle, center, flip);
+
+    renderDecorators();
+}
+
+std::vector<std::unique_ptr<LDecorator>>& LTexture::getDecorators() {
+    return mDecorators;
 }
 
 void LTexture::free() {
-    // free texture if it exists
-    if(mTexture != NULL)
-    {
-        SDL_DestroyTexture(mTexture);
-        mTexture = NULL;
-        mWidth = 0;
-        mHeight = 0;
-        mX = 0;
-        mY = 0;
-    }
+    // The responsibility of freeing the texture pointer is left to the factory
 }
 
 void LTexture::setColor(Uint8 red, Uint8 green, Uint8 blue) {
@@ -138,28 +62,31 @@ void LTexture::setAlpha(Uint8 alpha) {
     SDL_SetTextureAlphaMod(mTexture, alpha);
 }
 
+void LTexture::addDecorator(LDecorator* decorator) {
+    mDecorators.push_back(std::unique_ptr<LDecorator>(decorator));
+}
+
+void LTexture::removeDecorator(LDecorator* decorator) {
+    mDecorators.erase(std::remove_if(mDecorators.begin(), mDecorators.end(),
+        [decorator](const std::unique_ptr<LDecorator>& ptr) { return ptr.get() == decorator; }), mDecorators.end());
+}
+
+void LTexture::renderDecorators() {
+    for(auto& decorator : mDecorators) {
+        decorator->render();
+    }
+}
+
+SDL_Texture* LTexture::getTexture() {
+    return mTexture;
+}
+
 int LTexture::getWidth() {
     return mWidth;
 }
 
 int LTexture::getHeight() {
     return mHeight;
-}
-
-void LTexture::moveUp() {
-    mY -=5;
-}
-
-void LTexture::moveDown() {
-    mY +=5;
-}
-
-void LTexture::moveLeft() {
-    mX -=5;
-}
-
-void LTexture::moveRight() {
-    mX +=5;
 }
 
 int LTexture::x() {
@@ -176,11 +103,9 @@ void LTexture::setPos(int x, int y) {
 }
 
 void LTexture::setX(int x) {
-    // std::cout << "Setting x to " << x << std::endl;
     mX = x;
 }
 
 void LTexture::setY(int y) {
-    // std::cout << "Setting y to " << y << std::endl;
     mY = y;
 }

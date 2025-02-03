@@ -11,7 +11,9 @@ class LMediaFactory : public LFactory {
 public:
     static LMediaFactory* Instance();
     LTexture* getImg(const std::string& path) override;
+    LTextureClickable* getImgClickable(const std::string& path); 
     LTexture* getTxt(const std::string& text, TTF_Font* font, SDL_Color color) override;
+    LTextureClickable* getTxtClickable(const std::string& text, TTF_Font* font, SDL_Color color);
     Mix_Chunk* getChunk(const char* path) override;
     Mix_Music* getMusic(const char* path) override;
     void free() override {
@@ -54,6 +56,7 @@ private:
     SDL_Texture* loadImg(const std::string& path);
     SDL_Texture* loadText(const std::string path, TTF_Font* font, SDL_Color color);
     LTexture* makeLTexture(SDL_Texture* texture);
+    LTextureClickable* makeLTextureClickable(SDL_Texture* texture);
 };
 
 #endif // LMEDIAFACTORY_H
