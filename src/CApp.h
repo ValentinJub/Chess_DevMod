@@ -19,6 +19,8 @@ headers for CApp
 #include "states/LStartState.h"
 #include "factories/LMediaFactory.h"
 #include "com/LObserver.h"
+#include "sound/LMusicPlayer.h"
+#include "sound/LChunkPlayer.h"
 
 class CApp : public LObserver {
 public:
