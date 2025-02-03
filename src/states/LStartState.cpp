@@ -1,14 +1,20 @@
 #include "LStartState.h"
 
-LStartState::LStartState() {
-    
-}
+extern TTF_Font* gFont64; 
+extern TTF_Font* gFont32;
+extern SDL_Renderer* gRenderer;
+extern LTexture* gBackgroundTexture;
+extern LMediaFactory* gMediaFactory;
+extern LChunkPlayer* gChunkPlayer;
+extern LStateMachine* gStateMachine;
+
+LStartState::LStartState() {};
 
 void LStartState::enter(LObserver* observer) {
 	mObserver = observer;
 	this->Attach(observer);
 	this->init();
-	Mix_PlayChannel(-1, mStartupSound, 0);
+	gChunkPlayer->play(CHUNK_TITLE);
 }
 
 void LStartState::exit() {
@@ -20,12 +26,12 @@ void LStartState::update() {
 	SDL_Event e;
 	while(SDL_PollEvent(&e) > 0) {
 		if(e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_q)) {
-			gStateMachine->pop();
 			this->Notify();
+			gStateMachine->pop();
 		}
 	}
 	// The title screen will only be displayed while the music is playing
-	if(!Mix_Playing(-1)) {
+	if(!gChunkPlayer->isPlaying()) {
 		gStateMachine->pop();
 	}
 }
@@ -36,7 +42,7 @@ void LStartState::render() {
 		gBackgroundTexture->render();
 		mTitleTexture[TITLE]->render(
 			(SCREEN_WIDTH - mTitleTexture[TITLE]->getWidth()) / 2,
-			(SCREEN_HEIGHT - mTitleTexture[TITLE]->getHeight()) /2
+			(SCREEN_HEIGHT - mTitleTexture[TITLE]->getHeight()) / 2
 		);
 		mTitleTexture[AUTHOR]->render(
 			SCREEN_WIDTH - mTitleTexture[AUTHOR]->getWidth(),
@@ -46,23 +52,17 @@ void LStartState::render() {
 }
 
 void LStartState::free() {
-    Mix_FreeChunk(mStartupSound);
-    mStartupSound = NULL;
-    mTitleTexture[TITLE]->free();
-    mTitleTexture[AUTHOR]->free();
+	for (int i = 0; i < TOTAL_TITLE_ITEMS; i++) {
+		mTitleTexture[i]->free();
+	}
 }
 
 void LStartState::init() {
 	this->loadTexture();
-	this->loadSound();
 }
 
 void LStartState::loadTexture() {
 	mTitleTexture[TITLE] = gMediaFactory->getTxt(TITLE_STR, gFont64, COLOR_BLACK);
 	mTitleTexture[AUTHOR] = gMediaFactory->getTxt(TITLE_AUTHOR_STR, gFont32, COLOR_BLACK);
-}
-
-void LStartState::loadSound() {
-	mStartupSound = gMediaFactory->getChunk(CHUNK_TITLE);
 }
 

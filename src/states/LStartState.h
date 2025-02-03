@@ -9,13 +9,7 @@
 #include "factories/LMediaFactory.h"
 #include "com/LObserver.h"
 #include "com/LSubject.h"
-
-extern TTF_Font* gFont64; 
-extern TTF_Font* gFont32;
-extern SDL_Renderer* gRenderer;
-extern LTexture* gBackgroundTexture;
-extern LMediaFactory* gMediaFactory;
-extern LStateMachine* gStateMachine;
+#include "sound/LChunkPlayer.h"
 
 const std::string TITLE_STR = "Chess";
 const std::string TITLE_AUTHOR_STR = "by Valentin with Love";
@@ -33,8 +27,6 @@ private:
     void free();
     void init();
     void loadTexture();
-    void loadSound();
-	Mix_Chunk* mStartupSound;
     LTexture* mTitleTexture[TOTAL_TITLE_ITEMS];
     LObserver* mObserver;
 };
