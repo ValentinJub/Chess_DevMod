@@ -6,6 +6,7 @@ extern SDL_Renderer* gRenderer;
 extern LTexture* gBackgroundTexture;
 extern LMediaFactory* gMediaFactory;
 extern LStateMachine* gStateMachine;
+extern LMusicPlayer* gMusicPlayer;
 extern uint8_t gMusicVolume;
 
 const std::string MENU_PLAY_STR = "Play PvP";
@@ -14,7 +15,6 @@ const std::string MENU_SETTINGS_STR = "Game Settings";
 const std::string MENU_DEVMODE_STR = "Developer Mode";
 
 LMainMenu::LMainMenu(LObserver* observer) {
-    mButtonsAreSet = false;
     mAppObserver = observer;
     this->Attach(observer);
     if(!this->init()) {
@@ -23,7 +23,9 @@ LMainMenu::LMainMenu(LObserver* observer) {
 }
 
 void LMainMenu::update() {
-    this->playMusic();
+    if(!gMusicPlayer->isPlaying()) {
+		gMusicPlayer->play(MUSIC_MENU);
+	}
     SDL_Event e;
     while(SDL_PollEvent(&e) > 0) {
         this->handleEvents(&e);
@@ -46,17 +48,9 @@ void LMainMenu::render() {
 
 void LMainMenu::free() {
     this->Detach(mAppObserver);
-	this->stopMusic();
-	this->unsetButtons();
-
     for(int i(0); i < TOTAL_MENU_ITEMS; i++) {
         mMenuTextures[i]->free();
     }
-    Mix_FreeChunk(mMenuClick);
-	mMenuClick = NULL;
-	 
-	Mix_FreeMusic(mMenuMusic);
-	mMenuMusic = NULL;
 }
 
 bool LMainMenu::init() {
@@ -64,11 +58,9 @@ bool LMainMenu::init() {
 	mMenuTextures[PLAY_AI] = gMediaFactory->getTxt(MENU_PLAY_AI_STR, gFont64, COLOR_BLACK);
 	mMenuTextures[SETTINGS] = gMediaFactory->getTxt(MENU_SETTINGS_STR, gFont64, COLOR_BLACK);
 	mMenuTextures[DEVMODE] = gMediaFactory->getTxt(MENU_DEVMODE_STR, gFont64, COLOR_BLACK);
-    mMenuMusic = Util::loadMusic(MUSIC_MENU);
     this->setTexturePositions();
     this->setButtons();
-
-	return mMenuTextures[PLAY] != NULL && mMenuTextures[PLAY_AI] != NULL && mMenuTextures[SETTINGS] != NULL && mMenuTextures[DEVMODE] != NULL && mMenuMusic != NULL;	
+	return mMenuTextures[PLAY] != NULL && mMenuTextures[PLAY_AI] != NULL && mMenuTextures[SETTINGS] != NULL && mMenuTextures[DEVMODE] != NULL;
 }
 
 void LMainMenu::setTexturePositions() {
@@ -127,7 +119,6 @@ void LMainMenu::highlightSelected(int position) {
     this->setTexturePositions();
 }
 
-
 void LMainMenu::handleEvents(SDL_Event* e) {
     this->handleKeyEvents(e);
     this->handleMouseEvents(e);
@@ -145,17 +136,16 @@ void LMainMenu::handleKeyEvents(SDL_Event* e) {
 				gStateMachine->pop();
 				break;
             case SDLK_1:
-                stopMusic();
+				gMusicPlayer->stop();
                 playPVP();
                 break;
             case SDLK_2:
-                stopMusic();
+				gMusicPlayer->stop();
                 playerVersusComputer();
                 break;
             case SDLK_3:
                 SDL_Delay(200);
                 this->flushEvents();
-                // settings();
 				gStateMachine->push(new LSettingsState);
                 break;
             }
@@ -167,30 +157,26 @@ void LMainMenu::handleMouseEvents(SDL_Event* e) {
 		if(mMenuButtons[i]->handleInside(e)) {
 			highlightSelected(i);
 			if(mMenuButtons[i]->handleClick(e)) {
-				if(i == PLAY) {
-					stopMusic();
+				switch (i) {
+				case PLAY:
+					gMusicPlayer->stop();
+					flushEvents();
 					playPVP();
+					break;
+				case PLAY_AI:
+					gMusicPlayer->stop();
 					flushEvents();
-                    break;
-				}
-				else if(i == PLAY_AI) {
-					stopMusic();
 					playerVersusComputer();
-					flushEvents();
-                    break;
-				}
-				else if(i == SETTINGS) {
+					break;
+				case SETTINGS:
 					SDL_Delay(200);
 					flushEvents();
-					// settings();
 					gStateMachine->push(new LSettingsState);
-                    break;
-				}
-				else if(i == DEVMODE) {
+					break;
+				case DEVMODE:
 					SDL_Delay(200);
-					//flush events to prevent clicks clicking the 
 					flushEvents();
-                    break;
+					break;
 				}
 			}
 		}
@@ -206,31 +192,9 @@ void LMainMenu::setButtons() {
 			mMenuTextures[i]->getHeight()
 		);
 	}
-    mButtonsAreSet = true;
-}
-
-void LMainMenu::unsetButtons() {
-	for(int i(0); i < TOTAL_MENU_ITEMS; i++) {
-		mMenuButtons[i]->setWidthAndHeight(1,1);
-		mMenuButtons[i]->setPosition(0,0);
-	}
-    mButtonsAreSet = false;
 }
 
 void LMainMenu::flushEvents() {
 	SDL_PumpEvents();
 	SDL_FlushEvents(SDL_MOUSEMOTION, SDL_MOUSEBUTTONUP);
-}
-
-void LMainMenu::playMusic() {
-	if(Mix_PlayingMusic() == 0) {
-		Mix_PlayMusic(mMenuMusic, -1);
-		Mix_VolumeMusic(gMusicVolume);
-	}
-}
-
-void LMainMenu::stopMusic() {
-	if(Mix_PlayingMusic()) {
-		Mix_HaltMusic();
-	}
 }
