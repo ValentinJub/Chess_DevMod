@@ -1,7 +1,7 @@
 #ifndef LFACTORY_H
 #define LFACTORY_H
 
-#include "LTexture.h"
+#include "LTextureClickable.h"
 #include "utils/util.h"
 #include <string>
 #include <unordered_map>

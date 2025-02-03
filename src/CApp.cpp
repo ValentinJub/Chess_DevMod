@@ -3,6 +3,8 @@
 SDL_Renderer* gRenderer;
 LStateMachine* gStateMachine;
 LMediaFactory* gMediaFactory;
+LMusicPlayer* gMusicPlayer;
+LChunkPlayer* gChunkPlayer;
 LTexture* gBackgroundTexture;
 TTF_Font* gFont64;
 TTF_Font* gFont32;
@@ -27,6 +29,8 @@ void CApp::freeGlobalVars() {
 	gMediaFactory->free();
 	gBackgroundTexture->free();
 	gStateMachine->free();
+	gMusicPlayer->free();
+	gChunkPlayer->free();
 	if(gFont64 != NULL) {
 		TTF_CloseFont(gFont64);
 		gFont64 = NULL;
@@ -93,7 +97,9 @@ bool CApp::initMenus() {
 }
 
 bool CApp::initGlobalVars() {
-	gMediaFactory = gMediaFactory->Instance();
+	gMediaFactory = LMediaFactory::Instance();
+	gMusicPlayer = LMusicPlayer::Instance();
+	gChunkPlayer = LChunkPlayer::Instance();
 	gRenderer = mWindow->createRenderer();
 	if( gRenderer == NULL ) {
 		printf( "Renderer could not be created! SDL Error: %s\n", SDL_GetError() );

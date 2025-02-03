@@ -9,6 +9,9 @@ Methods for class LBoardPVAI
 #include "LBoardPVAI.h"
 
 extern LTexture* gBackgroundTexture;
+extern LMediaFactory* gMediaFactory;
+extern LChunkPlayer* gChunkPlayer;
+extern LMusicPlayer* gMusicPlayer;
 
 using std::vector;
 extern TTF_Font* gFont64;
@@ -73,15 +76,6 @@ LBoardPVAI::LBoardPVAI() {
 	mBRook2HasMoved = false;
 	
 	//load sound effect
-	mBingo = Util::loadChunk(CHUNK_CHIME);
-	mCheck = Util::loadChunk(CHUNK_CHECK);
-	mCheckMate = Util::loadChunk(CHUNK_CHECKMATE);
-	mError = Util::loadChunk(CHUNK_ERROR);
-	mPawnForward = Util::loadChunk(CHUNK_MOVE);
-	mCastling = Util::loadChunk(CHUNK_CASTLE);
-	mPieceFall = Util::loadChunk(CHUNK_CAPTURE);
-	mVictory = Util::loadChunk(CHUNK_VICTORY);
-	mDefeat = Util::loadChunk(CHUNK_DEFEAT);
 	
 	//start white and black timer and pause the black as white plays first
 	if(mSettingsTable[TL_YES]) {
@@ -221,24 +215,7 @@ void LBoardPVAI::free() {
 	mHighlightedTileXPos.clear();
 	mHighlightedTileYPos.clear();
 	
-	Mix_FreeChunk(mError);
-	mError = NULL;
-	Mix_FreeChunk(mBingo);
-	mBingo = NULL;
-	Mix_FreeChunk(mCheck);
-	mCheck = NULL;
-	Mix_FreeChunk(mCheckMate);
-	mCheckMate = NULL;
-	Mix_FreeChunk(mCastling);
-	mCastling = NULL;
-	Mix_FreeChunk(mPawnForward);
-	mPawnForward = NULL;
-	Mix_FreeChunk(mPieceFall);
-	mPieceFall = NULL;
-	Mix_FreeChunk(mVictory);
-	mVictory = NULL;
-	Mix_FreeChunk(mDefeat);
-	mDefeat = NULL;
+	
 	
 	for(int i(0); i < NBR_OF_MUSIC; i++) {
 		Mix_FreeMusic(mMusic[i]);
@@ -285,59 +262,49 @@ void LBoardPVAI::readSettingsFromFile() {
 bool LBoardPVAI::loadPiecesTextures() {
 	bool success = true;
 	if(mPieceTheme == 0) {
-		if(!(mPieceTexture->loadFromFile(SPRITE_PIECE_SHEET))) success = false;
-		else if(!(mHighlightedPieceTexture->loadFromFile(SPRITE_PIECE_SHEET))) success = false;
-		else mHighlightedPieceTexture->setColor(255,0,0);
-		//score piece
-		if(!(mMiniPieceTexture->loadFromFile(SPRITE_PIECE_SHEET_32))) success = false;
+		mPieceTexture = gMediaFactory->getImg(SPRITE_PIECE_SHEET);
+		mHighlightedPieceTexture = gMediaFactory->getImg(SPRITE_PIECE_SHEET);
+		mHighlightedPieceTexture->setColor(255,0,0);
+		mMiniPieceTexture = gMediaFactory->getImg(SPRITE_PIECE_SHEET_32);
 	} else if(mPieceTheme == 1) {
-		if(!(mPieceTexture->loadFromFile(SPRITE_RETRO_PIECE_SHEET))) success = false;
-		else if(!(mHighlightedPieceTexture->loadFromFile(SPRITE_RETRO_PIECE_SHEET))) success = false;
-		else mHighlightedPieceTexture->setColor(255,0,0);
-		//score piece
-		if(!(mMiniPieceTexture->loadFromFile(SPRITE_PIECE_SHEET_32))) success = false;
+		mPieceTexture = gMediaFactory->getImg(SPRITE_RETRO_PIECE_SHEET);
+		mHighlightedPieceTexture = gMediaFactory->getImg(SPRITE_RETRO_PIECE_SHEET);
+		mHighlightedPieceTexture->setColor(255,0,0);
+		mMiniPieceTexture = gMediaFactory->getImg(SPRITE_PIECE_SHEET_32);
 	}
 	return success; 
 }
 
 bool LBoardPVAI::loadTileTextures() {
 	bool success = true;
-	if(!(mTileTexture->loadFromFile(SPRITE_BOARD))) success = false;
-	else if(!(mHighlightedTileTexture->loadFromFile(SPRITE_BOARD))) success = false;
-	else mHighlightedTileTexture->setColor(255,0,0);
+	mTileTexture = gMediaFactory->getImg(SPRITE_BOARD);
+	mHighlightedTileTexture = gMediaFactory->getImg(SPRITE_BOARD);
+	mHighlightedTileTexture->setColor(255,0,0);
 	return success;
 }
 
 bool LBoardPVAI::loadPauseTexture() {
 	bool success = true;
-	if(!(mPauseBackgroundTexture->loadFromFile(SPRITE_BACKGROUND_FULLBLACK))) success = false;
-	else {
-		mPauseBackgroundTexture->setAlpha(127);
-		mPauseBackgroundTexture->setBlendMode(SDL_BLENDMODE_BLEND);
-	}
-	if(!(mPauseTextTexture->loadFromRenderedText(gFont64, "Pause", COLOR_WHITE))) success = false;
+	mPauseBackgroundTexture = gMediaFactory->getImg(SPRITE_BACKGROUND_FULLBLACK);
+	mPauseBackgroundTexture->setAlpha(127);
+	mPauseBackgroundTexture->setBlendMode(SDL_BLENDMODE_BLEND);
+	mPauseTextTexture = gMediaFactory->getTxt("Pause", gFont64, COLOR_WHITE);
 	return success;
 }
 
 bool LBoardPVAI::loadOutOfTimeTexture() {
-	if(!mPauseBackgroundTexture) {
-		std::cerr << "mPauseBackgroundTexture is NULL, we must have failed to load it in LBoardPVAI::loadPauseTexture()" << std::endl;
-		return false;
-	}
-	if(!(mOutOfTimeTexture->loadFromRenderedText(gFont64, "Out of time!", COLOR_WHITE))) {
-		std::cerr << "Failed to load out of time texture in LBoardPVAI::loadOutOfTimeTexture()" << std::endl;
-		return false;
-	}
+	mOutOfTimeTexture = gMediaFactory->getTxt("Out of time!", gFont64, COLOR_WHITE);
 	return true;
 }
 
 void LBoardPVAI::setPiecesClip() {
 	for(int i(0); i < TOTAL_PIECES - 1; i++) {
+		// 64x64
 		mPieceClip[i].x = TOTAL_SQUARES*i;
 		mPieceClip[i].y = 0;
 		mPieceClip[i].w = TOTAL_SQUARES;
 		mPieceClip[i].h = TOTAL_SQUARES;
-	
+		// 32x32
 		mMiniPieceClip[i].x = (TOTAL_SQUARES / 2) * i;
 		mMiniPieceClip[i].y = 0;
 		mMiniPieceClip[i].w = (TOTAL_SQUARES / 2);
@@ -570,13 +537,16 @@ void LBoardPVAI::movePiece(SDL_Event* e) {
 					}
 					else {
 						//Play unable to move sound 
-						Mix_PlayChannel(-1, mError, 0);
+						// Mix_PlayChannel(-1, mError, 0);
+						gChunkPlayer->play(CHUNK_ERROR);
 					}
 				}
 				//Unable to move due to move checking its own King
 				else {
 					//PPlay unable to move sound 
-					Mix_PlayChannel(-1, mError, 0);
+					// Mix_PlayChannel(-1, mError, 0);
+					gChunkPlayer->play(CHUNK_ERROR);
+
 				}
 			}
 		}
@@ -697,7 +667,8 @@ void LBoardPVAI::move(int destinationPosX, int destinationPosY, int srcPosX, int
 		}
 		//check
 		else {
-			Mix_PlayChannel(-1, mCheck, 0 );
+			// Mix_PlayChannel(-1, mCheck, 0 );
+			gChunkPlayer->play(CHUNK_CHECK);
 		}
 	}
 	
@@ -728,7 +699,8 @@ void LBoardPVAI::move(int destinationPosX, int destinationPosY, int srcPosX, int
 			}
 			//check
 			else {
-				Mix_PlayChannel(-1, mCheck, 0 );
+				// Mix_PlayChannel(-1, mCheck, 0 );
+				gChunkPlayer->play(CHUNK_CHECK);
 			}
 		}
 		mWhiteTurn = true;
@@ -886,11 +858,13 @@ void LBoardPVAI::playVictorySound() const {
 	if(Mix_PlayingMusic()) {
 		Mix_FadeOutMusic(3000);
 	}
-	Mix_PlayChannel(-1, mCheckMate, 0 );
+	// Mix_PlayChannel(-1, mCheckMate, 0 );
+	gChunkPlayer->play(CHUNK_CHECKMATE);
 	while(Mix_Playing(-1) > 0) {
 		SDL_Delay(16);
 	}
-	Mix_PlayChannel(-1, mVictory, 0 );
+	// Mix_PlayChannel(-1, mVictory, 0 );
+	gChunkPlayer->play(CHUNK_VICTORY);
 	while(Mix_Playing(-1) > 0) {
 		SDL_Delay(16);
 	}
@@ -899,16 +873,19 @@ void LBoardPVAI::playVictorySound() const {
 void LBoardPVAI::playMoveSound() {
 	if((!(mTookAPiece)) && (!(mIsCastling))) {
 		//Play move sound 
-		Mix_PlayChannel(-1, mPawnForward, 0);
+		// Mix_PlayChannel(-1, mPawnForward, 0);
+		gChunkPlayer->play(CHUNK_MOVE);
 	}
 	else if(mTookAPiece) {
 		//Play falling piece sound 
-		Mix_PlayChannel(-1, mPieceFall, 0);
+		// Mix_PlayChannel(-1, mPieceFall, 0);
+		gChunkPlayer->play(CHUNK_CAPTURE);
 		mTookAPiece = false;
 	}
 	else if(mIsCastling) {
 		//Play castling sound 
-		Mix_PlayChannel(-1, mCastling, 0);
+		// Mix_PlayChannel(-1, mCastling, 0);
+		gChunkPlayer->play(CHUNK_CASTLE);
 		mIsCastling = false;
 	}
 }
@@ -1078,7 +1055,7 @@ void LBoardPVAI::renderTimer() {
 		else whiteTimeText << std::to_string(wminutes) + ":" + "0" + std::to_string(ws);
 		
 		// load the time text texture and render
-		mWhiteTimerTexture->loadFromRenderedText(gFont64, whiteTimeText.str().c_str(), COLOR_BLACK);
+		mWhiteTimerTexture = gMediaFactory->getTxt(whiteTimeText.str().c_str(), gFont64, COLOR_BLACK);
 		mWhiteTimerTexture->render(0,SCREEN_HEIGHT - OFFSET);
 	}
 }
@@ -1220,7 +1197,8 @@ bool LBoardPVAI::pollTimeOut() {
 		if(Mix_PlayingMusic()) {
 			Mix_FadeOutMusic(500);
 		}
-		Mix_PlayChannel(-1, mDefeat, 0);
+		// Mix_PlayChannel(-1, mDefeat, 0);
+		gChunkPlayer->play(CHUNK_DEFEAT);
 		renderOutOfTimeScreen();
 		while(Mix_Playing(-1) > 0) {
 			SDL_Delay(16);
@@ -1906,9 +1884,8 @@ void LBoardPVAI::renderScore() {
 	whiteScoreStr << std::to_string(whiteScore);
 	blackScoreStr << std::to_string(blackScore);
 	
-	
-	mWhiteScoreTexture->loadFromRenderedText(gFont64, whiteScoreStr.str().c_str(), COLOR_BLACK);
-	mBlackScoreTexture->loadFromRenderedText(gFont64, blackScoreStr.str().c_str(), COLOR_BLACK);
+	mWhiteScoreTexture = gMediaFactory->getTxt(whiteScoreStr.str().c_str(), gFont64, COLOR_BLACK);
+	mBlackScoreTexture = gMediaFactory->getTxt(blackScoreStr.str().c_str(), gFont64, COLOR_BLACK);
 	
 	if(mSettingsTable[TL_NO]) {
 		mWhiteScoreTexture->render(0, SCREEN_HEIGHT - 64);

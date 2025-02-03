@@ -8,6 +8,7 @@ Methods for LSlider class
 
 #include "LSlider.h"
 
+extern LMediaFactory* gMediaFactory;
 extern SDL_Renderer* gRenderer;
 extern TTF_Font* gFont32;
 extern uint8_t gMusicVolume;
@@ -27,10 +28,7 @@ LSlider::LSlider(int width, int height, int posX, int posY) {
 
 bool LSlider::loadDotTexture() {
     bool success = true;
-    if(!mDotTexture->loadFromFile(SPRITE_DOT, true)) {
-        std::cerr << "Failed to load dot texture!" << std::endl;
-        success = false;
-    }
+    mDotTexture = gMediaFactory->getImg(SPRITE_DOT);
     return success;
 }
 
@@ -54,9 +52,7 @@ int LSlider::getVolume() const {
 void LSlider::renderVolume() {
     std::stringstream volumeText;
     volumeText << getVolume() << " %";
-    if(!mVolumeTexture->loadFromRenderedText(gFont32, volumeText.str().c_str(), {0, 0, 0, 255})) {
-        std::cerr << "Failed to render volume text texture!" << std::endl;
-    }
+    mVolumeTexture = gMediaFactory->getTxt(volumeText.str().c_str(), gFont32, COLOR_BLACK);
     mVolumeTexture->render(mSliderPosition.x + mSliderWidth + (LDot::DOT_WIDTH / 2), mSliderPosition.y);
 }
 

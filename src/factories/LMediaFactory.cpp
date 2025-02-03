@@ -18,6 +18,15 @@ LTexture* LMediaFactory::getImg(const std::string& path) {
     return this->makeLTexture(mImgCache[path].get());
 }
 
+LTextureClickable* LMediaFactory::getImgClickable(const std::string& path) {
+    if(mImgCache.find(path) == mImgCache.end()) {
+        SDL_Texture* newTexture = loadImg(path);
+        if(newTexture == NULL) return nullptr;
+        mImgCache[path] = std::unique_ptr<SDL_Texture, LMediaFactory::SDLTextureDeleter>(newTexture);
+    }
+    return this->makeLTextureClickable(mImgCache[path].get());
+}
+
 LTexture* LMediaFactory::getTxt(const std::string& text, TTF_Font* font, SDL_Color color) {
     TextKey key = {text, font, color};
     if(mTxtCache.find(key) == mTxtCache.end()) {
@@ -27,6 +36,17 @@ LTexture* LMediaFactory::getTxt(const std::string& text, TTF_Font* font, SDL_Col
     
     }
     return this->makeLTexture(mTxtCache[key].get());
+}
+
+LTextureClickable* LMediaFactory::getTxtClickable(const std::string& text, TTF_Font* font, SDL_Color color) {
+    TextKey key = {text, font, color};
+    if(mTxtCache.find(key) == mTxtCache.end()) {
+        SDL_Texture* newTexture = loadText(text, font, color);
+        if(newTexture == NULL) return nullptr;
+        mTxtCache[key] = std::unique_ptr<SDL_Texture, LMediaFactory::SDLTextureDeleter>(newTexture);
+    
+    }
+    return this->makeLTextureClickable(mTxtCache[key].get());
 }
 
 Mix_Chunk* LMediaFactory::getChunk(const char* path) {
@@ -69,9 +89,13 @@ SDL_Texture* LMediaFactory::loadImg(const std::string& path) {
 LTexture* LMediaFactory::makeLTexture(SDL_Texture* texture) {
     int w, h;
     SDL_QueryTexture(texture, NULL, NULL, &w, &h);
-    LTexture* newLTexture = new LTexture(0, 0, w, h);
-    newLTexture->createImg(texture);
-    return newLTexture;
+    return new LTexture(0, 0, w, h, texture);
+}
+
+LTextureClickable* LMediaFactory::makeLTextureClickable(SDL_Texture* texture) {
+    int w, h;
+    SDL_QueryTexture(texture, NULL, NULL, &w, &h);
+    return new LTextureClickable(0, 0, w, h, texture);
 }
 
 SDL_Texture* LMediaFactory::loadText(const std::string path, TTF_Font* font, SDL_Color color) {
