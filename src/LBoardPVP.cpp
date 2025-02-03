@@ -12,6 +12,9 @@ using std::vector;
 extern TTF_Font* gFont64;
 extern SDL_Renderer* gRenderer;
 extern uint8_t gMusicVolume;
+extern LMediaFactory* gMediaFactory;
+extern LChunkPlayer* gChunkPlayer;
+extern LMusicPlayer* gMusicPlayer;
 
 LBoardPVP::LBoardPVP() {
 	//grab settings from file
@@ -274,51 +277,38 @@ void LBoardPVP::readSettingsFromFile() {
 bool LBoardPVP::loadPiecesTextures() {
 	bool success = true;
 	if(mPieceTheme == 0) {
-		//regular piece
-		if(!(mPieceTexture->loadFromFile(SPRITE_PIECE_SHEET))) success = false;
-		else if(!(mHighlightedPieceTexture->loadFromFile(SPRITE_PIECE_SHEET))) success = false;
-		else mHighlightedPieceTexture->setColor(255,0,0);
-		//score piece
-		if(!(mMiniPieceTexture->loadFromFile(SPRITE_PIECE_SHEET_32))) success = false;
+		mPieceTexture = gMediaFactory->getImg(SPRITE_PIECE_SHEET);
+		mHighlightedPieceTexture = gMediaFactory->getImg(SPRITE_PIECE_SHEET);
+		mHighlightedPieceTexture->setColor(255,0,0);
+		mMiniPieceTexture = gMediaFactory->getImg(SPRITE_PIECE_SHEET_32);
 	} else if(mPieceTheme == 1) {
-		if(!(mPieceTexture->loadFromFile(SPRITE_RETRO_PIECE_SHEET))) success = false;
-		else if(!(mHighlightedPieceTexture->loadFromFile(SPRITE_RETRO_PIECE_SHEET))) success = false;
-		else mHighlightedPieceTexture->setColor(255,0,0);
-		if(!(mMiniPieceTexture->loadFromFile(SPRITE_PIECE_SHEET_32))) success = false;
+		mPieceTexture = gMediaFactory->getImg(SPRITE_RETRO_PIECE_SHEET);
+		mHighlightedPieceTexture = gMediaFactory->getImg(SPRITE_RETRO_PIECE_SHEET);
+		mHighlightedPieceTexture->setColor(255,0,0);
+		mMiniPieceTexture = gMediaFactory->getImg(SPRITE_PIECE_SHEET_32);
 	}
 	return success; 
 }
 
 bool LBoardPVP::loadTileTextures() {
 	bool success = true;
-	if(!(mTileTexture->loadFromFile(SPRITE_BOARD))) success = false;
-	else if(!(mHighlightedTileTexture->loadFromFile(SPRITE_BOARD))) success = false;
-	else mHighlightedTileTexture->setColor(255,0,0);
+	mTileTexture = gMediaFactory->getImg(SPRITE_BOARD);
+	mHighlightedTileTexture = gMediaFactory->getImg(SPRITE_BOARD);
+	mHighlightedTileTexture->setColor(255,0,0);
 	return success;
 }
 
 bool LBoardPVP::loadPauseTexture() {
 	bool success = true;
-	if(!(mPauseBackgroundTexture->loadFromFile(SPRITE_BACKGROUND_FULLBLACK))) success = false;
-	else {
-		mPauseBackgroundTexture->setAlpha(127);
-		mPauseBackgroundTexture->setBlendMode(SDL_BLENDMODE_BLEND);
-	}
-	if(!(mPauseTextTexture->loadFromRenderedText(gFont64, "Pause", COLOR_WHITE))) success = false;
+	mPauseBackgroundTexture = gMediaFactory->getImg(SPRITE_BACKGROUND_FULLBLACK);
+	mPauseBackgroundTexture->setAlpha(127);
+	mPauseBackgroundTexture->setBlendMode(SDL_BLENDMODE_BLEND);
+	mPauseTextTexture = gMediaFactory->getTxt("Pause", gFont64, COLOR_WHITE);
 	return success;
 }
 
-// for now this function is called when either white or black run out of time
-// because it relies on the mWhiteTimerRanOut and mBlackTimerRanOut bools
-// alternatively we could load two textures but considering we are not going 
-// to use one it would be a waste of memory
 bool LBoardPVP::loadOutOfTimeTexture() {
-	if(mWhiteTimerRanOut) {
-		if(!(mOutOfTimeTexture->loadFromRenderedText(gFont64, "White ran out of time!", COLOR_WHITE))) return false;
-	}
-	else if(mBlackTimerRanOut) {
-		if(!(mOutOfTimeTexture->loadFromRenderedText(gFont64, "Black ran out of time!", COLOR_WHITE))) return false;
-	}
+	mOutOfTimeTexture = gMediaFactory->getTxt("Out of time!", gFont64, COLOR_WHITE);
 	return true;
 }
 
@@ -1063,7 +1053,7 @@ void LBoardPVP::renderTimer() {
 		}
 		else whiteTimeText << std::to_string(wminutes) + ":" + "0" + std::to_string(ws);
 		
-		mWhiteTimerTexture->loadFromRenderedText(gFont64, whiteTimeText.str().c_str(), COLOR_BLACK);
+		mWhiteTimerTexture = gMediaFactory->getTxt(whiteTimeText.str().c_str(), gFont64, COLOR_BLACK);
 		mWhiteTimerTexture->render(0,SCREEN_HEIGHT - 64);
 		
 		// black timer total time left in seconds
@@ -1084,7 +1074,7 @@ void LBoardPVP::renderTimer() {
 		std::stringstream blackTimeText;
 		if(bs > 9) blackTimeText << std::to_string(bminutes) + ":" + std::to_string(bs);
 		else blackTimeText << std::to_string(bminutes) + ":" + "0" + std::to_string(bs);
-		mBlackTimerTexture->loadFromRenderedText(gFont64, blackTimeText.str().c_str(), COLOR_BLACK);
+		mBlackTimerTexture = gMediaFactory->getTxt(blackTimeText.str().c_str(), gFont64, COLOR_BLACK);
 		mBlackTimerTexture->render(0,0);
 	}
 }
@@ -1119,8 +1109,9 @@ void LBoardPVP::renderScore() {
 	whiteScoreStr << std::to_string(whiteScore);
 	blackScoreStr << std::to_string(blackScore);
 	
-	mWhiteScoreTexture->loadFromRenderedText(gFont64, whiteScoreStr.str().c_str(), COLOR_BLACK);
-	mBlackScoreTexture->loadFromRenderedText(gFont64, blackScoreStr.str().c_str(), COLOR_BLACK);
+
+	mWhiteScoreTexture = gMediaFactory->getTxt(whiteScoreStr.str().c_str(), gFont64, COLOR_BLACK);
+	mBlackScoreTexture = gMediaFactory->getTxt(blackScoreStr.str().c_str(), gFont64, COLOR_BLACK);
 	
 	if(mSettingsTable[TL_NO]) {
 		mWhiteScoreTexture->render(0, SCREEN_HEIGHT - 64);

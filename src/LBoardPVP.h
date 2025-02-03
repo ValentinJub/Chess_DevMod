@@ -30,6 +30,9 @@ Board also contains settings such as tile colors, legal move displayed on map...
 #include "LQueen.h"
 #include "LPawn.h"
 #include "LTimer.h"
+#include "sound/LMusicPlayer.h"
+#include "sound/LChunkPlayer.h"
+#include "factories/LMediaFactory.h"
 
 class LBoardPVP {
 

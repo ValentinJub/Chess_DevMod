@@ -30,6 +30,9 @@ Board also contains settings such as tile colors, legal move displayed on map...
 #include "LQueen.h"
 #include "LPawn.h"
 #include "LTimer.h"
+#include "sound/LMusicPlayer.h"
+#include "sound/LChunkPlayer.h"
+#include "factories/LMediaFactory.h"
 
 class LBoardPVAI {
 
@@ -168,16 +171,6 @@ private:
     LKnight mKnight;
     LQueen mQueen;
     LPawn mPawn;
-    
-    Mix_Chunk* mBingo = NULL;
-    Mix_Chunk* mDefeat = NULL;
-    Mix_Chunk* mVictory = NULL;
-    Mix_Chunk* mCheck = NULL;
-    Mix_Chunk* mCheckMate = NULL;
-    Mix_Chunk* mError = NULL;
-    Mix_Chunk* mCastling = NULL;
-    Mix_Chunk* mPieceFall = NULL;
-    Mix_Chunk* mPawnForward = NULL;
     
     int mSettingsTable[TOTAL_CLICKABLE_ITEMS - 1]; //minus back
     
