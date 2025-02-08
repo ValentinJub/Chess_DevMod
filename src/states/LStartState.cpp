@@ -18,7 +18,6 @@ LStartState::LStartState() {
 };
 
 void LStartState::enter(LObserver* observer) {
-	// change the name of the logger
 	mLogger->info("Entering Start State");
 	mObserver = observer;
 	this->Attach(observer);
@@ -49,16 +48,10 @@ void LStartState::update() {
 
 void LStartState::render() {
 		SDL_RenderClear(gRenderer);
-		SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 		gBackgroundTexture->render();
-		mTitleTexture[TITLE]->render(
-			(SCREEN_WIDTH - mTitleTexture[TITLE]->getWidth()) / 2,
-			(SCREEN_HEIGHT - mTitleTexture[TITLE]->getHeight()) / 2
-		);
-		mTitleTexture[AUTHOR]->render(
-			SCREEN_WIDTH - mTitleTexture[AUTHOR]->getWidth(),
-			SCREEN_HEIGHT - mTitleTexture[AUTHOR]->getHeight()
-		);
+		for(int i = 0; i < TOTAL_TITLE_ITEMS; i++) {
+			mTitleTexture[i]->renderAuto();
+		}
 		SDL_RenderPresent(gRenderer);
 }
 
@@ -74,6 +67,14 @@ void LStartState::init() {
 
 void LStartState::loadTexture() {
 	mTitleTexture[TITLE] = gMediaFactory->getTxt(TITLE_STR, gFont64, COLOR_BLACK);
+	mTitleTexture[TITLE]->setPos(
+		(SCREEN_WIDTH - mTitleTexture[TITLE]->w()) / 2,
+		(SCREEN_HEIGHT - mTitleTexture[TITLE]->h()) / 2
+	);
 	mTitleTexture[AUTHOR] = gMediaFactory->getTxt(TITLE_AUTHOR_STR, gFont32, COLOR_BLACK);
+	mTitleTexture[AUTHOR]->setPos(
+		SCREEN_WIDTH - mTitleTexture[AUTHOR]->w(),
+		SCREEN_HEIGHT - mTitleTexture[AUTHOR]->h()
+	);
 }
 

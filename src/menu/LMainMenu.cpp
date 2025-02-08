@@ -14,11 +14,24 @@ const std::string MENU_PLAY_AI_STR = "Play vs AI";
 const std::string MENU_SETTINGS_STR = "Game Settings";
 const std::string MENU_DEVMODE_STR = "Developer Mode";
 
+std::string MenuItem[] = {
+	MENU_PLAY_STR,
+    MENU_PLAY_AI_STR,
+    MENU_SETTINGS_STR,
+    MENU_DEVMODE_STR
+};
+
 LMainMenu::LMainMenu(LObserver* observer) {
     mAppObserver = observer;
+	try {
+		mLogger = spdlog::basic_logger_mt("LMainMenu", "logs/CApp.log");
+	}
+	catch(const spdlog::spdlog_ex& ex) {
+		std::cerr << "Log init failed: " << ex.what() << std::endl;
+	}
     this->Attach(observer);
     if(!this->init()) {
-        printf("Failed to initialise LMainMenuState");
+        mLogger->error("Failed to initialize main menu");
     }
 }
 
@@ -33,20 +46,16 @@ void LMainMenu::update() {
 }
 
 void LMainMenu::render() {
-    SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 	SDL_RenderClear(gRenderer);
-
 	gBackgroundTexture->render();
-
-	mMenuTextures[PLAY_AI]->render(mMenuTextures[PLAY_AI]->x(), mMenuTextures[PLAY_AI]->y());
-	mMenuTextures[SETTINGS]->render(mMenuTextures[SETTINGS]->x(), mMenuTextures[SETTINGS]->y());
-	mMenuTextures[PLAY]->render(mMenuTextures[PLAY]->x(), mMenuTextures[PLAY]->y());
-	mMenuTextures[DEVMODE]->render(mMenuTextures[DEVMODE]->x(), mMenuTextures[DEVMODE]->y());
-
+	for(int i(0); i < TOTAL_MENU_ITEMS; i++) {
+		mMenuTextures[i]->renderAuto();
+	}
 	SDL_RenderPresent(gRenderer);
 }
 
 void LMainMenu::free() {
+	spdlog::drop("LMainMenu");
     this->Detach(mAppObserver);
     for(int i(0); i < TOTAL_MENU_ITEMS; i++) {
         mMenuTextures[i]->free();
@@ -54,69 +63,52 @@ void LMainMenu::free() {
 }
 
 bool LMainMenu::init() {
-	mMenuTextures[PLAY] = gMediaFactory->getTxt(MENU_PLAY_STR, gFont64, COLOR_BLACK);
-	mMenuTextures[PLAY_AI] = gMediaFactory->getTxt(MENU_PLAY_AI_STR, gFont64, COLOR_BLACK);
-	mMenuTextures[SETTINGS] = gMediaFactory->getTxt(MENU_SETTINGS_STR, gFont64, COLOR_BLACK);
-	mMenuTextures[DEVMODE] = gMediaFactory->getTxt(MENU_DEVMODE_STR, gFont64, COLOR_BLACK);
+	for(int(i) = 0; i < TOTAL_MENU_ITEMS; i++) {
+		mMenuTextures[i] = gMediaFactory->getTxtClickable(MenuItem[i].c_str(), gFont64, COLOR_BLACK);
+		if(mMenuTextures[i] == NULL) {
+			mLogger->error("Failed to load menu texture: {}", MenuItem[i]);
+			return false;
+		}
+	}
     this->setTexturePositions();
     this->setButtons();
-	return mMenuTextures[PLAY] != NULL && mMenuTextures[PLAY_AI] != NULL && mMenuTextures[SETTINGS] != NULL && mMenuTextures[DEVMODE] != NULL;
+	return true;
 }
 
 void LMainMenu::setTexturePositions() {
 	mMenuTextures[PLAY_AI]->setPos(
-		(SCREEN_WIDTH - mMenuTextures[PLAY_AI]->getWidth()) / 2, 
-		(SCREEN_HEIGHT / 2) - (mMenuTextures[PLAY_AI]->getHeight())
+		(SCREEN_WIDTH - mMenuTextures[PLAY_AI]->w()) / 2, 
+		(SCREEN_HEIGHT / 2) - (mMenuTextures[PLAY_AI]->h())
 	); 
 	mMenuTextures[SETTINGS]->setPos(
-		(SCREEN_WIDTH - mMenuTextures[SETTINGS]->getWidth()) / 2, 
-		mMenuTextures[PLAY_AI]->y() + mMenuTextures[PLAY_AI]->getHeight()
+		(SCREEN_WIDTH - mMenuTextures[SETTINGS]->w()) / 2, 
+		mMenuTextures[PLAY_AI]->y() + mMenuTextures[PLAY_AI]->h()
 	);
 	mMenuTextures[PLAY]->setPos(
-		(SCREEN_WIDTH - mMenuTextures[PLAY]->getWidth()) / 2,
-		mMenuTextures[PLAY_AI]->y() - mMenuTextures[PLAY]->getHeight()
+		(SCREEN_WIDTH - mMenuTextures[PLAY]->w()) / 2,
+		mMenuTextures[PLAY_AI]->y() - mMenuTextures[PLAY]->h()
 	);
 	mMenuTextures[DEVMODE]->setPos(
-		(SCREEN_WIDTH - mMenuTextures[DEVMODE]->getWidth()) / 2,
-		mMenuTextures[SETTINGS]->y() + mMenuTextures[SETTINGS]->getHeight()
+		(SCREEN_WIDTH - mMenuTextures[DEVMODE]->w()) / 2,
+		mMenuTextures[SETTINGS]->y() + mMenuTextures[SETTINGS]->h()
 	);
 }
 
-void LMainMenu::highlightSelected(int position) {
-	switch(position) {
-		case PLAY:
-			mMenuTextures[PLAY] = gMediaFactory->getTxt(MENU_PLAY_STR, gFont64, COLOR_RED);
-			mMenuTextures[PLAY_AI] = gMediaFactory->getTxt(MENU_PLAY_AI_STR, gFont64, COLOR_BLACK);
-			mMenuTextures[SETTINGS] = gMediaFactory->getTxt(MENU_SETTINGS_STR, gFont64, COLOR_BLACK);
-			mMenuTextures[DEVMODE] = gMediaFactory->getTxt(MENU_DEVMODE_STR, gFont64, COLOR_BLACK);
-			break;
-		case PLAY_AI:
-			mMenuTextures[PLAY] = gMediaFactory->getTxt(MENU_PLAY_STR, gFont64, COLOR_BLACK);
-			mMenuTextures[PLAY_AI] = gMediaFactory->getTxt(MENU_PLAY_AI_STR, gFont64, COLOR_RED);
-			mMenuTextures[SETTINGS] = gMediaFactory->getTxt(MENU_SETTINGS_STR, gFont64, COLOR_BLACK);
-			mMenuTextures[DEVMODE] = gMediaFactory->getTxt(MENU_DEVMODE_STR, gFont64, COLOR_BLACK);
-			break;
-		case SETTINGS:
-			mMenuTextures[PLAY] = gMediaFactory->getTxt(MENU_PLAY_STR, gFont64, COLOR_BLACK);
-			mMenuTextures[PLAY_AI] = gMediaFactory->getTxt(MENU_PLAY_AI_STR, gFont64, COLOR_BLACK);
-			mMenuTextures[SETTINGS] = gMediaFactory->getTxt(MENU_SETTINGS_STR, gFont64, COLOR_RED);
-			mMenuTextures[DEVMODE] = gMediaFactory->getTxt(MENU_DEVMODE_STR, gFont64, COLOR_BLACK);
-			break;
-		case DEVMODE:
-			mMenuTextures[PLAY] = gMediaFactory->getTxt(MENU_PLAY_STR, gFont64, COLOR_BLACK);
-			mMenuTextures[PLAY_AI] = gMediaFactory->getTxt(MENU_PLAY_AI_STR, gFont64, COLOR_BLACK);
-			mMenuTextures[SETTINGS] = gMediaFactory->getTxt(MENU_SETTINGS_STR, gFont64, COLOR_BLACK);
-			mMenuTextures[DEVMODE] = gMediaFactory->getTxt(MENU_DEVMODE_STR, gFont64, COLOR_RED);
-			break;
-		default: 
-			mMenuTextures[PLAY] = gMediaFactory->getTxt(MENU_PLAY_STR, gFont64, COLOR_BLACK);
-			mMenuTextures[PLAY_AI] = gMediaFactory->getTxt(MENU_PLAY_AI_STR, gFont64, COLOR_BLACK);
-			mMenuTextures[SETTINGS] = gMediaFactory->getTxt(MENU_SETTINGS_STR, gFont64, COLOR_BLACK);
-			mMenuTextures[DEVMODE] = gMediaFactory->getTxt(MENU_DEVMODE_STR, gFont64, COLOR_BLACK);
-			break;
-	}
-    // Re-loading the textures with the new color will remove the position of the textures, so we need to reset them
-    this->setTexturePositions();
+void LMainMenu::isNowSelected(int selected) {
+    mMenuTextures[selected]->createImg(gMediaFactory->getTxtSDL_Texture(
+        MenuItem[selected].c_str(),
+        gFont64, 
+        COLOR_RED
+    ));
+	for(int i = 0; i < TOTAL_MENU_ITEMS; i++) {
+        if(i != selected) {
+            mMenuTextures[i]->createImg(gMediaFactory->getTxtSDL_Texture(
+                MenuItem[i].c_str(), 
+                gFont64, 
+                COLOR_BLACK
+            ));
+        }
+    }
 }
 
 void LMainMenu::handleEvents(SDL_Event* e) {
@@ -138,13 +130,15 @@ void LMainMenu::handleKeyEvents(SDL_Event* e) {
             case SDLK_1:
 				gMusicPlayer->stop();
                 playPVP();
+                this->flushEvents();
                 break;
             case SDLK_2:
 				gMusicPlayer->stop();
                 playerVersusComputer();
+                this->flushEvents();
                 break;
             case SDLK_3:
-                SDL_Delay(200);
+                SDL_Delay(20);
                 this->flushEvents();
 				gStateMachine->push(new LSettingsState);
                 break;
@@ -154,28 +148,31 @@ void LMainMenu::handleKeyEvents(SDL_Event* e) {
 
 void LMainMenu::handleMouseEvents(SDL_Event* e) {
     for(int i(0); i < TOTAL_MENU_ITEMS; i++) {
-		if(mMenuButtons[i]->handleInside(e)) {
-			highlightSelected(i);
-			if(mMenuButtons[i]->handleClick(e)) {
+		if(mMenuTextures[i]->getButton()->handleInside(e)) {
+			this->isNowSelected(i);
+			if(mMenuTextures[i]->getButton()->handleClick(e)) {
 				switch (i) {
 				case PLAY:
 					gMusicPlayer->stop();
-					flushEvents();
+					this->flushEvents();
 					playPVP();
+                	this->flushEvents();
 					break;
 				case PLAY_AI:
 					gMusicPlayer->stop();
-					flushEvents();
+              		this->flushEvents();
 					playerVersusComputer();
+                	this->flushEvents();
 					break;
 				case SETTINGS:
-					SDL_Delay(200);
-					flushEvents();
+					SDL_Delay(20);
+					this->flushEvents();
 					gStateMachine->push(new LSettingsState);
+					this->flushEvents();
 					break;
 				case DEVMODE:
 					SDL_Delay(200);
-					flushEvents();
+					this->flushEvents();
 					break;
 				}
 			}
@@ -185,15 +182,12 @@ void LMainMenu::handleMouseEvents(SDL_Event* e) {
 
 void LMainMenu::setButtons() {
 	for(int i(0); i < TOTAL_MENU_ITEMS; i++) {
-		mMenuButtons[i] = new LButton(
-			mMenuTextures[i]->x(), 
-			mMenuTextures[i]->y(), 
-			mMenuTextures[i]->getWidth(), 
-			mMenuTextures[i]->getHeight()
-		);
+		mMenuTextures[i]->setButton();
 	}
 }
 
+// Pull hanging events from the queue and flush them
+// This is useful to avoid using an event from a previous state
 void LMainMenu::flushEvents() {
 	SDL_PumpEvents();
 	SDL_FlushEvents(SDL_MOUSEMOTION, SDL_MOUSEBUTTONUP);

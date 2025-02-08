@@ -11,7 +11,7 @@ LTextureClickable::~LTextureClickable() {
 
 void LTextureClickable::render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* center, SDL_RendererFlip flip) {
     // The quad to render the texture to
-    SDL_Rect renderQuad = {x, y, this->getWidth(), this->getHeight()};
+    SDL_Rect renderQuad = {x, y, this->w(), this->h()};
 
     // set clip rendering dimensions
     if(clip != NULL) {
@@ -27,6 +27,10 @@ void LTextureClickable::render(int x, int y, SDL_Rect* clip, double angle, SDL_P
 
 void LTextureClickable::setButton(LButton* button) {
     mButton = button;
+}
+
+void LTextureClickable::setButton() {
+    mButton = new LButton(this->x(), this->y(), this->w(), this->h());
 }
 
 LButton* LTextureClickable::getButton() const {

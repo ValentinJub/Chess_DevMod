@@ -1,3 +1,10 @@
+/* File: LStartState.h
+
+This is a crossover between a state and a non interactive menu
+for the sake of simplicity I bundled both in this file
+
+*/
+
 #ifndef LSTARTSTATE_H 
 #define LSTARTSTATE_H   
 

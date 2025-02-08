@@ -36,8 +36,12 @@ void LTexture::render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* cen
 
     // render to screen
     SDL_RenderCopyEx(gRenderer, mTexture, clip, &renderQuad, angle, center, flip);
+    this->renderDecorators();
+}
 
-    renderDecorators();
+// Render the texture at its current position
+void LTexture::renderAuto() {
+    this->render(mX, mY);
 }
 
 std::vector<std::unique_ptr<LDecorator>>& LTexture::getDecorators() {
@@ -81,11 +85,11 @@ SDL_Texture* LTexture::getTexture() {
     return mTexture;
 }
 
-int LTexture::getWidth() {
+int LTexture::w() {
     return mWidth;
 }
 
-int LTexture::getHeight() {
+int LTexture::h() {
     return mHeight;
 }
 

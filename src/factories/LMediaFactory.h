@@ -3,7 +3,9 @@
 
 #include "LFactory.h"
 #include "TextKey.h"
+#include "FontKey.h"
 #include "SDL2/SDL.h"
+#include "com/logger.h"
 
 extern SDL_Renderer* gRenderer;
 
@@ -11,7 +13,10 @@ class LMediaFactory : public LFactory {
 public:
     static LMediaFactory* Instance();
     LTexture* getImg(const std::string& path) override;
-    LTextureClickable* getImgClickable(const std::string& path); 
+    LTexture* getImgUnique(const std::string& path);
+    LTextureClickable* getImgClickable(const std::string& path);
+    TTF_Font* getFont(const std::string& path, int size);
+    SDL_Texture* getTxtSDL_Texture(const std::string& path, TTF_Font* font, SDL_Color color);
     LTexture* getTxt(const std::string& text, TTF_Font* font, SDL_Color color) override;
     LTextureClickable* getTxtClickable(const std::string& text, TTF_Font* font, SDL_Color color);
     Mix_Chunk* getChunk(const char* path) override;
@@ -21,12 +26,14 @@ public:
         mTxtCache.clear();
         mChunkCache.clear();
         mMusicCache.clear();
+        mFontCache.clear();
     }
     ~LMediaFactory() {}
 protected:
-    LMediaFactory() {}
+    LMediaFactory();
 private:
     static LMediaFactory* mInstance;
+    std::shared_ptr<spdlog::logger> mLogger;
     struct SDLTextureDeleter {
         void operator()(SDL_Texture* txt) const {
             if(txt != nullptr) {
@@ -37,6 +44,16 @@ private:
 
     std::unordered_map<TextKey, std::unique_ptr<SDL_Texture, SDLTextureDeleter>, TextKeyHash> mTxtCache;
     std::unordered_map<std::string, std::unique_ptr<SDL_Texture, SDLTextureDeleter>> mImgCache;
+
+    struct TTFDeleter {
+        void operator()(TTF_Font* font) const {
+            if(font != nullptr) {
+                TTF_CloseFont(font);
+            }
+        }
+    };
+
+    std::unordered_map<FontKey, std::unique_ptr<TTF_Font, TTFDeleter>, FontKeyHash> mFontCache;
 
     struct MixChunkDeleter {
         void operator()(Mix_Chunk* chunk) const {

@@ -10,10 +10,20 @@ headers for all files - do not put L*.h!!!!
 #define HEADER_UTIL
 
 #include "com/headers.h"
+#include "com/logger.h"
+
+enum LOG_LEVEL {
+    TRACE,
+    DEBUG,
+    INFO,
+    WARN,
+    ERR,
+    CRITICAL
+};
 
 namespace Util {
     bool showTitleScreen(int argc, char *argv[]);
-    Mix_Music* loadMusic(const char *src);
-    Mix_Chunk* loadChunk(const char *src);
+    void initLogger(int argc, char *argv[]);
 }
+
 #endif

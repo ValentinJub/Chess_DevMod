@@ -7,23 +7,23 @@ void playerVersusComputer() {
 	LBoardPVAI board;
 	//Load tile textures in memory
 	if(!(board.loadTileTextures())) {
-		printf("Unable to load tile textures!");
+		spdlog::error("Unable to load tile textures!");
 	}
 	//Load piece textures in memory
 	else if(!(board.loadPiecesTextures())) {
-		printf("Failed to load pieces textures");
+		spdlog::error("Failed to load pieces textures");
 	}
 	// load pause screen texture
 	else if(!(board.loadPauseTexture())) {
-		printf("Failed to load pause texture");
+		spdlog::error("Failed to load pause texture");
 	}
 	// load out of time screen texture
 	else if(!(board.loadOutOfTimeTexture())) {
-		printf("Failed to load pause texture");
+		spdlog::error("Failed to load pause texture");
 	}
 	//Read map to initialise piece position
 	else if(!(board.initMap())) {
-		printf("Failed to load map");
+		spdlog::error("Failed to load map");
 	}
 	else {
 		board.setTileRectClip();

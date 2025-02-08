@@ -44,3 +44,4 @@ build/*
 
 resources/settings.config
 chess
+logs/

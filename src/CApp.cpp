@@ -8,13 +8,14 @@ LChunkPlayer* gChunkPlayer;
 LTexture* gBackgroundTexture;
 TTF_Font* gFont64;
 TTF_Font* gFont32;
-std::shared_ptr<spdlog::logger> gLogger;
+extern std::shared_ptr<spdlog::logger> gLogger;
 
 // Global music volume, between 0 and 128.
 uint8_t gMusicVolume;
 
 
 CApp::CApp(bool showTitleScreen) {
+	spdlog::info("--------------A new debug session begins--------------");
 	mAppIsRunning = true;
 	mShowTitleScreen = showTitleScreen;
 	mWindow = new LWindow;
@@ -33,14 +34,6 @@ void CApp::freeGlobalVars() {
 	gStateMachine->free();
 	gMusicPlayer->free();
 	gChunkPlayer->free();
-	if(gFont64 != NULL) {
-		TTF_CloseFont(gFont64);
-		gFont64 = NULL;
-	}
-	if(gFont32 != NULL) {
-		TTF_CloseFont(gFont32);
-		gFont32 = NULL;
-	}
 	if (gRenderer != NULL) {
 		SDL_DestroyRenderer(gRenderer);
 		gRenderer = NULL;
@@ -56,25 +49,25 @@ void CApp::closeSDL() {
 
 bool CApp::initSDL() {
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
-		printf("SDL could not initialise! SDL_Error: %s\n", SDL_GetError());
+		spdlog::error("SDL could not initialise! SDL_Error: %s\n", SDL_GetError());
 		return false;
 	}
 	//Set texture filtering to linear
 	if( !SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "1" ) ) {
-		printf( "Warning: Linear texture filtering not enabled!" );
+		spdlog::error( "Warning: Linear texture filtering not enabled!" );
 	}
 
 	//Initialize PNG loading
 	if(!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
-		printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
+		spdlog::error("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
 		return false;
 	}
 	if(TTF_Init() == -1) {
-		printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
+		spdlog::error("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
 		return false;
 	}
 	if( Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 ) {
-		printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
+		spdlog::error( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
 		return false;
 	}
 	// set volume for all channels
@@ -84,7 +77,7 @@ bool CApp::initSDL() {
 
 bool CApp::initWindow() {
 	if(!mWindow->init()) {
-		printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
+		spdlog::error( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
 		return false;
 	}
 	return true;
@@ -99,17 +92,6 @@ bool CApp::initMenus() {
 }
 
 bool CApp::initGlobalVars() {
-	try {
-		gLogger = spdlog::basic_logger_mt("CApp", "logs/CApp.log");
-		spdlog::set_default_logger(gLogger);
-		spdlog::set_level(spdlog::level::debug);
-		spdlog::flush_every(std::chrono::milliseconds(5));
-	}
-	catch(const spdlog::spdlog_ex& ex) {
-		std::cerr << "Log init failed: " << ex.what() << std::endl;
-		return false;
-	}
-	spdlog::debug("--------------A new debug session begins--------------");
 	gMediaFactory = LMediaFactory::Instance();
 	gMusicPlayer = LMusicPlayer::Instance();
 	gChunkPlayer = LChunkPlayer::Instance();
@@ -125,12 +107,12 @@ bool CApp::initGlobalVars() {
 		return false;
 	}
 	spdlog::debug("Background texture created");
-	gFont64 = TTF_OpenFont( FONT_BRANDA, 64 );
+	gFont64 = gMediaFactory->getFont( FONT_BRANDA, 64 );
 	if (gFont64 == NULL) {
 		spdlog::error("Failed to load {} font! SDL_ttf Error: {}", FONT_BRANDA, TTF_GetError());
 		return false;
 	}
-	gFont32 = TTF_OpenFont( FONT_BRANDA, 32 );
+	gFont32 = gMediaFactory->getFont( FONT_BRANDA, 32 );
 	if (gFont32 == NULL) {
 		spdlog::error("Failed to load {} font! SDL_ttf Error: {}", FONT_BRANDA, TTF_GetError());
 		return false;
@@ -153,7 +135,7 @@ void CApp::poll(LSubject* subject) {
 // bool CApp::loadWindowIcon(std::string path) {
 // 	SDL_Surface* icon = IMG_Load(path.c_str());
 // 	if(icon == NULL) {
-// 		printf("Unable to load icon! SDL_image Error: %s\n", IMG_GetError());
+// 		spdlog::error("Unable to load icon! SDL_image Error: %s\n", IMG_GetError());
 // 		return false;
 // 	}
 // 	try {
@@ -162,7 +144,7 @@ void CApp::poll(LSubject* subject) {
 // 		return true;
 // 	}
 // 	catch(const char* msg) {
-// 		printf("%s\n", msg);
+// 		spdlog::error("%s\n", msg);
 // 		return false;
 // 	}
 // }

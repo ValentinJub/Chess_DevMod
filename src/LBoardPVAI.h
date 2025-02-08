@@ -109,7 +109,6 @@ private:
   std::string mPieceStr[TOTAL_PIECES - 1];
     void initPieceStr();
     int mTurn;
-    Mix_Music* mMusic[NBR_OF_MUSIC];
     
     //contains the current piece layout
     int mMap[SPL][SPL];

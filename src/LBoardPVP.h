@@ -95,8 +95,6 @@ private:
     void setCastlingBools(int x, int y, int piece);
     bool checkPromotion(int x, int y);
     
-    Mix_Music* mMusic[NBR_OF_MUSIC];
-    
     //contains the current piece layout
     int mMap[SPL][SPL];
     LTimer mWhiteTimer;
@@ -161,16 +159,6 @@ private:
     LKnight mKnight;
     LQueen mQueen;
     LPawn mPawn;
-    
-    Mix_Chunk* mBingo = NULL;
-    Mix_Chunk* mDefeat = NULL;
-    Mix_Chunk* mVictory = NULL;
-    Mix_Chunk* mCheck = NULL;
-    Mix_Chunk* mCheckMate = NULL;
-    Mix_Chunk* mError = NULL;
-    Mix_Chunk* mCastling = NULL;
-    Mix_Chunk* mPieceFall = NULL;
-    Mix_Chunk* mPawnForward = NULL;
     
     int mSettingsTable[TOTAL_CLICKABLE_ITEMS - 1]; //minus back
 };

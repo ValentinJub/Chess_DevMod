@@ -1,7 +1,7 @@
 #include "CApp.h"
 
 int main(int argc, char *argv[]) {
-	std::cout << "Hello World!" << std::endl;
+	Util::initLogger(argc, argv);
 	CApp theApp(Util::showTitleScreen(argc, argv));
 	return theApp.exec();
 }

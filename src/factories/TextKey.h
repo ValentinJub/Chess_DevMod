@@ -1,3 +1,6 @@
+#ifndef TEXTKEY_H
+#define TEXTKEY_H
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <string>
@@ -30,3 +33,5 @@ struct TextKeyHash {
         return hash;
     }
 };
+
+#endif

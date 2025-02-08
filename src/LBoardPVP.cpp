@@ -73,17 +73,6 @@ LBoardPVP::LBoardPVP() {
 	mBRook1HasMoved = false;
 	mBRook2HasMoved = false;
 	
-	//load sound effect
-	mBingo = Util::loadChunk(CHUNK_CHIME);
-	mCheck = Util::loadChunk(CHUNK_CHECK);
-	mCheckMate = Util::loadChunk(CHUNK_CHECKMATE);
-	mError = Util::loadChunk(CHUNK_ERROR);
-	mPawnForward = Util::loadChunk(CHUNK_MOVE);
-	mCastling = Util::loadChunk(CHUNK_CASTLE);
-	mPieceFall = Util::loadChunk(CHUNK_CAPTURE);
-	mVictory = Util::loadChunk(CHUNK_VICTORY);
-	mDefeat = Util::loadChunk(CHUNK_DEFEAT);
-	
 	//start white and black timer and pause the black as white plays first
 	if(mSettingsTable[TL_YES]) {
 		startWhiteTimer();
@@ -112,20 +101,6 @@ void LBoardPVP::initGameSettings() {
 			mTimeLimit = 600; 
 		}
 	}
-	//Set music
-	if(mSettingsTable[MT_CLASSIC]) {
-		for(int i(0); i < NBR_OF_MUSIC; i++) {
-			std::string str = MUSIC_CLASSIC + std::to_string(i) + ".mp3";
-			mMusic[i] = Util::loadMusic(str.c_str());
-		}
-	}
-	//Jazzy
-	else {
-		for(int i(0); i < NBR_OF_MUSIC; i++) {
-			std::string str = MUSIC_JAZZY + std::to_string(i) + ".mp3";
-			mMusic[i] = Util::loadMusic(str.c_str());
-		}
-	}
 	//Piece Theme 
 	if(mSettingsTable[PT_1]) {
 		mPieceTheme = 0;
@@ -134,12 +109,16 @@ void LBoardPVP::initGameSettings() {
 }
 
 void LBoardPVP::playMusic() {
-	//if no music is playing
 	if(Mix_PlayingMusic() == 0) {
 		int i = rand() % 7;
-		//Play the music
-		Mix_FadeInMusic(mMusic[i], 0, 10000);
-		Mix_Volume(-1, gMusicVolume);
+		std::string track;
+		if(mSettingsTable[MT_CLASSIC]) {
+			track = MUSIC_CLASSIC + std::to_string(i) + ".mp3";
+		}
+		else {
+			track = MUSIC_JAZZY + std::to_string(i) + ".mp3";
+		}
+		gMusicPlayer->playFadeIn(track.c_str(), 5000);
 	}
 }
 
@@ -196,30 +175,6 @@ void LBoardPVP::free() {
 	mPieceButtons.clear();
 	mHighlightedTileXPos.clear();
 	mHighlightedTileYPos.clear();
-	
-	Mix_FreeChunk(mError);
-	mError = NULL;
-	Mix_FreeChunk(mBingo);
-	mBingo = NULL;
-	Mix_FreeChunk(mCheck);
-	mCheck = NULL;
-	Mix_FreeChunk(mCheckMate);
-	mCheckMate = NULL;
-	Mix_FreeChunk(mCastling);
-	mCastling = NULL;
-	Mix_FreeChunk(mPawnForward);
-	mPawnForward = NULL;
-	Mix_FreeChunk(mPieceFall);
-	mPieceFall = NULL;
-	Mix_FreeChunk(mVictory);
-	mVictory = NULL;
-	Mix_FreeChunk(mDefeat);
-	mDefeat = NULL;
-	
-	for(int i(0); i < NBR_OF_MUSIC; i++) {
-		Mix_FreeMusic(mMusic[i]);
-		mMusic[i] = NULL;
-	}
 }
 
 void LBoardPVP::startWhiteTimer() {
@@ -278,12 +233,12 @@ bool LBoardPVP::loadPiecesTextures() {
 	bool success = true;
 	if(mPieceTheme == 0) {
 		mPieceTexture = gMediaFactory->getImg(SPRITE_PIECE_SHEET);
-		mHighlightedPieceTexture = gMediaFactory->getImg(SPRITE_PIECE_SHEET);
+		mHighlightedPieceTexture = gMediaFactory->getImgUnique(SPRITE_PIECE_SHEET);
 		mHighlightedPieceTexture->setColor(255,0,0);
 		mMiniPieceTexture = gMediaFactory->getImg(SPRITE_PIECE_SHEET_32);
 	} else if(mPieceTheme == 1) {
 		mPieceTexture = gMediaFactory->getImg(SPRITE_RETRO_PIECE_SHEET);
-		mHighlightedPieceTexture = gMediaFactory->getImg(SPRITE_RETRO_PIECE_SHEET);
+		mHighlightedPieceTexture = gMediaFactory->getImgUnique(SPRITE_RETRO_PIECE_SHEET);
 		mHighlightedPieceTexture->setColor(255,0,0);
 		mMiniPieceTexture = gMediaFactory->getImg(SPRITE_PIECE_SHEET_32);
 	}
@@ -293,7 +248,8 @@ bool LBoardPVP::loadPiecesTextures() {
 bool LBoardPVP::loadTileTextures() {
 	bool success = true;
 	mTileTexture = gMediaFactory->getImg(SPRITE_BOARD);
-	mHighlightedTileTexture = gMediaFactory->getImg(SPRITE_BOARD);
+	// unique texture for highlighting tiles
+	mHighlightedTileTexture = gMediaFactory->getImgUnique(SPRITE_BOARD);
 	mHighlightedTileTexture->setColor(255,0,0);
 	return success;
 }
@@ -448,16 +404,17 @@ void LBoardPVP::setButtons() {
 
 void LBoardPVP::renderPause() {
 	mPauseBackgroundTexture->render();
-	mPauseTextTexture->render((SCREEN_WIDTH - mPauseTextTexture->getWidth()) / 2, (SCREEN_HEIGHT - mPauseTextTexture->getHeight()) / 2); 
+	mPauseTextTexture->render((SCREEN_WIDTH - mPauseTextTexture->w()) / 2, (SCREEN_HEIGHT - mPauseTextTexture->h()) / 2); 
 }
 
 void LBoardPVP::renderOutOfTimeScreen() {
 	mPauseBackgroundTexture->render();
-	mOutOfTimeTexture->render((SCREEN_WIDTH - mOutOfTimeTexture->getWidth()) / 2, (SCREEN_HEIGHT - mOutOfTimeTexture->getHeight()) / 2);
+	mOutOfTimeTexture->render((SCREEN_WIDTH - mOutOfTimeTexture->w()) / 2, (SCREEN_HEIGHT - mOutOfTimeTexture->h()) / 2);
 	SDL_RenderPresent(gRenderer);
 }
 
 void LBoardPVP::handleEvents(SDL_Event* e) {
+	this->playMusic();
 	bool outside = true; 
 	int x, y;
 	SDL_GetMouseState( &x, &y );
@@ -605,12 +562,12 @@ void LBoardPVP::movePiece(SDL_Event* e) {
 					}
 					else {
 						//Play unable to move sound 
-						Mix_PlayChannel(-1, mError, 0);
+						gChunkPlayer->play(CHUNK_ERROR);
 					}
 				}
 				else {
 					//Play unable to move sound 
-					Mix_PlayChannel(-1, mError, 0);
+					gChunkPlayer->play(CHUNK_ERROR);
 				}
 			}
 		}
@@ -672,7 +629,7 @@ void LBoardPVP::move(int destinationPosX, int destinationPosY, int sourcePosX, i
 		}
 		//check
 		else {
-			Mix_PlayChannel(-1, mCheck, 0 );
+			gChunkPlayer->play(CHUNK_CHECK);
 		}
 	}
 	
@@ -789,7 +746,7 @@ bool LBoardPVP::initMap() {
 	std::ifstream map( FILE_MAP );
 	bool success = true;
 	if(map.fail()) {
-		printf( "Unable to load map file!\n" );
+		spdlog::error( "Unable to load map file!\n" );
 		success = false;
 	}
 	else {
@@ -804,7 +761,7 @@ bool LBoardPVP::initMap() {
 				//If the was a problem in reading the map
 				if(map.fail()) {
 					//Stop loading map
-					printf("Error loading map: Unexpected end of file!\n");
+					spdlog::error("Error loading map: Unexpected end of file!\n");
 					success = false;
 					break;
 				}
@@ -815,7 +772,7 @@ bool LBoardPVP::initMap() {
 				//If we don't recognize the tile type
 				else {
 					//Stop loading map
-					printf( "Error loading map: Invalid piece type at line %d element %d!\n", y, x);
+					spdlog::error( "Error loading map: Invalid piece type at line %d element %d!\n", y, x);
 					success = false;
 					break;
 				}
@@ -829,11 +786,11 @@ void LBoardPVP::playVictorySound() const {
 	if(Mix_PlayingMusic()) {
 		Mix_FadeOutMusic(3000);
 	}
-	Mix_PlayChannel(-1, mCheckMate, 0 );
+	gChunkPlayer->play(CHUNK_CHECKMATE);
 	while(Mix_Playing(-1) > 0) {
 		SDL_Delay(16);
 	}
-	Mix_PlayChannel(-1, mVictory, 0 );
+	gChunkPlayer->play(CHUNK_VICTORY);
 	while(Mix_Playing(-1) > 0) {
 		SDL_Delay(16);
 	}
@@ -842,16 +799,15 @@ void LBoardPVP::playVictorySound() const {
 void LBoardPVP::playMoveSound() {
 	if((!(mTookAPiece)) && (!(mIsCastling))) {
 		//Play move sound 
-		Mix_PlayChannel(-1, mPawnForward, 0);
+		gChunkPlayer->play(CHUNK_MOVE);
 	}
 	else if(mTookAPiece) {
-		//Play unable to move sound 
-		Mix_PlayChannel(-1, mPieceFall, 0);
+		gChunkPlayer->play(CHUNK_CAPTURE);
 		mTookAPiece = false;
 	}
 	else if(mIsCastling) {
 		//Play unable to move sound 
-		Mix_PlayChannel(-1, mCastling, 0);
+		gChunkPlayer->play(CHUNK_CASTLE);
 		mIsCastling = false;
 	}
 }
@@ -1453,7 +1409,7 @@ bool LBoardPVP::pollTimeOut() {
 		}
 		loadOutOfTimeTexture();
 		renderOutOfTimeScreen();
-		Mix_PlayChannel(-1, mDefeat, 0);
+		gChunkPlayer->play(CHUNK_DEFEAT);
 		while(Mix_Playing(-1) > 0) {
 			SDL_Delay(16);
 		}

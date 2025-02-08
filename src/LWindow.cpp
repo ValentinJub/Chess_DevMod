@@ -29,7 +29,7 @@ bool LWindow::init()
         mWidth = SCREEN_WIDTH;
         mHeight = SCREEN_HEIGHT;
     }
-    else printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
+    else spdlog::error("Window could not be created! SDL_Error: %s\n", SDL_GetError());
 
     return mWindow != NULL;
 }
@@ -78,12 +78,12 @@ void LWindow::handleEvent( SDL_Event& e )
     }
 }
 
-int LWindow::getWidth()
+int LWindow::w()
 {
     return mWidth;
 }
 
-int LWindow::getHeight()
+int LWindow::h()
 {
     return mHeight;
 }

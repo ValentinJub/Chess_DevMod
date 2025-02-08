@@ -23,8 +23,8 @@ class LWindow
         void free();
 
         //Window dimensions
-        int getWidth();
-        int getHeight();
+        int w();
+        int h();
 
         SDL_Window* getWindow();
 

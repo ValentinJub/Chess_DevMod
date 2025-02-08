@@ -21,6 +21,7 @@ Prototypes and const for LMenuclass
 #include "LButton.h"
 #include "LSlider.h"
 #include <array>
+#include "com/logger.h"
 
 const std::array<std::string, LEFT_MENU> MENU_LEFT_TEXT = {
     "Settings",
@@ -99,6 +100,7 @@ private:
     LTexture* mOptionMenuTexture[LEFT_MENU]; //7
     TTF_Font* mFont;
     OptionValues mOptionValues;
+    std::shared_ptr<spdlog::logger> mLogger;
 };
 
 #endif

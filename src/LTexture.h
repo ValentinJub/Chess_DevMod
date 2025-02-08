@@ -13,6 +13,7 @@ class LTexture {
     ~LTexture();
     void createImg(SDL_Texture* texture);
     void render( int x = 0, int y = 0, SDL_Rect* clip = NULL, double angle = 0.0, SDL_Point* center = NULL, SDL_RendererFlip flip = SDL_FLIP_NONE);
+    void renderAuto();
     void free();
     void setColor(Uint8 red, Uint8 green, Uint8 blue);
     void setBlendMode(SDL_BlendMode blending);
@@ -29,8 +30,8 @@ class LTexture {
 
     int x(); 
     int y(); 
-    int getWidth();
-    int getHeight();
+    int w();
+    int h();
     SDL_Texture* getTexture();
     std::vector<std::unique_ptr<LDecorator>> mDecorators;
 

@@ -30,6 +30,14 @@ void LMusicPlayer::play(const char* music) {
     }
 }
 
+void LMusicPlayer::playFadeIn(const char* music, int ms) {
+    Mix_Music* m = gMediaFactory->getMusic(music);
+    if(m != NULL) {
+        Mix_FadeInMusic(m, -1, ms);
+        Mix_VolumeMusic(mVolume);
+    }
+}
+
 bool LMusicPlayer::isPlaying() const {
     return Mix_PlayingMusic();
 }

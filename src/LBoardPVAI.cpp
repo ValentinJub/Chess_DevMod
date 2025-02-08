@@ -128,20 +128,6 @@ void LBoardPVAI::initGameSettings() {
 			mTimeLimit = 600; 
 		}
 	}
-	//Set music
-	if(mSettingsTable[MT_CLASSIC]) {
-		for(int i(0); i < NBR_OF_MUSIC; i++) {
-			std::string str = MUSIC_CLASSIC + std::to_string(i) + ".mp3";
-			mMusic[i] = Util::loadMusic(str.c_str());
-		}
-	}
-	//Jazzy
-	else {
-		for(int i(0); i < NBR_OF_MUSIC; i++) {
-			std::string str = MUSIC_JAZZY + std::to_string(i) + ".mp3";
-			mMusic[i] = Util::loadMusic(str.c_str());
-		}
-	}
 	//Piece Theme 
 	if(mSettingsTable[PT_1]) {
 		mPieceTheme = 0;
@@ -153,9 +139,15 @@ void LBoardPVAI::playMusic() {
 	//if no music is playing
 	if(Mix_PlayingMusic() == 0) {
 		int i = rand() % 7;
-		//Play the music
-		Mix_FadeInMusic(mMusic[i], 0, 10000);
-		Mix_Volume(-1, gMusicVolume);
+		std::string track;
+		if(mSettingsTable[MT_CLASSIC]) {
+			track = MUSIC_CLASSIC + std::to_string(i) + ".mp3";
+		}
+		else {
+			track = MUSIC_JAZZY + std::to_string(i) + ".mp3";
+			
+		}
+		gMusicPlayer->playFadeIn(track.c_str(), 5000);
 	}
 }
 
@@ -214,13 +206,6 @@ void LBoardPVAI::free() {
 	mPieceButtons.clear();
 	mHighlightedTileXPos.clear();
 	mHighlightedTileYPos.clear();
-	
-	
-	
-	for(int i(0); i < NBR_OF_MUSIC; i++) {
-		Mix_FreeMusic(mMusic[i]);
-		mMusic[i] = NULL;
-	}
 }
 
 void LBoardPVAI::startWhiteTimer() {
@@ -263,12 +248,12 @@ bool LBoardPVAI::loadPiecesTextures() {
 	bool success = true;
 	if(mPieceTheme == 0) {
 		mPieceTexture = gMediaFactory->getImg(SPRITE_PIECE_SHEET);
-		mHighlightedPieceTexture = gMediaFactory->getImg(SPRITE_PIECE_SHEET);
+		mHighlightedPieceTexture = gMediaFactory->getImgUnique(SPRITE_PIECE_SHEET);
 		mHighlightedPieceTexture->setColor(255,0,0);
 		mMiniPieceTexture = gMediaFactory->getImg(SPRITE_PIECE_SHEET_32);
 	} else if(mPieceTheme == 1) {
 		mPieceTexture = gMediaFactory->getImg(SPRITE_RETRO_PIECE_SHEET);
-		mHighlightedPieceTexture = gMediaFactory->getImg(SPRITE_RETRO_PIECE_SHEET);
+		mHighlightedPieceTexture = gMediaFactory->getImgUnique(SPRITE_RETRO_PIECE_SHEET);
 		mHighlightedPieceTexture->setColor(255,0,0);
 		mMiniPieceTexture = gMediaFactory->getImg(SPRITE_PIECE_SHEET_32);
 	}
@@ -278,7 +263,7 @@ bool LBoardPVAI::loadPiecesTextures() {
 bool LBoardPVAI::loadTileTextures() {
 	bool success = true;
 	mTileTexture = gMediaFactory->getImg(SPRITE_BOARD);
-	mHighlightedTileTexture = gMediaFactory->getImg(SPRITE_BOARD);
+	mHighlightedTileTexture = gMediaFactory->getImgUnique(SPRITE_BOARD);
 	mHighlightedTileTexture->setColor(255,0,0);
 	return success;
 }
@@ -433,16 +418,18 @@ void LBoardPVAI::drawButtons() {
 
 void LBoardPVAI::renderPause() {
 	mPauseBackgroundTexture->render();
-	mPauseTextTexture->render((SCREEN_WIDTH - mPauseTextTexture->getWidth()) / 2, (SCREEN_HEIGHT - mPauseTextTexture->getHeight()) / 2); 
+	mPauseTextTexture->render((SCREEN_WIDTH - mPauseTextTexture->w()) / 2, (SCREEN_HEIGHT - mPauseTextTexture->h()) / 2); 
 }
 
 void LBoardPVAI::renderOutOfTimeScreen() {
 	mPauseBackgroundTexture->render();
-	mOutOfTimeTexture->render((SCREEN_WIDTH - mOutOfTimeTexture->getWidth()) / 2, (SCREEN_HEIGHT - mOutOfTimeTexture->getHeight()) / 2);
+	mOutOfTimeTexture->render((SCREEN_WIDTH - mOutOfTimeTexture->w()) / 2, (SCREEN_HEIGHT - mOutOfTimeTexture->h()) / 2);
 	SDL_RenderPresent(gRenderer);
 }
 
 void LBoardPVAI::handleEvents(SDL_Event* e) {
+	// quick fix for now
+	this->playMusic();
 	bool outside = true; 
 	int x, y;
 	SDL_GetMouseState( &x, &y );
@@ -818,7 +805,7 @@ bool LBoardPVAI::initMap() {
 	std::ifstream map( FILE_MAP );
 	bool success = true;
 	if(map.fail()) {
-		printf( "Unable to load map file!\n" );
+		spdlog::error( "Unable to load map file!\n" );
 		success = false;
 	}
 	else {
@@ -833,7 +820,7 @@ bool LBoardPVAI::initMap() {
 				//If the was a problem in reading the map
 				if(map.fail()) {
 					//Stop loading map
-					printf("Error loading map: Unexpected end of file!\n");
+					spdlog::error("Error loading map: Unexpected end of file!\n");
 					success = false;
 					break;
 				}
@@ -844,7 +831,7 @@ bool LBoardPVAI::initMap() {
 				//If we don't recognize the tile type
 				else {
 					//Stop loading map
-					printf( "Error loading map: Invalid piece type at line %d element %d!\n", y, x);
+					spdlog::error( "Error loading map: Invalid piece type at line %d element %d!\n", y, x);
 					success = false;
 					break;
 				}

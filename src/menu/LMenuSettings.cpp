@@ -16,6 +16,12 @@ extern LMediaFactory* gMediaFactory;
 extern TTF_Font* gFont64;
 
 LMenuSettings::LMenuSettings(LObserver* observer) : mAppObserver(observer) {
+    try {
+        mLogger = spdlog::basic_logger_mt("LMenuSettings", "logs/CApp.log");
+    }
+    catch(const spdlog::spdlog_ex& ex) {
+        std::cerr << "Log init failed: " << ex.what() << std::endl;
+    }
     this->Attach(observer);
     // if the slider is not set to 100 then there will be some issues with
     // the volume calculation after having set the volume once.
@@ -32,6 +38,7 @@ LMenuSettings::LMenuSettings(LObserver* observer) : mAppObserver(observer) {
 LMenuSettings::~LMenuSettings(){}
 
 void LMenuSettings::free() {
+    spdlog::drop("LMenuSettings");
     this->Detach(mAppObserver);
     for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i++) {
         mClickableMenuTexture[i]->free();
@@ -54,7 +61,6 @@ void LMenuSettings::update() {
 }
 
 void LMenuSettings::render() {
-    SDL_SetRenderDrawColor(gRenderer, 0XFF, 0xFF, 0xFF, 0xFF);
     SDL_RenderClear(gRenderer);
     gBackgroundTexture->render();
     this->outlineSelected(); 
@@ -68,9 +74,9 @@ void LMenuSettings::render() {
 }
 
 void LMenuSettings::initFont() {
-    mFont = TTF_OpenFont(FONT_BRANDA, 28);
+    mFont = gMediaFactory->getFont(FONT_BRANDA, 28);
     if(mFont == NULL) {
-        printf("Failed to load resources/valentin font! SDL_ttf Error: %s\n", TTF_GetError());
+        mLogger->error("Failed to load LMenuSettings front! SDL_ttf Error: {}", TTF_GetError());
     }
 }
 
@@ -90,54 +96,18 @@ void LMenuSettings::setBorders() {
 
 // renders the border of the selected options in the menu
 void LMenuSettings::outlineSelected() const {
-    if(mOptionValues.showLegalMoves == 0) {
-        mClickableMenuTexture[SLM_YES]->setRenderDecorators(true);
-        mClickableMenuTexture[SLM_NO]->setRenderDecorators(false);
-    }
-    else {
-        mClickableMenuTexture[SLM_NO]->setRenderDecorators(true);
-        mClickableMenuTexture[SLM_YES]->setRenderDecorators(false);
-    }
-    if(mOptionValues.useTimer == 0) {
-        mClickableMenuTexture[TL_YES]->setRenderDecorators(true);
-        mClickableMenuTexture[TL_NO]->setRenderDecorators(false);
-    }
-    else {
-        mClickableMenuTexture[TL_NO]->setRenderDecorators(true);
-        mClickableMenuTexture[TL_YES]->setRenderDecorators(false);
-    }
-    if(mOptionValues.timeLimit == 0) {
-        mClickableMenuTexture[TL_5]->setRenderDecorators(true);
-        mClickableMenuTexture[TL_10]->setRenderDecorators(false);
-    }
-    else {
-        mClickableMenuTexture[TL_10]->setRenderDecorators(true);
-        mClickableMenuTexture[TL_5]->setRenderDecorators(false);
-    }
-    if(mOptionValues.tileColor == 0) {
-        mClickableMenuTexture[TC_BROWN]->setRenderDecorators(true);
-        mClickableMenuTexture[TC_GREY]->setRenderDecorators(false);
-    }
-    else {
-        mClickableMenuTexture[TC_GREY]->setRenderDecorators(true);
-        mClickableMenuTexture[TC_BROWN]->setRenderDecorators(false);
-    }
-    if(mOptionValues.musicTheme == 0) {
-        mClickableMenuTexture[MT_JAZZY]->setRenderDecorators(true);
-        mClickableMenuTexture[MT_CLASSIC]->setRenderDecorators(false);
-    }
-    else {
-        mClickableMenuTexture[MT_CLASSIC]->setRenderDecorators(true);
-        mClickableMenuTexture[MT_JAZZY]->setRenderDecorators(false);
-    }
-    if(mOptionValues.pieceTheme == 0) {
-        mClickableMenuTexture[PT_1]->setRenderDecorators(true);
-        mClickableMenuTexture[PT_2]->setRenderDecorators(false);
-    }
-    else {
-        mClickableMenuTexture[PT_2]->setRenderDecorators(true);
-        mClickableMenuTexture[PT_1]->setRenderDecorators(false);
-    }
+    mClickableMenuTexture[SLM_YES]->setRenderDecorators(mOptionValues.showLegalMoves == 0 ? true : false);
+    mClickableMenuTexture[SLM_NO]->setRenderDecorators(mOptionValues.showLegalMoves == 1 ? true : false);
+    mClickableMenuTexture[TL_YES]->setRenderDecorators(mOptionValues.useTimer == 0 ? true : false);
+    mClickableMenuTexture[TL_NO]->setRenderDecorators(mOptionValues.useTimer == 1 ? true : false);
+    mClickableMenuTexture[TL_5]->setRenderDecorators(mOptionValues.timeLimit == 0 ? true : false);
+    mClickableMenuTexture[TL_10]->setRenderDecorators(mOptionValues.timeLimit == 1 ? true : false);
+    mClickableMenuTexture[TC_BROWN]->setRenderDecorators(mOptionValues.tileColor == 0 ? true : false);
+    mClickableMenuTexture[TC_GREY]->setRenderDecorators(mOptionValues.tileColor == 1 ? true : false);
+    mClickableMenuTexture[MT_JAZZY]->setRenderDecorators(mOptionValues.musicTheme == 0 ? true : false);
+    mClickableMenuTexture[MT_CLASSIC]->setRenderDecorators(mOptionValues.musicTheme == 1 ? true : false);
+    mClickableMenuTexture[PT_1]->setRenderDecorators(mOptionValues.pieceTheme == 0 ? true : false);
+    mClickableMenuTexture[PT_2]->setRenderDecorators(mOptionValues.pieceTheme == 1 ? true : false);
 }
 
 void LMenuSettings::renderSlider() {
@@ -165,76 +135,50 @@ void LMenuSettings::handleEvents(SDL_Event* e, SDL_Point mouse) {
 
     // handles button events for the settings menu 
     for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i++) {
-        if(mClickableMenuTexture[i]->getButton()->handleInside(e)) {
+        if(mClickableMenuTexture[i]->getButton()->handleInside(e) && mClickableMenuTexture[i]->getButton()->handleClick(e)) {
             switch(i) {
-                case SLM_YES:
-                    if(mClickableMenuTexture[i]->getButton()->handleClick(e)) {
-                        mOptionValues.showLegalMoves = 0;
-                    }
-                    break;
-                case SLM_NO:
-                    if(mClickableMenuTexture[i]->getButton()->handleClick(e)) {
-                        mOptionValues.showLegalMoves = 1;
-                    }
-                    break;
-                case TL_YES:
-                    if(mClickableMenuTexture[i]->getButton()->handleClick(e)) {
-                        mOptionValues.useTimer = 0;
-                    }
-                    break;
-                case TL_NO:
-                    if(mClickableMenuTexture[i]->getButton()->handleClick(e)) {
-                        mOptionValues.useTimer = 1;
-                    }
-                    break;
-                case TL_5:
-                    if(mClickableMenuTexture[i]->getButton()->handleClick(e)) {
-                        mOptionValues.timeLimit = 0;
-                    }
-                    break;
-                case TL_10:
-                    if(mClickableMenuTexture[i]->getButton()->handleClick(e)) {
-                        mOptionValues.timeLimit = 1;
-                    }
-                    break;
-                case TC_BROWN:
-                    if(mClickableMenuTexture[i]->getButton()->handleClick(e)) {
-                        mOptionValues.tileColor = 0;
-                    }
-                    break;
-                case TC_GREY:
-                    if(mClickableMenuTexture[i]->getButton()->handleClick(e)) {
-                        mOptionValues.tileColor = 1;
-                    }
-                    break;
-                case MT_JAZZY:
-                    if(mClickableMenuTexture[i]->getButton()->handleClick(e)) {
-                       mOptionValues.musicTheme = 0;
-                    }
-                    break;
-                case MT_CLASSIC:
-                    if(mClickableMenuTexture[i]->getButton()->handleClick(e)) {                    
-                        mOptionValues.musicTheme = 1;
-                    }
-                    break;
-                case PT_1:
-                    if(mClickableMenuTexture[i]->getButton()->handleClick(e)) {
-                        mOptionValues.pieceTheme = 0;
-                    }
-                    break;
-                case PT_2:
-                    if(mClickableMenuTexture[i]->getButton()->handleClick(e)) {
-                        mOptionValues.pieceTheme = 1;
-                    }
-                    break;
-                case BACK:
-                    if(mClickableMenuTexture[i]->getButton()->handleClick(e)) {
-                        saveSettingsToFile();
-                        gStateMachine->pop();
-                    }
-                    break;
-                default:
-                    break;
+            case SLM_YES:
+                mOptionValues.showLegalMoves = 0;
+                break;
+            case SLM_NO:
+                mOptionValues.showLegalMoves = 1;
+                break;
+            case TL_YES:
+                mOptionValues.useTimer = 0;
+                break;
+            case TL_NO:
+                mOptionValues.useTimer = 1;
+                break;
+            case TL_5:
+                mOptionValues.timeLimit = 0;
+                break;
+            case TL_10:
+                mOptionValues.timeLimit = 1;
+                break;
+            case TC_BROWN:
+                mOptionValues.tileColor = 0;
+                break;
+            case TC_GREY:
+                mOptionValues.tileColor = 1;
+                break;
+            case MT_JAZZY:
+                mOptionValues.musicTheme = 0;
+                break;
+            case MT_CLASSIC:
+                mOptionValues.musicTheme = 1;
+                break;
+            case PT_1:
+                mOptionValues.pieceTheme = 0;
+                break;
+            case PT_2:
+                mOptionValues.pieceTheme = 1;
+                break;
+            case BACK:
+                saveSettingsToFile();
+                gStateMachine->pop();
+                break;
+            default:
+                break;
             }
         }
     }
@@ -244,7 +188,7 @@ void LMenuSettings::loadSavedSettings() {
     std::ifstream settings;
     settings.open(FILE_SETTINGS, std::ios::in);
     if(!settings.is_open()) {
-        printf("Unable to load settings file!\n");
+        mLogger->error("Unable to load settings file! {}", FILE_SETTINGS);
         return;
     }
     std::vector<int> values;
@@ -258,7 +202,7 @@ void LMenuSettings::loadSavedSettings() {
     }
     settings.close();
     if(values.size() < 7) {
-        std::cerr << "Settings file is corrupted!" << std::endl;
+        mLogger->error("Settings file is corrupted! {} values found", values.size());
         return;
     }
     mOptionValues = {
@@ -270,13 +214,14 @@ void LMenuSettings::loadSavedSettings() {
         values[5],
         values[6]
     };
+    mLogger->info("Settings loaded from file");
 }
 
 void LMenuSettings::saveSettingsToFile() {
     std::ofstream settings;
     settings.open(FILE_SETTINGS, std::ios::trunc);
     if(!settings.is_open()) {
-        printf("Unable to load settings file!\n");
+        mLogger->error("Unable to open save settings file! {}", FILE_SETTINGS);
         return;
     }
     int values[LEFT_MENU] = {
@@ -296,6 +241,7 @@ void LMenuSettings::saveSettingsToFile() {
         settings << str + "\n";
     }
     settings.close();
+    mLogger->info("Settings saved to file");
 }
 
 void LMenuSettings::loadTextures() {
@@ -340,17 +286,17 @@ void LMenuSettings::setOptionTexturePosition() {
          y(0);
     const int   padding(5),
                 bigPadding(10),
-                titleHeight(mOptionMenuTexture[0]->getHeight());
+                titleHeight(mOptionMenuTexture[0]->h());
     for(int i(0); i < LEFT_MENU; i++) {
         // settings title is handled differently, we display it at the top
         if(i == 0) {
-            x = (SCREEN_WIDTH - mOptionMenuTexture[0]->getWidth()) / 2;
+            x = (SCREEN_WIDTH - mOptionMenuTexture[0]->w()) / 2;
             y = (padding);
         }
         // render the piece theme header in the middle of the page
         else if(i == 7) {
-            x = (SCREEN_WIDTH -  mOptionMenuTexture[i]->getWidth()) / 2;
-            y = y +  mOptionMenuTexture[i]->getHeight() * 2;
+            x = (SCREEN_WIDTH -  mOptionMenuTexture[i]->w()) / 2;
+            y = y +  mOptionMenuTexture[i]->h() * 2;
         }
         // render the other option headers in a list style format 
         else {
@@ -361,19 +307,20 @@ void LMenuSettings::setOptionTexturePosition() {
             }
             else {
                 x = padding;
-                y = (bigPadding + titleHeight + (mOptionMenuTexture[i]->getHeight() * (i - 1)) + (bigPadding * (i - 1)));
+                y = (bigPadding + titleHeight + (mOptionMenuTexture[i]->h() * (i - 1)) + (bigPadding * (i - 1)));
             }
         }
         mOptionMenuTexture[i]->setPos(x, y);
+        mLogger->debug("Set position x: {} y: {} for option texture {}", x, y, MENU_LEFT_TEXT[i]);
     }
 }
 
 // set the position of the right hand side textures
 void LMenuSettings::setClickableTexturePosition() {
     const int   bigPadding(10),
-                titleHeight(mOptionMenuTexture[0]->getHeight()),
+                titleHeight(mOptionMenuTexture[0]->h()),
                 topY(bigPadding + titleHeight),
-                textureHeight(mClickableMenuTexture[0]->getHeight());
+                textureHeight(mClickableMenuTexture[0]->h());
     int leftX(0),
         leftY(0),
         rightX(0),
@@ -385,20 +332,20 @@ void LMenuSettings::setClickableTexturePosition() {
                 hPadding = 12,
                 pieceMaxPosX = pieceStartPosX + 153,
                 pieceStartPosY = 359 + hPadding,
-                piece1Width = mClickableMenuTexture[PT_1]->getWidth(),
-                piece1Height = mClickableMenuTexture[PT_1]->getHeight(),
-                piece2Width = mClickableMenuTexture[PT_2]->getWidth(),
-                piece2Height = mClickableMenuTexture[PT_2]->getHeight();
+                piece1Width = mClickableMenuTexture[PT_1]->w(),
+                piece1Height = mClickableMenuTexture[PT_1]->h(),
+                piece2Width = mClickableMenuTexture[PT_2]->w(),
+                piece2Height = mClickableMenuTexture[PT_2]->h();
     
     for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i+=2) {
         int y(i + 1),
-            leftTabHeight(mClickableMenuTexture[i]->getHeight()),
-            leftTabWidth(mClickableMenuTexture[i]->getWidth()),
+            leftTabHeight(mClickableMenuTexture[i]->h()),
+            leftTabWidth(mClickableMenuTexture[i]->w()),
             rightTabHeight(0),
             rightTabWidth(0);
         if(y < TOTAL_CLICKABLE_ITEMS) {
-            rightTabHeight = mClickableMenuTexture[y]->getHeight();
-            rightTabWidth = mClickableMenuTexture[y]->getWidth();
+            rightTabHeight = mClickableMenuTexture[y]->h();
+            rightTabWidth = mClickableMenuTexture[y]->w();
         }
         
         leftX = SCREEN_WIDTH / 2;
@@ -431,10 +378,8 @@ void LMenuSettings::setClickableTexturePosition() {
         inc++;
         
         mClickableMenuTexture[i]->setPos(leftX, leftY);
-        // mClickableTexturePositions[i] = {leftX, leftY, leftTabWidth, leftTabHeight};
         if(y < TOTAL_CLICKABLE_ITEMS) {
             mClickableMenuTexture[y]->setPos(rightX, rightY);
-            // mClickableTexturePositions[y] = {rightX, rightY, rightTabWidth, rightTabHeight};
         }
     }
 }
@@ -457,8 +402,9 @@ void LMenuSettings::setButtons() {
         mClickableMenuTexture[i]->setButton(new LButton(
             mClickableMenuTexture[i]->x(),
             mClickableMenuTexture[i]->y(),
-            mClickableMenuTexture[i]->getWidth(),
-            mClickableMenuTexture[i]->getHeight()
+            mClickableMenuTexture[i]->w(),
+            mClickableMenuTexture[i]->h()
         ));
+        mLogger->debug("Set button for clickable texture {}", i);
     }
 }
