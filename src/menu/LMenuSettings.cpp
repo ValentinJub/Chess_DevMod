@@ -58,12 +58,12 @@ void LMenuSettings::update() {
 	while(SDL_PollEvent(&e) > 0) {
 		this->handleEvents(&e, mouse);
 	}
+    this->outlineSelected(); 
 }
 
 void LMenuSettings::render() {
     SDL_RenderClear(gRenderer);
     gBackgroundTexture->render();
-    this->outlineSelected(); 
     this->renderLeftTexture();
     this->renderClickableTexture();
     this->renderSlider();
@@ -271,13 +271,13 @@ void LMenuSettings::loadRightSideTextures() {
 
 void LMenuSettings::renderLeftTexture() {
     for(int i(0); i < LEFT_MENU; i++) {
-        mOptionMenuTexture[i]->render(mOptionMenuTexture[i]->x(), mOptionMenuTexture[i]->y());
+        mOptionMenuTexture[i]->render();
     }
 }
 
 void LMenuSettings::renderClickableTexture() {
     for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i++) {
-        mClickableMenuTexture[i]->render(mClickableMenuTexture[i]->x(), mClickableMenuTexture[i]->y());
+        mClickableMenuTexture[i]->render();
     }
 }
 

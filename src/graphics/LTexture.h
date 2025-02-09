@@ -3,21 +3,24 @@
 
 #include "utils/util.h"
 #include "com/LDecorator.h"
+#include "graphics/LVisualComponent.h"
 #include <vector>
 #include <memory>
 
 
-class LTexture {
+class LTexture : public LVisualComponent {
     public:
-    LTexture(int x = 0, int y = 0, int w = 0, int h = 0, SDL_Texture* texture = NULL);
+    LTexture(int x = 0, int y = 0, int w = 0, int h = 0, SDL_Texture* texture = NULL, SDL_Rect* rect = NULL);
     ~LTexture();
     void createImg(SDL_Texture* texture);
-    void render( int x = 0, int y = 0, SDL_Rect* clip = NULL, double angle = 0.0, SDL_Point* center = NULL, SDL_RendererFlip flip = SDL_FLIP_NONE);
-    void renderAuto();
-    void free();
+    void render() override;
+    void renderAt(int x, int y, SDL_Rect* clip = NULL);
+    void free() override;
+    void setClip(SDL_Rect* clip);
     void setColor(Uint8 red, Uint8 green, Uint8 blue);
     void setBlendMode(SDL_BlendMode blending);
     void setAlpha(Uint8 alpha);
+    void setRenderDecorators(bool render);
 
     void addDecorator(LDecorator* decorator);
     void removeDecorator(LDecorator* decorator);
@@ -36,8 +39,10 @@ class LTexture {
     std::vector<std::unique_ptr<LDecorator>> mDecorators;
 
     private:
+    SDL_Rect* mClip;
     SDL_Texture* mTexture;
     
+    bool mRenderDecorators = false;
     int mX;
     int mY;
     int mWidth;

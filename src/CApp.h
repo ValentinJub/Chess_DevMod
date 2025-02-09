@@ -11,7 +11,7 @@ headers for CApp
 
 #include "utils/util.h"
 #include <memory>
-#include "LTexture.h"
+#include "graphics/LTexture.h"
 #include "LButton.h"
 #include "LWindow.h"
 #include "LTimer.h"

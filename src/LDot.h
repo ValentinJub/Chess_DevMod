@@ -1,6 +1,6 @@
 #include "utils/util.h"
 #include "com/constantes.h"
-#include "LTexture.h"
+#include "graphics/LTexture.h"
 
 #ifndef LDOT_H
 #define LDOT_H

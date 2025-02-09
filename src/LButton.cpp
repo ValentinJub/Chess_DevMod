@@ -90,9 +90,3 @@ int LButton::getH() const {
 int LButton::getW() const {
     return mWidth;
 }
-
-void LButton::render() {
-    /*Show current button sprite
-    gButtonSpriteSheetTexture.render( mPosition.x, mPosition.y, &gSpriteClips[ mCurrentSprite ] );
-    */
-}

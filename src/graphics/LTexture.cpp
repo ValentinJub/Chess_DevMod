@@ -1,16 +1,17 @@
-#include "LTexture.h"
+#include "graphics/LTexture.h"
 
 using std::string;
 
 extern SDL_Renderer* gRenderer;
 extern TTF_Font* gFont64;
 
-LTexture::LTexture(int x, int y, int w, int h, SDL_Texture* texture) :
+LTexture::LTexture(int x, int y, int w, int h, SDL_Texture* texture, SDL_Rect* rect) :
         mX(x),
         mY(y),
         mWidth(w),
         mHeight(h),
-        mTexture(texture)
+        mTexture(texture),
+        mClip(rect)
     {
         mVelX = 0;
         mVelY = 0;
@@ -24,24 +25,25 @@ void LTexture::createImg(SDL_Texture* texture) {
     mTexture = texture;
 }
 
-void LTexture::render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* center, SDL_RendererFlip flip) {
-    // set rendering space and render to screen
-    SDL_Rect renderQuad = {x, y, mWidth, mHeight };
+// Render the texture at its current position
+void LTexture::render() {
+    SDL_Rect renderQuad = {mX, mY, mWidth, mHeight};
+    if(mClip != NULL) {
+        renderQuad.w = mClip->w;
+        renderQuad.h = mClip->h;
+    }
+    SDL_RenderCopyEx(gRenderer, mTexture, mClip, &renderQuad, 0.0, NULL, SDL_FLIP_NONE);
+    this->renderDecorators();
+}
 
-    // set clip rendering dimensions
+void LTexture::renderAt(int x, int y, SDL_Rect* clip) {
+    SDL_Rect renderQuad = {x, y, mWidth, mHeight };
     if(clip != NULL) {
         renderQuad.w = clip->w;
         renderQuad.h = clip->h;
     }
-
-    // render to screen
-    SDL_RenderCopyEx(gRenderer, mTexture, clip, &renderQuad, angle, center, flip);
+    SDL_RenderCopyEx(gRenderer, mTexture, clip, &renderQuad, 0.0, NULL, SDL_FLIP_NONE);
     this->renderDecorators();
-}
-
-// Render the texture at its current position
-void LTexture::renderAuto() {
-    this->render(mX, mY);
 }
 
 std::vector<std::unique_ptr<LDecorator>>& LTexture::getDecorators() {
@@ -66,6 +68,10 @@ void LTexture::setAlpha(Uint8 alpha) {
     SDL_SetTextureAlphaMod(mTexture, alpha);
 }
 
+void LTexture::setClip(SDL_Rect* clip) {
+    mClip = clip;
+}
+
 void LTexture::addDecorator(LDecorator* decorator) {
     mDecorators.push_back(std::unique_ptr<LDecorator>(decorator));
 }
@@ -75,9 +81,15 @@ void LTexture::removeDecorator(LDecorator* decorator) {
         [decorator](const std::unique_ptr<LDecorator>& ptr) { return ptr.get() == decorator; }), mDecorators.end());
 }
 
+void LTexture::setRenderDecorators(bool render) {
+    mRenderDecorators = render;
+}
+
 void LTexture::renderDecorators() {
-    for(auto& decorator : mDecorators) {
-        decorator->render();
+    if(mRenderDecorators) {
+        for(const auto& decorator : mDecorators) {
+            decorator->render();
+        }
     }
 }
 

@@ -317,24 +317,24 @@ void LBoardPVP::renderTile() {
 
 			if(y % 2 == 0) {
 				if(mTileColor == 0) {
-					if(!light) mTileTexture->render(xPos, yPos, &mTileRectClip[DARK1]);
-					else mTileTexture->render(xPos, yPos, &mTileRectClip[LIGHT1]);
+					if(!light) mTileTexture->renderAt(xPos, yPos, &mTileRectClip[DARK1]);
+					else mTileTexture->renderAt(xPos, yPos, &mTileRectClip[LIGHT1]);
 				}
 				else if(mTileColor == 1) {
-					if(!light) mTileTexture->render(xPos, yPos, &mTileRectClip[DARK2]);
-					else mTileTexture->render(xPos, yPos, &mTileRectClip[LIGHT2]);
+					if(!light) mTileTexture->renderAt(xPos, yPos, &mTileRectClip[DARK2]);
+					else mTileTexture->renderAt(xPos, yPos, &mTileRectClip[LIGHT2]);
 				}
 				if(light) light = false;
 				else light = true;
 			}
 			else {
 				if(mTileColor == 0) {
-					if(!dark) mTileTexture->render(xPos, yPos, &mTileRectClip[LIGHT1]);
-					else mTileTexture->render(xPos, yPos, &mTileRectClip[DARK1]);
+					if(!dark) mTileTexture->renderAt(xPos, yPos, &mTileRectClip[LIGHT1]);
+					else mTileTexture->renderAt(xPos, yPos, &mTileRectClip[DARK1]);
 				}
 				else if(mTileColor == 1) {
-					if(!dark) mTileTexture->render(xPos, yPos, &mTileRectClip[LIGHT2]);
-					else mTileTexture->render(xPos, yPos, &mTileRectClip[DARK2]);
+					if(!dark) mTileTexture->renderAt(xPos, yPos, &mTileRectClip[LIGHT2]);
+					else mTileTexture->renderAt(xPos, yPos, &mTileRectClip[DARK2]);
 				}
 				if(dark) dark = false;
 				else dark = true;
@@ -349,7 +349,7 @@ void LBoardPVP::renderTile() {
 			for(int z(0); z < size; z++) {
 				yPos = OFFSET + (mHighlightedTileYPos[z] * TOTAL_SQUARES);
 				xPos = OFFSET + (mHighlightedTileXPos[z] * TOTAL_SQUARES);
-				mHighlightedTileTexture->render(xPos, yPos, &mTileRectClip[LIGHT1]);
+				mHighlightedTileTexture->renderAt(xPos, yPos, &mTileRectClip[LIGHT1]);
 			}
 		}
 	}
@@ -358,7 +358,7 @@ void LBoardPVP::renderTile() {
 		for(int z(0); z < size; z++) {
 			yPos = OFFSET + (mRightClickedTileYPos[z] * TOTAL_SQUARES);
 			xPos = OFFSET + (mRightClickedTileXPos[z] * TOTAL_SQUARES);
-			mHighlightedTileTexture->render(xPos, yPos, &mTileRectClip[LIGHT2]);
+			mHighlightedTileTexture->renderAt(xPos, yPos, &mTileRectClip[LIGHT2]);
 		}
 	}
 }
@@ -368,9 +368,9 @@ void LBoardPVP::renderPieces() {
 		for(int x(0); x < SPL; x++) {
 			if((mMap[y][x] >= 0) && (mMap[y][x] < TOTAL_PIECES - 1)) {
 				if( (mAPieceIsSelected) && (mSelectedPieceXPos == x) && (mSelectedPieceYPos == y)) {
-					mHighlightedPieceTexture->render(OFFSET + (TOTAL_SQUARES * x), OFFSET + (TOTAL_SQUARES * y), &mPieceClip[mMap[y][x]]);
+					mHighlightedPieceTexture->renderAt(OFFSET + (TOTAL_SQUARES * x), OFFSET + (TOTAL_SQUARES * y), &mPieceClip[mMap[y][x]]);
 				}
-				else mPieceTexture->render(OFFSET + (TOTAL_SQUARES * x), OFFSET + (TOTAL_SQUARES * y), &mPieceClip[mMap[y][x]]);
+				else mPieceTexture->renderAt(OFFSET + (TOTAL_SQUARES * x), OFFSET + (TOTAL_SQUARES * y), &mPieceClip[mMap[y][x]]);
 			}
 		}
 	}
@@ -404,12 +404,12 @@ void LBoardPVP::setButtons() {
 
 void LBoardPVP::renderPause() {
 	mPauseBackgroundTexture->render();
-	mPauseTextTexture->render((SCREEN_WIDTH - mPauseTextTexture->w()) / 2, (SCREEN_HEIGHT - mPauseTextTexture->h()) / 2); 
+	mPauseTextTexture->renderAt((SCREEN_WIDTH - mPauseTextTexture->w()) / 2, (SCREEN_HEIGHT - mPauseTextTexture->h()) / 2); 
 }
 
 void LBoardPVP::renderOutOfTimeScreen() {
 	mPauseBackgroundTexture->render();
-	mOutOfTimeTexture->render((SCREEN_WIDTH - mOutOfTimeTexture->w()) / 2, (SCREEN_HEIGHT - mOutOfTimeTexture->h()) / 2);
+	mOutOfTimeTexture->renderAt((SCREEN_WIDTH - mOutOfTimeTexture->w()) / 2, (SCREEN_HEIGHT - mOutOfTimeTexture->h()) / 2);
 	SDL_RenderPresent(gRenderer);
 }
 
@@ -1010,7 +1010,7 @@ void LBoardPVP::renderTimer() {
 		else whiteTimeText << std::to_string(wminutes) + ":" + "0" + std::to_string(ws);
 		
 		mWhiteTimerTexture = gMediaFactory->getTxt(whiteTimeText.str().c_str(), gFont64, COLOR_BLACK);
-		mWhiteTimerTexture->render(0,SCREEN_HEIGHT - 64);
+		mWhiteTimerTexture->renderAt(0,SCREEN_HEIGHT - 64);
 		
 		// black timer total time left in seconds
 		int btime = mTimeLimit - (mBlackTimer.getTicks() / 1000);
@@ -1031,7 +1031,7 @@ void LBoardPVP::renderTimer() {
 		if(bs > 9) blackTimeText << std::to_string(bminutes) + ":" + std::to_string(bs);
 		else blackTimeText << std::to_string(bminutes) + ":" + "0" + std::to_string(bs);
 		mBlackTimerTexture = gMediaFactory->getTxt(blackTimeText.str().c_str(), gFont64, COLOR_BLACK);
-		mBlackTimerTexture->render(0,0);
+		mBlackTimerTexture->renderAt(0,0);
 	}
 }
 
@@ -1070,12 +1070,12 @@ void LBoardPVP::renderScore() {
 	mBlackScoreTexture = gMediaFactory->getTxt(blackScoreStr.str().c_str(), gFont64, COLOR_BLACK);
 	
 	if(mSettingsTable[TL_NO]) {
-		mWhiteScoreTexture->render(0, SCREEN_HEIGHT - 64);
-		mBlackScoreTexture->render(0, 0);
+		mWhiteScoreTexture->renderAt(0, SCREEN_HEIGHT - 64);
+		mBlackScoreTexture->renderAt(0, 0);
 	}
 	else {
-		mWhiteScoreTexture->render(OFFSET * 3, SCREEN_HEIGHT - 64);
-		mBlackScoreTexture->render(OFFSET * 3, 0);
+		mWhiteScoreTexture->renderAt(OFFSET * 3, SCREEN_HEIGHT - 64);
+		mBlackScoreTexture->renderAt(OFFSET * 3, 0);
 	}
 }
 
@@ -1095,7 +1095,7 @@ void LBoardPVP::renderDeadPieces() {
 					blackOffset = 0;
 					blackPosY = 32;
 				}
-				mMiniPieceTexture->render(blackPosX + blackOffset, blackPosY, &mMiniPieceClip[i]);
+				mMiniPieceTexture->renderAt(blackPosX + blackOffset, blackPosY, &mMiniPieceClip[i]);
 				blackOffset += 32;
 			}
 		}
@@ -1107,7 +1107,7 @@ void LBoardPVP::renderDeadPieces() {
 					whiteOffset = 0;
 					whitePosY = (OFFSET * 9) + 32;
 				}
-				mMiniPieceTexture->render(whitePosX + whiteOffset, whitePosY, &mMiniPieceClip[i]);
+				mMiniPieceTexture->renderAt(whitePosX + whiteOffset, whitePosY, &mMiniPieceClip[i]);
 				whiteOffset += 32;
 			}
 		}

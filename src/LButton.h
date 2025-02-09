@@ -23,9 +23,6 @@ class LButton
         //Handles mouse event
         bool handleInside ( SDL_Event* e );
         bool handleClick( SDL_Event* e );
-    
-        //Shows button sprite
-        void render();
         
         int getX() const;
         int getY() const;

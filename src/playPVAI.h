@@ -10,7 +10,7 @@ Function prototypes for playPVAI.cpp
 #define HEADER_PLAYPVAI
 
 #include "utils/util.h"
-#include "LTexture.h"
+#include "graphics/LTexture.h"
 #include "LBoardPVAI.h"
 
 void playerVersusComputer();

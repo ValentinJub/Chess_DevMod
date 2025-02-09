@@ -88,8 +88,8 @@ void LDot::move()
 }
 
 void LDot::render(LTexture* texture) {
-    //Show the dot
-    texture->render( mPosX, mPosY );
+    texture->setPos(mPosX, mPosY);
+    texture->render();
 }
 
 void LDot::setMoving(bool moving) {

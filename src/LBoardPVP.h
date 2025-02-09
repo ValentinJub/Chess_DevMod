@@ -21,7 +21,7 @@ Board also contains settings such as tile colors, legal move displayed on map...
 #include "fstream"
 #include "iostream"
 #include "vector"
-#include "LTexture.h"
+#include "graphics/LTexture.h"
 #include "LButton.h"
 #include "LKing.h"
 #include "LRook.h"

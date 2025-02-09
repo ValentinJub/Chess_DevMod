@@ -49,7 +49,7 @@ void LMainMenu::render() {
 	SDL_RenderClear(gRenderer);
 	gBackgroundTexture->render();
 	for(int i(0); i < TOTAL_MENU_ITEMS; i++) {
-		mMenuTextures[i]->renderAuto();
+		mMenuTextures[i]->render();
 	}
 	SDL_RenderPresent(gRenderer);
 }

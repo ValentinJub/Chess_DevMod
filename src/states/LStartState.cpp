@@ -50,7 +50,7 @@ void LStartState::render() {
 		SDL_RenderClear(gRenderer);
 		gBackgroundTexture->render();
 		for(int i = 0; i < TOTAL_TITLE_ITEMS; i++) {
-			mTitleTexture[i]->renderAuto();
+			mTitleTexture[i]->render();
 		}
 		SDL_RenderPresent(gRenderer);
 }

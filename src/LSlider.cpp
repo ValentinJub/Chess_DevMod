@@ -53,7 +53,8 @@ void LSlider::renderVolume() {
     std::stringstream volumeText;
     volumeText << getVolume() << " %";
     mVolumeTexture = gMediaFactory->getTxt(volumeText.str().c_str(), gFont32, COLOR_BLACK);
-    mVolumeTexture->render(mSliderPosition.x + mSliderWidth + (LDot::DOT_WIDTH / 2), mSliderPosition.y);
+    mVolumeTexture->setPos(mSliderPosition.x + mSliderWidth + (LDot::DOT_WIDTH/2), mSliderPosition.y);
+    mVolumeTexture->render();
 }
 
 void LSlider::setSliderPosition( int x, int y ) {

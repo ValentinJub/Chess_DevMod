@@ -11,7 +11,7 @@ CPPFLAGS = -I/Users/valentin/Dev/Chess_DevMod/src \
 BUILDDIR = build
 PROG = main
 
-SRCS = src/*.cpp src/com/*.cpp src/sound/*.cpp src/states/*.cpp src/menu/*.cpp src/utils/*.cpp src/factories/*.cpp
+SRCS = src/*.cpp src/com/*.cpp src/sound/*.cpp src/states/*.cpp src/menu/*.cpp src/utils/*.cpp src/factories/*.cpp src/graphics/*.cpp
 
 all:
 	$(CXX) $(CFLAGS) $(CPPFLAGS) $(SRCS) -o $(BUILDDIR)/$(PROG) $(LDFLAGS)

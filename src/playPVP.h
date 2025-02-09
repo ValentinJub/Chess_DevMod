@@ -10,7 +10,7 @@ Function prototypes for playPVP.cpp
 #define HEADER_PLAYPVP
 
 #include "utils/util.h"
-#include "LTexture.h"
+#include "graphics/LTexture.h"
 #include "LBoardPVP.h"
 
 void playPVP();

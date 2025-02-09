@@ -274,11 +274,13 @@ bool LBoardPVAI::loadPauseTexture() {
 	mPauseBackgroundTexture->setAlpha(127);
 	mPauseBackgroundTexture->setBlendMode(SDL_BLENDMODE_BLEND);
 	mPauseTextTexture = gMediaFactory->getTxt("Pause", gFont64, COLOR_WHITE);
+	mPauseTextTexture->setPos(SCREEN_WIDTH / 2 - mPauseTextTexture->w() / 2, SCREEN_HEIGHT / 2 - mPauseTextTexture->h() / 2);
 	return success;
 }
 
 bool LBoardPVAI::loadOutOfTimeTexture() {
 	mOutOfTimeTexture = gMediaFactory->getTxt("Out of time!", gFont64, COLOR_WHITE);
+	mOutOfTimeTexture->setPos(SCREEN_WIDTH / 2 - mOutOfTimeTexture->w() / 2, SCREEN_HEIGHT / 2 - mOutOfTimeTexture->h() / 2);
 	return true;
 }
 
@@ -332,24 +334,26 @@ void LBoardPVAI::renderTile() {
 
 			if(y % 2 == 0) {
 				if(mTileColor == 0) {
-					if(!light) mTileTexture->render(xPos, yPos, &mTileRectClip[DARK1]);
-					else mTileTexture->render(xPos, yPos, &mTileRectClip[LIGHT1]);
+					if(!light) {
+						mTileTexture->renderAt(xPos, yPos, &mTileRectClip[DARK1]);
+					}
+					else mTileTexture->renderAt(xPos, yPos, &mTileRectClip[LIGHT1]);
 				}
 				else if(mTileColor == 1) {
-					if(!light) mTileTexture->render(xPos, yPos, &mTileRectClip[DARK2]);
-					else mTileTexture->render(xPos, yPos, &mTileRectClip[LIGHT2]);
+					if(!light) mTileTexture->renderAt(xPos, yPos, &mTileRectClip[DARK2]);
+					else mTileTexture->renderAt(xPos, yPos, &mTileRectClip[LIGHT2]);
 				}
 				if(light) light = false;
 				else light = true;
 			}
 			else {
 				if(mTileColor == 0) {
-					if(!dark) mTileTexture->render(xPos, yPos, &mTileRectClip[LIGHT1]);
-					else mTileTexture->render(xPos, yPos, &mTileRectClip[DARK1]);
+					if(!dark) mTileTexture->renderAt(xPos, yPos, &mTileRectClip[LIGHT1]);
+					else mTileTexture->renderAt(xPos, yPos, &mTileRectClip[DARK1]);
 				}
 				else if(mTileColor == 1) {
-					if(!dark) mTileTexture->render(xPos, yPos, &mTileRectClip[LIGHT2]);
-					else mTileTexture->render(xPos, yPos, &mTileRectClip[DARK2]);
+					if(!dark) mTileTexture->renderAt(xPos, yPos, &mTileRectClip[LIGHT2]);
+					else mTileTexture->renderAt(xPos, yPos, &mTileRectClip[DARK2]);
 				}
 				if(dark) dark = false;
 				else dark = true;
@@ -364,7 +368,7 @@ void LBoardPVAI::renderTile() {
 			for(int z(0); z < size; z++) {
 				yPos = OFFSET + (mHighlightedTileYPos[z] * TOTAL_SQUARES);
 				xPos = OFFSET + (mHighlightedTileXPos[z] * TOTAL_SQUARES);
-				mHighlightedTileTexture->render(xPos, yPos, &mTileRectClip[LIGHT1]);
+				mHighlightedTileTexture->renderAt(xPos, yPos, &mTileRectClip[LIGHT1]);
 			}
 		}
 	}
@@ -373,7 +377,7 @@ void LBoardPVAI::renderTile() {
 		for(int z(0); z < size; z++) {
 			yPos = OFFSET + (mRightClickedTileYPos[z] * TOTAL_SQUARES);
 			xPos = OFFSET + (mRightClickedTileXPos[z] * TOTAL_SQUARES);
-			mHighlightedTileTexture->render(xPos, yPos, &mTileRectClip[LIGHT2]);
+			mHighlightedTileTexture->renderAt(xPos, yPos, &mTileRectClip[LIGHT2]);
 		}
 	}
 }
@@ -383,9 +387,9 @@ void LBoardPVAI::renderPieces() {
 		for(int x(0); x < SPL; x++) {
 			if((mMap[y][x] >= 0) && (mMap[y][x] < TOTAL_PIECES - 1)) {
 				if( (mAPieceIsSelected) && (mSelectedPieceXPos == x) && (mSelectedPieceYPos == y)) {
-					mHighlightedPieceTexture->render(OFFSET + (TOTAL_SQUARES * x), OFFSET + (TOTAL_SQUARES * y), &mPieceClip[mMap[y][x]]);
+					mHighlightedPieceTexture->renderAt(OFFSET + (TOTAL_SQUARES * x), OFFSET + (TOTAL_SQUARES * y), &mPieceClip[mMap[y][x]]);
 				}
-				else mPieceTexture->render(OFFSET + (TOTAL_SQUARES * x), OFFSET + (TOTAL_SQUARES * y), &mPieceClip[mMap[y][x]]);
+				else mPieceTexture->renderAt(OFFSET + (TOTAL_SQUARES * x), OFFSET + (TOTAL_SQUARES * y), &mPieceClip[mMap[y][x]]);
 			}
 		}
 	}
@@ -418,12 +422,12 @@ void LBoardPVAI::drawButtons() {
 
 void LBoardPVAI::renderPause() {
 	mPauseBackgroundTexture->render();
-	mPauseTextTexture->render((SCREEN_WIDTH - mPauseTextTexture->w()) / 2, (SCREEN_HEIGHT - mPauseTextTexture->h()) / 2); 
+	mPauseTextTexture->render(); 
 }
 
 void LBoardPVAI::renderOutOfTimeScreen() {
 	mPauseBackgroundTexture->render();
-	mOutOfTimeTexture->render((SCREEN_WIDTH - mOutOfTimeTexture->w()) / 2, (SCREEN_HEIGHT - mOutOfTimeTexture->h()) / 2);
+	mOutOfTimeTexture->render();
 	SDL_RenderPresent(gRenderer);
 }
 
@@ -1043,7 +1047,7 @@ void LBoardPVAI::renderTimer() {
 		
 		// load the time text texture and render
 		mWhiteTimerTexture = gMediaFactory->getTxt(whiteTimeText.str().c_str(), gFont64, COLOR_BLACK);
-		mWhiteTimerTexture->render(0,SCREEN_HEIGHT - OFFSET);
+		mWhiteTimerTexture->renderAt(0,SCREEN_HEIGHT - OFFSET);
 	}
 }
 
@@ -1301,12 +1305,12 @@ void LBoardPVAI::blackMove() {
 				}
 				mMap[mSSDesMoveY[r]][mSSDesMoveX[r]] = piece;
 				mMap[mSSSrcMoveY[r]][mSSSrcMoveX[r]] = EMPTY;
-				printf("Turn %d %s moves from %d,%d to %d,%d" , mTurn, mPieceStr[piece].c_str(), mSSSrcMoveY[r], mSSSrcMoveX[r], mSSDesMoveY[r], mSSDesMoveX[r]);
+				spdlog::info("Turn %d %s moves from %d,%d to %d,%d" , mTurn, mPieceStr[piece].c_str(), mSSSrcMoveY[r], mSSSrcMoveX[r], mSSDesMoveY[r], mSSDesMoveX[r]);
 				hasMoved = true;
 			}
 		}
 		else {
-			printf("Unexpected value for %s srcY: %d srcX: %d desY: %d desX: %d", mPieceStr[piece].c_str(), mSSSrcMoveY[r], mSSSrcMoveX[r], mSSDesMoveY[r], mSSDesMoveX[r]);
+			spdlog::info("Unexpected value for %s srcY: %d srcX: %d desY: %d desX: %d", mPieceStr[piece].c_str(), mSSSrcMoveY[r], mSSSrcMoveX[r], mSSDesMoveY[r], mSSDesMoveX[r]);
 		}
 		
 		//turn Pawn into Queen if possible
@@ -1330,12 +1334,12 @@ void LBoardPVAI::blackMove() {
 			
 				mMap[mSDesMoveY[r]][mSDesMoveX[r]] = piece;
 				mMap[mSSrcMoveY[r]][mSSrcMoveX[r]] = EMPTY;
-				printf("Turn %d %s moves from %d,%d to %d,%d" , mTurn, mPieceStr[piece].c_str(), mSSrcMoveY[r], mSSrcMoveX[r], mSDesMoveY[r], mSDesMoveX[r]);
+				spdlog::info("Turn %d %s moves from %d,%d to %d,%d" , mTurn, mPieceStr[piece].c_str(), mSSrcMoveY[r], mSSrcMoveX[r], mSDesMoveY[r], mSDesMoveX[r]);
 				hasMoved = true;
 			}
 		}
 		else {
-			printf("Unexpected value for %s move srcY: %d srcX: %d desY: %d desX: %d",mPieceStr[piece].c_str(), mSSrcMoveY[r], mSSrcMoveX[r], mSDesMoveY[r], mSDesMoveX[r]);
+			spdlog::info("Unexpected value for %s move srcY: %d srcX: %d desY: %d desX: %d",mPieceStr[piece].c_str(), mSSrcMoveY[r], mSSrcMoveX[r], mSDesMoveY[r], mSDesMoveX[r]);
 		}
 		
 		//turn Pawn into Queen if possible
@@ -1362,12 +1366,12 @@ void LBoardPVAI::blackMove() {
 				
 				//empty src
 				mMap[mEPSrcMoveY[r]][mEPSrcMoveX[r]] = EMPTY;
-				printf("Turn %d %s moves from %d,%d to %d,%d" , mTurn, mPieceStr[piece].c_str(), mEPSrcMoveY[r], mEPSrcMoveX[r], mEPDesMoveY[r], mEPDesMoveX[r]);
+				spdlog::info("Turn %d %s moves from %d,%d to %d,%d" , mTurn, mPieceStr[piece].c_str(), mEPSrcMoveY[r], mEPSrcMoveX[r], mEPDesMoveY[r], mEPDesMoveX[r]);
 				hasMoved = true;
 			}
 		}
 		else {
-			printf("Unexpected value for %s move srcY: %d srcX: %d desY: %d desX: %d",mPieceStr[piece].c_str(), mEPSrcMoveY[r], mEPSrcMoveX[r], mEPDesMoveY[r], mEPDesMoveX[r]);
+			spdlog::info("Unexpected value for %s move srcY: %d srcX: %d desY: %d desX: %d",mPieceStr[piece].c_str(), mEPSrcMoveY[r], mEPSrcMoveX[r], mEPDesMoveY[r], mEPDesMoveX[r]);
 		}
 		
 		//turn Pawn into Queen if possible
@@ -1391,12 +1395,12 @@ void LBoardPVAI::blackMove() {
 				}
 				mMap[mADesMoveY[r]][mADesMoveX[r]] = piece;
 				mMap[mASrcMoveY[r]][mASrcMoveX[r]] = EMPTY;
-				printf("Turn %d %s moves from %d,%d to %d,%d" , mTurn, mPieceStr[piece].c_str(), mASrcMoveY[r], mASrcMoveX[r], mADesMoveY[r], mADesMoveX[r]);
+				spdlog::info("Turn %d %s moves from %d,%d to %d,%d" , mTurn, mPieceStr[piece].c_str(), mASrcMoveY[r], mASrcMoveX[r], mADesMoveY[r], mADesMoveX[r]);
 				hasMoved = true;
 			}
 		}
 		else {
-			printf("Unexpected value for %s move srcY: %d srcX: %d desY: %d desX: %d",mPieceStr[piece].c_str() ,mASrcMoveY[r], mASrcMoveX[r], mADesMoveY[r], mADesMoveX[r]);
+			spdlog::info("Unexpected value for %s move srcY: %d srcX: %d desY: %d desX: %d",mPieceStr[piece].c_str() ,mASrcMoveY[r], mASrcMoveX[r], mADesMoveY[r], mADesMoveX[r]);
 		}
 		//turn Pawn into Queen if possible
 		checkPromotion(mADesMoveX[r], mADesMoveY[r], piece);
@@ -1420,12 +1424,12 @@ void LBoardPVAI::blackMove() {
 				}
 				mMap[mBDesMoveY[r]][mBDesMoveX[r]] = piece;
 				mMap[mBSrcMoveY[r]][mBSrcMoveX[r]] = EMPTY;
-				printf("Turn %d %s moves from %d,%d to %d,%d" , mTurn, mPieceStr[piece].c_str(), mBSrcMoveY[r], mBSrcMoveX[r], mBDesMoveY[r], mBDesMoveX[r]);
+				spdlog::info("Turn %d %s moves from %d,%d to %d,%d" , mTurn, mPieceStr[piece].c_str(), mBSrcMoveY[r], mBSrcMoveX[r], mBDesMoveY[r], mBDesMoveX[r]);
 				hasMoved = true;
 			}
 		}
 		else {
-			printf("Unexpected value for %s move srcY: %d srcX: %d desY: %d desX: %d",mPieceStr[piece].c_str(), mBSrcMoveY[r], mBSrcMoveX[r], mBDesMoveY[r], mBDesMoveX[r]);
+			spdlog::info("Unexpected value for %s move srcY: %d srcX: %d desY: %d desX: %d",mPieceStr[piece].c_str(), mBSrcMoveY[r], mBSrcMoveX[r], mBDesMoveY[r], mBDesMoveX[r]);
 		}
 		//turn Pawn into Queen if possible
 		checkPromotion(mBDesMoveX[r], mBDesMoveY[r], piece);
@@ -1448,12 +1452,12 @@ void LBoardPVAI::blackMove() {
 				}
 				mMap[mDDesMoveY[r]][mDDesMoveX[r]] = piece;
 				mMap[mDSrcMoveY[r]][mDSrcMoveX[r]] = EMPTY;
-				printf("Turn %d %s moves from %d,%d to %d,%d" , mTurn, mPieceStr[piece].c_str(), mDSrcMoveY[r], mDSrcMoveX[r], mDDesMoveY[r], mDDesMoveX[r]);
+				spdlog::info("Turn %d %s moves from %d,%d to %d,%d" , mTurn, mPieceStr[piece].c_str(), mDSrcMoveY[r], mDSrcMoveX[r], mDDesMoveY[r], mDDesMoveX[r]);
 				hasMoved = true;
 			}
 		}
 		else {
-			printf("Unexpected value for %s move srcY: %d srcX: %d desY: %d desX: %d",mPieceStr[piece].c_str(), mDSrcMoveY[r], mDSrcMoveX[r], mDDesMoveY[r], mDDesMoveX[r]);
+			spdlog::info("Unexpected value for %s move srcY: %d srcX: %d desY: %d desX: %d",mPieceStr[piece].c_str(), mDSrcMoveY[r], mDSrcMoveX[r], mDDesMoveY[r], mDDesMoveX[r]);
 
 		}
 		//turn Pawn into Queen if possible
@@ -1875,12 +1879,12 @@ void LBoardPVAI::renderScore() {
 	mBlackScoreTexture = gMediaFactory->getTxt(blackScoreStr.str().c_str(), gFont64, COLOR_BLACK);
 	
 	if(mSettingsTable[TL_NO]) {
-		mWhiteScoreTexture->render(0, SCREEN_HEIGHT - 64);
-		mBlackScoreTexture->render(0, 0);
+		mWhiteScoreTexture->renderAt(0, SCREEN_HEIGHT - 64);
+		mBlackScoreTexture->renderAt(0, 0);
 	}
 	else {
-		mWhiteScoreTexture->render(OFFSET * 3, SCREEN_HEIGHT - 64);
-		mBlackScoreTexture->render(OFFSET * 3, 0);
+		mWhiteScoreTexture->renderAt(OFFSET * 3, SCREEN_HEIGHT - 64);
+		mBlackScoreTexture->renderAt(OFFSET * 3, 0);
 	}
 }
 
@@ -1900,7 +1904,7 @@ void LBoardPVAI::renderDeadPieces() {
 					blackOffset = 0;
 					blackPosY = 32;
 				}
-				mMiniPieceTexture->render(blackPosX + blackOffset, blackPosY, &mMiniPieceClip[i]);
+				mMiniPieceTexture->renderAt(blackPosX + blackOffset, blackPosY, &mMiniPieceClip[i]);
 				blackOffset += 32;
 			}
 		}
@@ -1912,7 +1916,7 @@ void LBoardPVAI::renderDeadPieces() {
 					whiteOffset = 0;
 					whitePosY = (OFFSET * 9) + 32;
 				}
-				mMiniPieceTexture->render(whitePosX + whiteOffset, whitePosY, &mMiniPieceClip[i]);
+				mMiniPieceTexture->renderAt(whitePosX + whiteOffset, whitePosY, &mMiniPieceClip[i]);
 				whiteOffset += 32;
 			}
 		}

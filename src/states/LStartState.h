@@ -10,7 +10,7 @@ for the sake of simplicity I bundled both in this file
 
 #include "utils/util.h"
 #include "com/constantes.h"
-#include "LTexture.h"
+#include "graphics/LTexture.h"
 #include "LState.h"
 #include "LStateMachine.h"
 #include "factories/LMediaFactory.h"

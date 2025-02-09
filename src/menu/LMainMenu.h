@@ -4,7 +4,7 @@
 #include "com/headers.h"
 #include "com/constantes.h"
 #include "LButton.h"
-#include "LTextureClickable.h"
+#include "graphics/LTextureClickable.h"
 #include "com/LSubject.h"
 #include "states/LStateMachine.h"
 #include "states/LSettingsState.h"
