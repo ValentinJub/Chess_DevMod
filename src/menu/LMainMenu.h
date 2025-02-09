@@ -22,7 +22,6 @@ public:
     void render() override;
 private:
     bool init();
-    void setButtons();
     void setTexturePositions();
 
     // Handler operations
@@ -37,7 +36,6 @@ private:
     SDL_Rect mMiniPieceClip[TOTAL_PIECES - 1]; // 32x32 clipping of the spritesheet
     LTexture* mMiniPieceTexture;
     LTextureClickable* mMenuTextures[TOTAL_MENU_ITEMS];
-    LButton* mMenuButtons[TOTAL_MENU_ITEMS];
     LObserver* mAppObserver;
     std::shared_ptr<spdlog::logger> mLogger;
 };

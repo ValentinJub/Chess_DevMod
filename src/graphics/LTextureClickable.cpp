@@ -9,6 +9,14 @@ LTextureClickable::~LTextureClickable() {
     mButton = NULL;
 }
 
+bool LTextureClickable::isHovered() {
+    return mButton->isHovered();
+}
+
+bool LTextureClickable::isClicked(SDL_Event* e) {
+    return mButton->isClicked(e);
+}
+
 void LTextureClickable::setButton(LButton* button) {
     mButton = button;
 }

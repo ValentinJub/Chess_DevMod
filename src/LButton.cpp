@@ -28,7 +28,7 @@ void LButton::setSize(int width, int height) {
 bool LButton::isHovered() {
     int x, y;
     SDL_GetMouseState( &x, &y );
-    return x > mPosition.x && x > mPosition.x + mWidth && y > mPosition.y && y < mPosition.y + mHeight;
+    return x > mPosition.x && x < mPosition.x + mWidth && y > mPosition.y && y < mPosition.y + mHeight;
 }
 
 bool LButton::isClicked(SDL_Event* e) {

@@ -71,7 +71,6 @@ bool LMainMenu::init() {
 		}
 	}
     this->setTexturePositions();
-    this->setButtons();
 	return true;
 }
 
@@ -79,36 +78,41 @@ void LMainMenu::setTexturePositions() {
 	mMenuTextures[PLAY_AI]->setPos(
 		(SCREEN_WIDTH - mMenuTextures[PLAY_AI]->w()) / 2, 
 		(SCREEN_HEIGHT / 2) - (mMenuTextures[PLAY_AI]->h())
-	); 
+	);
+	mMenuTextures[PLAY_AI]->setButton();
 	mMenuTextures[SETTINGS]->setPos(
 		(SCREEN_WIDTH - mMenuTextures[SETTINGS]->w()) / 2, 
 		mMenuTextures[PLAY_AI]->y() + mMenuTextures[PLAY_AI]->h()
 	);
+	mMenuTextures[SETTINGS]->setButton();
 	mMenuTextures[PLAY]->setPos(
 		(SCREEN_WIDTH - mMenuTextures[PLAY]->w()) / 2,
 		mMenuTextures[PLAY_AI]->y() - mMenuTextures[PLAY]->h()
 	);
+	mMenuTextures[PLAY]->setButton();
 	mMenuTextures[DEVMODE]->setPos(
 		(SCREEN_WIDTH - mMenuTextures[DEVMODE]->w()) / 2,
 		mMenuTextures[SETTINGS]->y() + mMenuTextures[SETTINGS]->h()
 	);
+	mMenuTextures[DEVMODE]->setButton();
 }
 
 void LMainMenu::isNowSelected(int selected) {
-    mMenuTextures[selected]->createImg(gMediaFactory->getTxtSDL_Texture(
-        MenuItem[selected].c_str(),
-        gFont64, 
-        COLOR_RED
-    ));
 	for(int i = 0; i < TOTAL_MENU_ITEMS; i++) {
-        if(i != selected) {
-            mMenuTextures[i]->createImg(gMediaFactory->getTxtSDL_Texture(
+        if(i == selected) {
+			mMenuTextures[selected]->createImg(gMediaFactory->getTxtSDL_Texture(
+				MenuItem[selected].c_str(),
+				gFont64, 
+				COLOR_RED
+			));
+		} else {
+			mMenuTextures[i]->createImg(gMediaFactory->getTxtSDL_Texture(
                 MenuItem[i].c_str(), 
                 gFont64, 
                 COLOR_BLACK
             ));
-        }
-    }
+		}
+	}
 }
 
 void LMainMenu::handleEvents(SDL_Event* e) {
@@ -148,9 +152,9 @@ void LMainMenu::handleKeyEvents(SDL_Event* e) {
 
 void LMainMenu::handleMouseEvents(SDL_Event* e) {
     for(int i(0); i < TOTAL_MENU_ITEMS; i++) {
-		if(mMenuTextures[i]->getButton()->isHovered()) {
+		if(mMenuTextures[i]->isHovered()) {
 			this->isNowSelected(i);
-			if(mMenuTextures[i]->getButton()->isClicked(e)) {
+			if(mMenuTextures[i]->isClicked(e)) {
 				switch (i) {
 				case PLAY:
 					gMusicPlayer->stop();
@@ -177,12 +181,6 @@ void LMainMenu::handleMouseEvents(SDL_Event* e) {
 				}
 			}
 		}
-	}
-}
-
-void LMainMenu::setButtons() {
-	for(int i(0); i < TOTAL_MENU_ITEMS; i++) {
-		mMenuTextures[i]->setButton();
 	}
 }
 

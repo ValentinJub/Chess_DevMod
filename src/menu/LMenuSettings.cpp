@@ -135,7 +135,7 @@ void LMenuSettings::handleEvents(SDL_Event* e, SDL_Point mouse) {
 
     // handles button events for the settings menu 
     for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i++) {
-        if(mClickableMenuTexture[i]->getButton()->isHovered() && mClickableMenuTexture[i]->getButton()->isClicked(e)) {
+        if(mClickableMenuTexture[i]->isHovered() && mClickableMenuTexture[i]->isClicked(e)) {
             switch(i) {
             case SLM_YES:
                 mOptionValues.showLegalMoves = 0;
