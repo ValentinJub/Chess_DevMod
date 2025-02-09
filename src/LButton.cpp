@@ -15,54 +15,23 @@ LButton::LButton(int x, int y, int w, int h) {
     mHeight = h;
 }
 
-void LButton::setPosition( int x, int y ) {
+void LButton::setPos( int x, int y ) {
     mPosition.x = x;
     mPosition.y = y;
 }
 
-void LButton::setWidthAndHeight(int width, int height) {
+void LButton::setSize(int width, int height) {
     mWidth = width;
     mHeight = height;
 }
 
-bool LButton::handleInside( SDL_Event* e ) {
-    bool success = false;
-    //If mouse event happened
-    if( e->type == SDL_MOUSEMOTION || e->type == SDL_MOUSEBUTTONDOWN || e->type == SDL_MOUSEBUTTONUP )
-    {
-        //Get mouse position
-        int x, y;
-        SDL_GetMouseState( &x, &y );
-
-        bool inside = true;
-
-        //Mouse is left of the button
-        if( x < mPosition.x )
-        {
-            inside = false;
-        }
-        //Mouse is right of the button
-        else if( x > mPosition.x + mWidth )
-        {
-            inside = false;
-        }
-        //Mouse above the button
-        else if( y < mPosition.y )
-        {
-            inside = false;
-        }
-        //Mouse below the button
-        else if( y > mPosition.y + mHeight )
-        {
-            inside = false;
-        }
-        if(inside) success = true;
-    }
-        
-   return success; 
+bool LButton::isHovered() {
+    int x, y;
+    SDL_GetMouseState( &x, &y );
+    return x > mPosition.x && x > mPosition.x + mWidth && y > mPosition.y && y < mPosition.y + mHeight;
 }
 
-bool LButton::handleClick(SDL_Event* e) {
+bool LButton::isClicked(SDL_Event* e) {
     bool success = false;
         switch( e->type )
         {

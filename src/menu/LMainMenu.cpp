@@ -148,9 +148,9 @@ void LMainMenu::handleKeyEvents(SDL_Event* e) {
 
 void LMainMenu::handleMouseEvents(SDL_Event* e) {
     for(int i(0); i < TOTAL_MENU_ITEMS; i++) {
-		if(mMenuTextures[i]->getButton()->handleInside(e)) {
+		if(mMenuTextures[i]->getButton()->isHovered()) {
 			this->isNowSelected(i);
-			if(mMenuTextures[i]->getButton()->handleClick(e)) {
+			if(mMenuTextures[i]->getButton()->isClicked(e)) {
 				switch (i) {
 				case PLAY:
 					gMusicPlayer->stop();

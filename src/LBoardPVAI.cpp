@@ -400,8 +400,8 @@ void LBoardPVAI::setButtons() {
 	for(int y(0); y < SPL; y++) {
 		for(int x(0); x < SPL; x++) {
 			if((mMap[y][x] >= 0) && (mMap[y][x] < TOTAL_PIECES - 1)) {
-				mPieceButtons[i]->setPosition(OFFSET + (x * TOTAL_SQUARES), OFFSET + (y * TOTAL_SQUARES));
-				mPieceButtons[i]->setWidthAndHeight(TOTAL_SQUARES,TOTAL_SQUARES);
+				mPieceButtons[i]->setPos(OFFSET + (x * TOTAL_SQUARES), OFFSET + (y * TOTAL_SQUARES));
+				mPieceButtons[i]->setSize(TOTAL_SQUARES,TOTAL_SQUARES);
 				i++;
 			}
 		}
@@ -443,9 +443,9 @@ void LBoardPVAI::handleEvents(SDL_Event* e) {
 	int size = mPieceButtons.size();
 	for(int i(0); i < size; i++) {
 		//if mouse is inside
-		if(mPieceButtons[i]->handleInside(e)) {
+		if(mPieceButtons[i]->isHovered()) {
 			//if mouse button clicked 
-			if(mPieceButtons[i]->handleClick(e)) {
+			if(mPieceButtons[i]->isClicked(e)) {
 				//if a piece is not selected 
 				//if a piece is already selected, count as clicking outside 
 				if(!(mAPieceIsSelected)) {

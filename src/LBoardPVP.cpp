@@ -394,8 +394,8 @@ void LBoardPVP::setButtons() {
 	for(int y(0); y < SPL; y++) {
 		for(int x(0); x < SPL; x++) {
 			if((mMap[y][x] >= 0) && (mMap[y][x] < TOTAL_PIECES - 1)) {
-				mPieceButtons[i]->setPosition((x * TOTAL_SQUARES) + OFFSET, (y * TOTAL_SQUARES) + OFFSET);
-				mPieceButtons[i]->setWidthAndHeight(TOTAL_SQUARES,TOTAL_SQUARES);
+				mPieceButtons[i]->setPos((x * TOTAL_SQUARES) + OFFSET, (y * TOTAL_SQUARES) + OFFSET);
+				mPieceButtons[i]->setSize(TOTAL_SQUARES,TOTAL_SQUARES);
 				i++;
 			}
 		}
@@ -424,9 +424,9 @@ void LBoardPVP::handleEvents(SDL_Event* e) {
 	int size = mPieceButtons.size();
 	for(int i(0); i < size; i++) {
 		//if mouse is inside a button
-		if(mPieceButtons[i]->handleInside(e)) {
+		if(mPieceButtons[i]->isHovered()) {
 			//if THE LEFT mouse button clicked 
-			if(mPieceButtons[i]->handleClick(e)) {
+			if(mPieceButtons[i]->isClicked(e)) {
 				//if a piece is not selected 
 				//if a piece is already selected, count as clicking outside 
 				if(!(mAPieceIsSelected)) {
