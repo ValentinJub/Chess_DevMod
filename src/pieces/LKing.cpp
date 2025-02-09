@@ -1,4 +1,4 @@
-#include "LKing.h"
+#include "pieces/LKing.h"
 
 void LKing::blackMove(const int map[SPL][SPL], int piecePosX, int piecePosY, std::vector<int> *highlightedTileXPos, std::vector<int> *highlightedTileYPos, bool kingMoved, bool rook1Moved, bool rook2Moved, int checkStatus, bool *canCastle) {
 	//BKING pos on map

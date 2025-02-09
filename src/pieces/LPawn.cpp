@@ -1,4 +1,4 @@
-#include "LPawn.h"
+#include "pieces/LPawn.h"
 
 void LPawn::blackMoveOld(const int map[SPL][SPL], int piecePosX, int piecePosY, std::vector<int> *tilePosX, std::vector<int> *tilePosY, int lastMovedPiece, int lastMovedPieceXSrc, int lastMovedPieceYSrc, int lastMovedPieceXDes, int lastMovedPieceYDes, bool *mEnPassant, bool preCheck) {
 	//Possible forward move

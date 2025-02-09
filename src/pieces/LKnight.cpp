@@ -1,4 +1,4 @@
-#include "LKnight.h"
+#include "pieces/LKnight.h"
 
 void LKnight::blackMove(const int map[SPL][SPL], int x, int y, std::vector<int> *tilePosX, std::vector<int> *tilePosY) {
 

@@ -11,8 +11,8 @@ Prototypes and const for LQueen piece object
 #include "utils/util.h"
 #include "LPiece.h"
 #include "vector"
-#include "LBishop.h"
-#include "LRook.h"
+#include "pieces/LBishop.h"
+#include "pieces/LRook.h"
 
 
 class LQueen : public LPiece {

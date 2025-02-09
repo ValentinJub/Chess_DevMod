@@ -19,7 +19,7 @@ Prototypes and const for LMenuclass
 #include "fstream"
 #include "graphics/LTextureClickable.h"
 #include "LButton.h"
-#include "LSlider.h"
+#include "graphics/LSlider.h"
 #include <array>
 #include "com/logger.h"
 

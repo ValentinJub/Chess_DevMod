@@ -16,7 +16,7 @@ The slider is used to change the volume of the music and the sound effects.
 #include "utils/util.h"
 #include "com/constantes.h"
 #include "graphics/LTexture.h"
-#include "LDot.h"
+#include "graphics/LDot.h"
 #include <cmath>
 #include "factories/LMediaFactory.h"
 

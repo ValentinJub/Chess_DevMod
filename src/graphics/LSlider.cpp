@@ -6,7 +6,7 @@ Methods for LSlider class
 
 */
 
-#include "LSlider.h"
+#include "graphics/LSlider.h"
 
 extern LMediaFactory* gMediaFactory;
 extern SDL_Renderer* gRenderer;

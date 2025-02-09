@@ -1,4 +1,4 @@
-#include "LWindow.h"
+#include "com/LWindow.h"
 
 extern SDL_Renderer* gRenderer;
 

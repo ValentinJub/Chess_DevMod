@@ -1,4 +1,4 @@
-#include "LQueen.h"
+#include "pieces/LQueen.h"
 
 void LQueen::blackMove(const int map[SPL][SPL], int posX, int posY, std::vector<int> *tilePosX, std::vector<int> *tilePosY) {
 	mBishop.blackMove(map, posX, posY, tilePosX, tilePosY);

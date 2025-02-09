@@ -1,4 +1,4 @@
-#include "LRook.h"
+#include "pieces/LRook.h"
 
 void LRook::blackMove(const int map[SPL][SPL], int x, int y, std::vector<int> *tilePosX, std::vector<int> *tilePosY) {
 	const int maxVertMove = 7;

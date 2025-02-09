@@ -13,8 +13,8 @@ headers for CApp
 #include <memory>
 #include "graphics/LTexture.h"
 #include "LButton.h"
-#include "LWindow.h"
-#include "LTimer.h"
+#include "com/LWindow.h"
+#include "com/LTimer.h"
 #include "states/LStateMachine.h"
 #include "states/LMainMenuState.h"
 #include "states/LStartState.h"

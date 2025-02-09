@@ -1,4 +1,4 @@
-#include "LDot.h"
+#include "graphics/LDot.h"
 
 LDot::LDot()
 {
