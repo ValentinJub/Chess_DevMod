@@ -14,12 +14,12 @@
 #include "playPVP.h"
 #include "com/logger.h"
 
-class LMainMenu : public LSubject {
+class LMainMenu : public LSubject, public LVisualComponent {
 public:
     LMainMenu(LObserver* observer);
     void update();
-    void free();
-    void render();
+    void free() override;
+    void render() override;
 private:
     bool init();
     void setButtons();

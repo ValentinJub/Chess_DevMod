@@ -58,13 +58,13 @@ struct OptionValues {
     int pieceTheme;
 };
 
-class LMenuSettings : public LSubject {
+class LMenuSettings : public LSubject, public LVisualComponent {
 public:
     LMenuSettings(LObserver* observer);
     ~LMenuSettings();
     void update();
-    void render();
-    void free();
+    void render() override;
+    void free() override;
 
 private:
     void initFont();
