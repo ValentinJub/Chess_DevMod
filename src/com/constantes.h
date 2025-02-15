@@ -76,6 +76,16 @@ enum CastlingResult {
     NO_MOVE
 };
 
+struct OptionValues {
+    int showLegalMoves;
+    int useTimer;
+    int timeLimit;
+    int tileColor;
+    int musicTheme;
+    int volume;
+    int pieceTheme;
+};
+
 const int TOTAL_SETTINGS_RIGHT_MENU_TEXT_ITEMS = 11;
 
 enum SettingsMenuButtons {
