@@ -11,6 +11,8 @@ headers for all files - do not put L*.h!!!!
 
 #include "com/headers.h"
 #include "com/logger.h"
+#include "com/constantes.h"
+#include <fstream>
 
 enum LOG_LEVEL {
     TRACE,
@@ -24,6 +26,9 @@ enum LOG_LEVEL {
 namespace Util {
     bool showTitleScreen(int argc, char *argv[]);
     void initLogger(int argc, char *argv[]);
+    void saveSettingsToFile(const char* path, int settings[]);
+    std::vector<int> readSettingsFromFile(const char* path);
+    void flushEvents();
 }
 
 #endif
