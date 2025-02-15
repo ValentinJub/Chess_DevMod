@@ -7,11 +7,11 @@
 #include "graphics/LTextureClickable.h"
 #include "com/LSubject.h"
 #include "states/LStateMachine.h"
-#include "states/LSettingsState.h"
+#include "states/menu/LSettingsState.h"
 #include "factories/LMediaFactory.h"
 #include "sound/LMusicPlayer.h"
 #include "playPVAI.h"
-#include "playPVP.h"
+#include "states/game/LBoardState.h"
 #include "com/logger.h"
 
 class LMainMenu : public LSubject, public LVisualComponent {

@@ -58,7 +58,6 @@ class LSlider
 
     private:
         void setVolume();
-        bool loadDotTexture();
         void setMouseFollow(bool follow);
         bool mMouseFollow;
         LTexture* mDotTexture;

@@ -1,44 +1,31 @@
 #include "graphics/LDot.h"
+#include "factories/LMediaFactory.h"
 
-LDot::LDot()
-{
-    //Initialize the dot on the slider position
-    mPosX = 0;
-    mPosY = 0;
+extern LMediaFactory* gMediaFactory;
 
-    //Initialize the velocity
+LDot::LDot(int x, int y) : mX(x), mY(y) {
     mVelX = 0;
     mVelY = 0;
-
-    //Initialize particles
-    // for( int i = 0; i < TOTAL_PARTICLES; ++i )
-    // {
-    //     particles[ i ] = new LParticle( mPosX, mPosY );
-    // }
-
-    setMoving(false);
+    mIsMoving = false;
+    mTexture = gMediaFactory->getImg(SPRITE_DOT);
+    mClip = new SDL_Rect{29, 28, DOT_WIDTH, DOT_HEIGHT};
+    mTexture->setClip(mClip);
 }
 
 LDot::~LDot() {
-    //Delete particles
-    // for( int i = 0; i < TOTAL_PARTICLES; ++i )
-    // {
-    //     delete particles[ i ];
-    // }
+    this->free();
 }
 
-void LDot::setDotPosition( int x, int y ) {
-    mPosX = x;
-    mPosY = y;
+void LDot::setPos(int x, int y) {
+    mX = x;
+    mY = y;
 }
 
 SDL_Point LDot::getDotPosition() const {
-    SDL_Point point = {mPosX, mPosY};
-    return point;
+    return SDL_Point{mX, mY};
 }
 
-void LDot::handleEvent( SDL_Event& e )
-{
+void LDot::handleEvent(SDL_Event& e) {
     //If a key was pressed
     if( e.type == SDL_KEYDOWN && e.key.repeat == 0 )
     {
@@ -65,38 +52,39 @@ void LDot::handleEvent( SDL_Event& e )
     }
 }
 
-void LDot::move()
-{
+void LDot::move() {
     //Move the dot left or right
-    mPosX += mVelX;
+    mX += mVelX;
 
     //If the dot went too far to the left or right
-    if( ( mPosX < 0 ) || ( mPosX + DOT_WIDTH > SCREEN_WIDTH ) )
+    if( ( mX < 0 ) || ( mX + DOT_WIDTH > SCREEN_WIDTH ) )
     {
         //Move back
-        mPosX -= mVelX;
+        mX -= mVelX;
     }
     //Move the dot up or down
-    mPosY += mVelY;
+    mY += mVelY;
 
     //If the dot went too far up or down
-    if( ( mPosY < 0 ) || ( mPosY + DOT_HEIGHT > SCREEN_HEIGHT ) )
+    if( ( mY < 0 ) || ( mY + DOT_HEIGHT > SCREEN_HEIGHT ) )
     {
         //Move back
-        mPosY -= mVelY;
+        mY -= mVelY;
     }
 }
 
-void LDot::render(LTexture* texture) {
-    texture->setPos(mPosX, mPosY);
-    texture->render();
+void LDot::free() {}
+
+void LDot::render() {
+    mTexture->setPos(mX, mY);
+    mTexture->render();
 }
 
 void LDot::setMoving(bool moving) {
-    isMoving = moving;
+    mIsMoving = moving;
 }
 
-bool LDot::getMoving() const {
-    return isMoving;
+bool LDot::isMoving() const {
+    return mIsMoving;
 }
 

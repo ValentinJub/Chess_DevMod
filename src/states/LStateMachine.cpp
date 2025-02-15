@@ -1,5 +1,5 @@
 #include "LStateMachine.h"
-#include "LState.h"
+#include "states/LState.h"
 #include <SDL2/SDL.h>
 
 LStateMachine::LStateMachine(LObserver* appObserver) : mAppObserver(appObserver) {}

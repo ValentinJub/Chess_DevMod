@@ -12,7 +12,7 @@ Settings menu allowing to select various options such as:
 - etc....
 */
 
-#include "states/LSettingsState.h"
+#include "states/menu/LSettingsState.h"
 
 extern SDL_Renderer* gRenderer;
 extern LTexture* gBackgroundTexture;

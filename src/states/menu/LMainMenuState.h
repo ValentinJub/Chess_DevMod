@@ -2,12 +2,12 @@
 #define LMAINMENUSTATE_H
 
 #include "utils/util.h"
-#include "states/LSettingsState.h"
-#include "LState.h"
-#include "LStateMachine.h"
+#include "states/menu/LSettingsState.h"
+#include "states/LState.h"
+#include "states/LStateMachine.h"
 #include "com/constantes.h"
 #include "playPVAI.h"
-#include "playPVP.h"
+#include "states/game/LBoardState.h"
 #include "menu/LMainMenu.h"
 
 extern TTF_Font* gFont64; 

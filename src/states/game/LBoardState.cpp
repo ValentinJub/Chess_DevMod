@@ -1,10 +1,36 @@
-#include "playPVP.h"
+#include "states/game/LBoardState.h"
 
 extern SDL_Renderer* gRenderer;
 extern LTexture* gBackgroundTexture;
 
+LBoardState::LBoardState() {
+	
+}
+
+LBoardState::~LBoardState() {
+	mBoard->free();
+	mBoard = NULL;
+}
+
+void LBoardState::enter(LObserver* observer) {
+	mBoard = new LBoardPVP(observer);
+}
+
+void LBoardState::exit() {
+	mBoard->free();
+}
+
+void LBoardState::update() {
+	// mBoard->update();
+}
+
+void LBoardState::render() {
+	// mBoard->render();
+}
+
+
 void playPVP() {
-	LBoardPVP board;
+	LBoardPVP board(nullptr);
 	//Load tile textures in memory
 	if(!(board.loadTileTextures())) {
 		spdlog::error("Unable to load tile textures!");

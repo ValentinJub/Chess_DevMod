@@ -33,11 +33,14 @@ Board also contains settings such as tile colors, legal move displayed on map...
 #include "sound/LMusicPlayer.h"
 #include "sound/LChunkPlayer.h"
 #include "factories/LMediaFactory.h"
+#include "com/LObserver.h"
+#include "com/LSubject.h"
+#include "states/LStateMachine.h"
 
-class LBoardPVP {
+class LBoardPVP : public LSubject {
 
 public:
-    LBoardPVP();
+    LBoardPVP(LObserver* observer);
     ~LBoardPVP();
     bool initMap();
     void free();
@@ -79,6 +82,7 @@ public:
 protected:
 
 private:
+    LObserver* mAppObserver;
     void fillDeadPieceTab(const int fallenPiece);
     int pieceValue(int const pieceType) const;
     void calculateRemainingTime();

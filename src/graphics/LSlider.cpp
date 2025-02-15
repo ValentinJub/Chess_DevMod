@@ -15,29 +15,17 @@ extern uint8_t gMusicVolume;
 using std::floor;
 using std::ceil;
 
-LSlider::LSlider(int width, int height, int posX, int posY) {
-    setSliderWidthAndHeight(width, height);
-    setSliderPosition(posX, posY);
-    mDotTexture = new LTexture();
-    loadDotTexture();
+LSlider::LSlider(int width, int height, int posX, int posY) : mSliderWidth(width), mSliderHeight(height), mSliderPosition({posX, posY}) {
+    mVolumeTexture = new LTexture();
     mDot = new LDot();
     setDotPosition();
     setMouseFollow(false);  
-    mVolumeTexture = new LTexture();
-}
-
-bool LSlider::loadDotTexture() {
-    bool success = true;
-    mDotTexture = gMediaFactory->getImg(SPRITE_DOT);
-    return success;
 }
 
 LSlider::~LSlider() {
     delete mDot;
     mDot = NULL;
-    mVolumeTexture->free();
     mVolumeTexture = NULL;
-    mDotTexture->free();
     mDotTexture = NULL;
 }
 
@@ -78,7 +66,7 @@ void LSlider::setDotPosition() {
 
     int posX = mSliderPosition.x + currentVolume - (LDot::DOT_WIDTH / 2);
     int posY = mSliderPosition.y + (mSliderHeight / 2) - (LDot::DOT_HEIGHT / 2);
-    mDot->setDotPosition(posX, posY);
+    mDot->setPos(posX, posY);
 }
 
 void LSlider::setMouseFollow(bool follow) {
@@ -139,15 +127,15 @@ bool LSlider::handleEvents( SDL_Event* e, SDL_Point mouse ) {
 }
 
 void LSlider::handleMotion(SDL_Point mouse) {
-    mDot->setDotPosition(mouse.x - LDot::DOT_WIDTH/2, mDot->getDotPosition().y);
+    mDot->setPos(mouse.x - LDot::DOT_WIDTH/2, mDot->getDotPosition().y);
 
     // left boudary
     if(mDot->getDotPosition().x < mSliderPosition.x - LDot::DOT_WIDTH / 2) {
-        mDot->setDotPosition(mSliderPosition.x - LDot::DOT_WIDTH / 2, mDot->getDotPosition().y);
+        mDot->setPos(mSliderPosition.x - LDot::DOT_WIDTH / 2, mDot->getDotPosition().y);
     }
     // right boundary
     else if(mDot->getDotPosition().x > mSliderPosition.x + mSliderWidth - LDot::DOT_WIDTH / 2) {
-        mDot->setDotPosition(mSliderPosition.x + mSliderWidth - LDot::DOT_WIDTH / 2, mDot->getDotPosition().y);
+        mDot->setPos(mSliderPosition.x + mSliderWidth - LDot::DOT_WIDTH / 2, mDot->getDotPosition().y);
     }
 
     // set the volume
@@ -213,12 +201,18 @@ void LSlider::renderSlider() {
     while(i < 2) {
         // draw a horizontal line in the middle of the slider, thickness 2
         // I have to - 1 to x1 otherwise the line is 101px long instead of 100
-        SDL_RenderDrawLine( gRenderer, mSliderPosition.x, mSliderPosition.y + i + mSliderHeight/2, mSliderPosition.x + mSliderWidth - 1, mSliderPosition.y + i + mSliderHeight/2 );
+        SDL_RenderDrawLine(
+            gRenderer, 
+            mSliderPosition.x, // x start
+            mSliderPosition.y + i + mSliderHeight/2, // y start
+            mSliderPosition.x + mSliderWidth - 1, // x end
+            mSliderPosition.y + i + mSliderHeight/2 // y end
+        );
         i++;
     }
 
     // render the dot
-    mDot->render(mDotTexture);
+    mDot->render();
 
     // render the volume text
     renderVolume();

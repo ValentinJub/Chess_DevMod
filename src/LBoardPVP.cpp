@@ -15,8 +15,10 @@ extern uint8_t gMusicVolume;
 extern LMediaFactory* gMediaFactory;
 extern LChunkPlayer* gChunkPlayer;
 extern LMusicPlayer* gMusicPlayer;
+extern LStateMachine* gStateMachine;
 
-LBoardPVP::LBoardPVP() {
+LBoardPVP::LBoardPVP(LObserver* observer) {
+	this->Attach(observer);
 	//grab settings from file
 	readSettingsFromFile();
 	//init some game variable according to settings (mPreview, mTileColor)
@@ -150,6 +152,7 @@ LBoardPVP::~LBoardPVP() {
 }
 
 void LBoardPVP::free() {
+	this->Detach(mAppObserver);
 	mPieceTexture->free();
 	mPieceTexture = NULL;
 	
@@ -414,6 +417,10 @@ void LBoardPVP::renderOutOfTimeScreen() {
 }
 
 void LBoardPVP::handleEvents(SDL_Event* e) {
+	if(e->type == SDL_QUIT) {
+		this->Notify();
+		gStateMachine->pop();
+	}
 	this->playMusic();
 	bool outside = true; 
 	int x, y;
