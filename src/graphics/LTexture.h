@@ -39,14 +39,13 @@ class LTexture : public LVisualComponent {
     std::vector<std::unique_ptr<LDecorator>> mDecorators;
 
     private:
-    SDL_Rect* mClip;
-    SDL_Texture* mTexture;
-    
     bool mRenderDecorators = false;
     int mX;
     int mY;
     int mWidth;
     int mHeight;
+    SDL_Texture* mTexture;
+    SDL_Rect* mClip;
     int mVelX;
     int mVelY;
 };
