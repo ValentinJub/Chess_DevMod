@@ -16,27 +16,19 @@ extern LMediaFactory* gMediaFactory;
 extern LChunkPlayer* gChunkPlayer;
 extern LMusicPlayer* gMusicPlayer;
 extern LStateMachine* gStateMachine;
+extern LTexture* gBackgroundTexture;
 
 LBoardPVP::LBoardPVP(LObserver* observer) {
 	this->Attach(observer);
-	//grab settings from file
-	readSettingsFromFile();
-	//init some game variable according to settings (mPreview, mTileColor)
-	initGameSettings();
-	//Init textures
-	mPieceTexture = new LTexture;
-	mMiniPieceTexture = new LTexture;
-	mHighlightedPieceTexture = new LTexture;
-	mTileTexture = new LTexture;
-	mHighlightedTileTexture = new LTexture;
-	mWhiteTimerTexture = new LTexture;
-	mBlackTimerTexture = new LTexture;
-	mWhiteScoreTexture = new LTexture;
-	mBlackScoreTexture = new LTexture;
-	mPauseBackgroundTexture = new LTexture;
-	mPauseTextTexture = new LTexture;
-	mOutOfTimeTexture = new LTexture;
-	
+	this->readSettingsFromFile();
+	mTimeLimit = mSettings.timeLimit == 0 ? 300 : 600;
+	this->initTileTextures();
+	this->initPiecesTextures();
+	this->initPauseTexture();
+	this->initMap();
+	this->setTileRectClip();
+	this->setPiecesClip();
+
 	for(int i(0); i < INITIAL_PIECES_TOTAL; i++) {
 		mPieceButtons.push_back(new LButton);
 	}
@@ -50,71 +42,90 @@ LBoardPVP::LBoardPVP(LObserver* observer) {
 	//Are highlighted at start
 	mSelectedPieceXPos = 9;
 	mSelectedPieceYPos = 9;
-	//No piece is selected at start
-	mAPieceIsSelected = false;
-	
-	//White start
-	mWhiteTurn = true;
-	
-	mIsPaused = false;
-	
+
 	//Check status
 	mCheckStatus = NO_CHECK;
-	
-	//bools used to play sound depending on the context
-	mTookAPiece = false;
-	mIsCastling = false;
-	mEnPassantTurn = false;
-	mGameOver = false;
-	
-	//Bools below used to determine if we can use Castling();  
-	mWKingHasMoved = false;
-	mBKingHasMoved = false;
-	mWRook1HasMoved = false;
-	mWRook2HasMoved = false;
-	mBRook1HasMoved = false;
-	mBRook2HasMoved = false;
-	
 	//start white and black timer and pause the black as white plays first
-	if(mSettingsTable[TL_YES]) {
-		startWhiteTimer();
-		startBlackTimer();
-		pauseBlackTimer();
+	if(mSettings.useTimer == 0) {
+		this->startWhiteTimer();
+		this->startBlackTimer();
+		this->pauseBlackTimer();
 	}
-	
-	mWhiteTimerRanOut = false;
-	mBlackTimerRanOut = false;
-	
 }
 
-void LBoardPVP::initGameSettings() {
-	//Set show legal move (highlight tile with selected piece's possible moves)
-	if(mSettingsTable[SLM_YES]) mPreviewMove = true;
-	else mPreviewMove = false;
-	//Set tile color
-	if(mSettingsTable[TC_GREY]) mTileColor = 1;
-	else mTileColor = 0;
-	//Set timer duration
-	if(mSettingsTable[TL_YES]) {
-		if(mSettingsTable[TL_5]) {
-			mTimeLimit = 3; 
+void LBoardPVP::update() {
+	this->playMusic();
+	SDL_Event e;
+	while(SDL_PollEvent(&e) > 0) {
+		if(e.type == SDL_QUIT) {
+			this->Notify();
+			gStateMachine->pop();
+			return;
 		}
-		else {
-			mTimeLimit = 600; 
+		else if(e.type == SDL_KEYDOWN) {
+			if(e.key.keysym.sym == SDLK_ESCAPE) {
+				gStateMachine->pop();
+				return;
+			}
+			else if(e.key.keysym.sym == SDLK_SPACE) {
+				this->pause();
+			}
+		}
+		if(!(mIsPaused)) {
+			this->handleEvents(&e);
 		}
 	}
-	//Piece Theme 
-	if(mSettingsTable[PT_1]) {
-		mPieceTheme = 0;
+}
+
+void LBoardPVP::render() {
+	SDL_RenderClear(gRenderer);
+	SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+	gBackgroundTexture->render();
+	
+	//establish possible moves if a piece is selected
+	this->showLegalMove();
+	
+	//display tiles
+	this->renderTile();
+	//display Pieces 
+	this->renderPieces();
+	//display timer and checks for time remaining
+	this->renderTimer();
+	//display score
+	this->renderScore();
+	//display dead pieces
+	this->renderDeadPieces();
+	
+	//set buttons according to piece pos
+	this->setButtons();
+	
+	if(this->isPaused()) {
+		this->renderPause();
 	}
-	else mPieceTheme = 1;
+	
+	SDL_RenderPresent(gRenderer);
+	SDL_Delay(16);
+
+	//check for victory
+	if(this->isGameOver()) {
+		//Pay victory sound and quit
+		this->playVictorySound();
+		gStateMachine->pop();
+		return;
+	}
+	//check for defeat by time out
+	if(this->isOutOfTime()) {
+		SDL_Delay(1750);
+		gStateMachine->pop();
+		return;
+	}
 }
 
 void LBoardPVP::playMusic() {
 	if(Mix_PlayingMusic() == 0) {
 		int i = rand() % 7;
 		std::string track;
-		if(mSettingsTable[MT_CLASSIC]) {
+		if(mSettings.musicTheme == 1) {
 			track = MUSIC_CLASSIC + std::to_string(i) + ".mp3";
 		}
 		else {
@@ -130,17 +141,17 @@ bool LBoardPVP::isPaused() const {
 
 void LBoardPVP::pause() {
 	if(mIsPaused) {
-		Mix_ResumeMusic();
+		gMusicPlayer->pause();
 		mIsPaused = false;
-		if(mSettingsTable[TL_YES]) {
+		if(mSettings.useTimer == 0) {
 			if(mWhiteTurn) unpauseWhiteTimer();
 			else unpauseBlackTimer();
 		}
 	}
 	else {
 		mIsPaused = true;
-		Mix_PauseMusic();
-		if(mSettingsTable[TL_YES]) {
+		gMusicPlayer->pause();
+		if(mSettings.useTimer == 0) {
 			if(mWhiteTurn) pauseWhiteTimer();
 			else pauseBlackTimer();
 		}
@@ -152,6 +163,7 @@ LBoardPVP::~LBoardPVP() {
 }
 
 void LBoardPVP::free() {
+	gMusicPlayer->pause();
 	this->Detach(mAppObserver);
 	mPieceTexture->free();
 	mPieceTexture = NULL;
@@ -184,91 +196,50 @@ void LBoardPVP::startWhiteTimer() {
 	mWhiteTimer.start();
 }
 
-void LBoardPVP::startBlackTimer() {
-	mBlackTimer.start();
-}
-
-void LBoardPVP::pauseWhiteTimer() {
-	mWhiteTimer.pause();
-}
-
-void LBoardPVP::pauseBlackTimer() {
-	mBlackTimer.pause();
-}
-
-void LBoardPVP::unpauseWhiteTimer() {
-	mWhiteTimer.unpause();
-}
-
-void LBoardPVP::unpauseBlackTimer() {
-	mBlackTimer.unpause();
-}
-
-void LBoardPVP::stopWhiteTimer() {
-	mWhiteTimer.stop();
-}
-
-void LBoardPVP::stopBlackTimer() {
-	mBlackTimer.stop();
-}
-
 void LBoardPVP::readSettingsFromFile() {
-	std::ifstream settings;
-    settings.open(FILE_SETTINGS, std::ios::in);
-    if(settings.is_open()) {
-		// minus 1 because we don't want to read the back button
-        for(int i(0); i < TOTAL_CLICKABLE_ITEMS - 1; i++) {
-            std::string line;
-            std::getline(settings, line);
-            std::stringstream ss(line);
-            int a;
-            ss >> a;
-            mSettingsTable[i] = a;
-        }
-        settings.close();
-    }
-    else {
-        std::cerr << "Unable to load settings file!\n";
-    }
-}
-
-bool LBoardPVP::loadPiecesTextures() {
-	bool success = true;
-	if(mPieceTheme == 0) {
-		mPieceTexture = gMediaFactory->getImg(SPRITE_PIECE_SHEET);
-		mHighlightedPieceTexture = gMediaFactory->getImgUnique(SPRITE_PIECE_SHEET);
-		mHighlightedPieceTexture->setColor(255,0,0);
-		mMiniPieceTexture = gMediaFactory->getImg(SPRITE_PIECE_SHEET_32);
-	} else if(mPieceTheme == 1) {
-		mPieceTexture = gMediaFactory->getImg(SPRITE_RETRO_PIECE_SHEET);
-		mHighlightedPieceTexture = gMediaFactory->getImgUnique(SPRITE_RETRO_PIECE_SHEET);
-		mHighlightedPieceTexture->setColor(255,0,0);
-		mMiniPieceTexture = gMediaFactory->getImg(SPRITE_PIECE_SHEET_32);
+	std::vector<int> values = Util::readSettingsFromFile(FILE_SETTINGS);	
+	if(values.size() < 7) {
+		spdlog::error("Settings file is corrupted! {} values found", values.size());
+		return;
 	}
-	return success; 
+	mSettings = {
+		values[0],
+		values[1],
+		values[2],
+		values[3],
+		values[4],
+		values[5],
+		values[6]
+	};
 }
 
-bool LBoardPVP::loadTileTextures() {
-	bool success = true;
+bool LBoardPVP::initPiecesTextures() {
+	const char* spriteSheet = mSettings.pieceTheme == 0 ? SPRITE_PIECE_SHEET : SPRITE_RETRO_PIECE_SHEET;
+	mPieceTexture = gMediaFactory->getImg(spriteSheet);
+	mHighlightedPieceTexture = gMediaFactory->getImgUnique(spriteSheet);
+	mHighlightedPieceTexture->setColor(255,0,0);
+	mMiniPieceTexture = gMediaFactory->getImg(SPRITE_PIECE_SHEET_32);
+	return mPieceTexture != NULL && mHighlightedPieceTexture != NULL && mMiniPieceTexture != NULL; 
+}
+
+bool LBoardPVP::initTileTextures() {
 	mTileTexture = gMediaFactory->getImg(SPRITE_BOARD);
-	// unique texture for highlighting tiles
 	mHighlightedTileTexture = gMediaFactory->getImgUnique(SPRITE_BOARD);
 	mHighlightedTileTexture->setColor(255,0,0);
-	return success;
+	return mTileTexture != NULL && mHighlightedTileTexture != NULL;
 }
 
-bool LBoardPVP::loadPauseTexture() {
-	bool success = true;
+bool LBoardPVP::initPauseTexture() {
 	mPauseBackgroundTexture = gMediaFactory->getImg(SPRITE_BACKGROUND_FULLBLACK);
 	mPauseBackgroundTexture->setAlpha(127);
 	mPauseBackgroundTexture->setBlendMode(SDL_BLENDMODE_BLEND);
 	mPauseTextTexture = gMediaFactory->getTxt("Pause", gFont64, COLOR_WHITE);
-	return success;
+	return mPauseBackgroundTexture != NULL && mPauseTextTexture != NULL;
 }
 
-bool LBoardPVP::loadOutOfTimeTexture() {
+bool LBoardPVP::initOutOfTimeTexture() {
 	mOutOfTimeTexture = gMediaFactory->getTxt("Out of time!", gFont64, COLOR_WHITE);
-	return true;
+	return mOutOfTimeTexture != NULL;
 }
 
 void LBoardPVP::setPiecesClip() {
@@ -319,11 +290,11 @@ void LBoardPVP::renderTile() {
 			yPos = OFFSET + (TOTAL_SQUARES * y);
 
 			if(y % 2 == 0) {
-				if(mTileColor == 0) {
+				if(mSettings.tileColor == 0) {
 					if(!light) mTileTexture->renderAt(xPos, yPos, &mTileRectClip[DARK1]);
 					else mTileTexture->renderAt(xPos, yPos, &mTileRectClip[LIGHT1]);
 				}
-				else if(mTileColor == 1) {
+				else if(mSettings.tileColor == 1) {
 					if(!light) mTileTexture->renderAt(xPos, yPos, &mTileRectClip[DARK2]);
 					else mTileTexture->renderAt(xPos, yPos, &mTileRectClip[LIGHT2]);
 				}
@@ -331,11 +302,11 @@ void LBoardPVP::renderTile() {
 				else light = true;
 			}
 			else {
-				if(mTileColor == 0) {
+				if(mSettings.tileColor == 0) {
 					if(!dark) mTileTexture->renderAt(xPos, yPos, &mTileRectClip[LIGHT1]);
 					else mTileTexture->renderAt(xPos, yPos, &mTileRectClip[DARK1]);
 				}
-				else if(mTileColor == 1) {
+				else if(mSettings.tileColor == 1) {
 					if(!dark) mTileTexture->renderAt(xPos, yPos, &mTileRectClip[LIGHT2]);
 					else mTileTexture->renderAt(xPos, yPos, &mTileRectClip[DARK2]);
 				}
@@ -347,7 +318,7 @@ void LBoardPVP::renderTile() {
 	//only highlight tile if a piece is selected
 	if(mAPieceIsSelected) {
 		//show legal move bool settings
-		if(mPreviewMove) {
+		if(mSettings.showLegalMoves == 0) {
 			int size = mHighlightedTileYPos.size();
 			for(int z(0); z < size; z++) {
 				yPos = OFFSET + (mHighlightedTileYPos[z] * TOTAL_SQUARES);
@@ -371,9 +342,17 @@ void LBoardPVP::renderPieces() {
 		for(int x(0); x < SPL; x++) {
 			if((mMap[y][x] >= 0) && (mMap[y][x] < TOTAL_PIECES - 1)) {
 				if( (mAPieceIsSelected) && (mSelectedPieceXPos == x) && (mSelectedPieceYPos == y)) {
-					mHighlightedPieceTexture->renderAt(OFFSET + (TOTAL_SQUARES * x), OFFSET + (TOTAL_SQUARES * y), &mPieceClip[mMap[y][x]]);
+					mHighlightedPieceTexture->renderAt(
+						OFFSET + (TOTAL_SQUARES * x), 
+						OFFSET + (TOTAL_SQUARES * y), 
+						&mPieceClip[mMap[y][x]]
+					);
 				}
-				else mPieceTexture->renderAt(OFFSET + (TOTAL_SQUARES * x), OFFSET + (TOTAL_SQUARES * y), &mPieceClip[mMap[y][x]]);
+				else mPieceTexture->renderAt(
+					OFFSET + (TOTAL_SQUARES * x), 
+					OFFSET + (TOTAL_SQUARES * y), 
+					&mPieceClip[mMap[y][x]]
+				);
 			}
 		}
 	}
@@ -397,7 +376,10 @@ void LBoardPVP::setButtons() {
 	for(int y(0); y < SPL; y++) {
 		for(int x(0); x < SPL; x++) {
 			if((mMap[y][x] >= 0) && (mMap[y][x] < TOTAL_PIECES - 1)) {
-				mPieceButtons[i]->setPos((x * TOTAL_SQUARES) + OFFSET, (y * TOTAL_SQUARES) + OFFSET);
+				mPieceButtons[i]->setPos(
+					(x * TOTAL_SQUARES) + OFFSET, 
+					(y * TOTAL_SQUARES) + OFFSET
+				);
 				mPieceButtons[i]->setSize(TOTAL_SQUARES,TOTAL_SQUARES);
 				i++;
 			}
@@ -417,11 +399,6 @@ void LBoardPVP::renderOutOfTimeScreen() {
 }
 
 void LBoardPVP::handleEvents(SDL_Event* e) {
-	if(e->type == SDL_QUIT) {
-		this->Notify();
-		gStateMachine->pop();
-	}
-	this->playMusic();
 	bool outside = true; 
 	int x, y;
 	SDL_GetMouseState( &x, &y );
@@ -993,8 +970,7 @@ bool LBoardPVP::pollDiscoverAttack(int piece, int posX, int posY) {
 }
 
 void LBoardPVP::renderTimer() {
-	//only render time if TL_YES == 1 in mSettingsTable
-	if(mSettingsTable[TL_YES] == 1) {
+	if(mSettings.useTimer == 0) {
 		// white timer total time left in seconds
 		int wtime = mTimeLimit - (mWhiteTimer.getTicks() / 1000);
 
@@ -1076,7 +1052,7 @@ void LBoardPVP::renderScore() {
 	mWhiteScoreTexture = gMediaFactory->getTxt(whiteScoreStr.str().c_str(), gFont64, COLOR_BLACK);
 	mBlackScoreTexture = gMediaFactory->getTxt(blackScoreStr.str().c_str(), gFont64, COLOR_BLACK);
 	
-	if(mSettingsTable[TL_NO]) {
+	if(mSettings.useTimer == 1) {
 		mWhiteScoreTexture->renderAt(0, SCREEN_HEIGHT - 64);
 		mBlackScoreTexture->renderAt(0, 0);
 	}
@@ -1405,17 +1381,17 @@ bool LBoardPVP::pollCheckMate(int mapCopy[SPL][SPL]) {
 	return checkMate; // default false
 }
 
-bool LBoardPVP::pollVictory() const {
+bool LBoardPVP::isGameOver() const {
 	return mGameOver;
 }
 
-bool LBoardPVP::pollTimeOut() {
+bool LBoardPVP::isOutOfTime() {
 	if(mWhiteTimerRanOut || mBlackTimerRanOut) {
 		if(Mix_PlayingMusic()) {
 			Mix_FadeOutMusic(500);
 		}
-		loadOutOfTimeTexture();
-		renderOutOfTimeScreen();
+		this->initOutOfTimeTexture();
+		this->renderOutOfTimeScreen();
 		gChunkPlayer->play(CHUNK_DEFEAT);
 		while(Mix_Playing(-1) > 0) {
 			SDL_Delay(16);
@@ -1463,4 +1439,32 @@ void LBoardPVP::fillDeadPieceTab(const int fallenPiece) {
 	else {
 		mDeadWhitePiece[fallenPiece]++;
 	}
+}
+
+void LBoardPVP::startBlackTimer() {
+	mBlackTimer.start();
+}
+
+void LBoardPVP::pauseWhiteTimer() {
+	mWhiteTimer.pause();
+}
+
+void LBoardPVP::pauseBlackTimer() {
+	mBlackTimer.pause();
+}
+
+void LBoardPVP::unpauseWhiteTimer() {
+	mWhiteTimer.unpause();
+}
+
+void LBoardPVP::unpauseBlackTimer() {
+	mBlackTimer.unpause();
+}
+
+void LBoardPVP::stopWhiteTimer() {
+	mWhiteTimer.stop();
+}
+
+void LBoardPVP::stopBlackTimer() {
+	mBlackTimer.stop();
 }

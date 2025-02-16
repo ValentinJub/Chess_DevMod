@@ -42,24 +42,33 @@ class LBoardPVP : public LSubject {
 public:
     LBoardPVP(LObserver* observer);
     ~LBoardPVP();
-    bool initMap();
+    void update();
+    void render();
     void free();
-    bool loadPiecesTextures();
-    bool loadTileTextures();
-    bool loadPauseTexture();
-    bool loadOutOfTimeTexture();
+
+private:
+    LObserver* mAppObserver;
+    OptionValues mSettings;
+
+    bool initMap();
+    bool initPiecesTextures();
+    bool initTileTextures();
+    bool initPauseTexture();
+    bool initOutOfTimeTexture();
+
     void setPiecesClip();
     void setTileRectClip();
+    void setButtons();
+
     void renderTile();
     void renderPieces();
     void renderOutOfTimeScreen();
-    void showLegalMove();
-    void setButtons();
-    void handleEvents(SDL_Event* e);
-    bool pollCheck();
-    bool pollDiscoverAttack(int piece, int x, int y);
-    bool pollVictory() const;
-    void playVictorySound() const;
+    void renderTimer();
+    void renderScore();
+    void renderDeadPieces();
+    void renderPause();
+    void drawButtons();
+
     void startWhiteTimer();
     void startBlackTimer();
     void pauseWhiteTimer();
@@ -68,31 +77,31 @@ public:
     void unpauseBlackTimer();
     void stopWhiteTimer();
     void stopBlackTimer();
-    void renderTimer();
-    void renderScore();
-    void renderDeadPieces();
+
+    void playVictorySound() const;
     void playMusic();
-    bool pollTimeOut();
-    void renderPause();
+    void playMoveSound();
+
+    void changeTurn();
+
+    // To do: decouple the chess logic from the board class
+    // and create a new class for the chess logic
+
+    void showLegalMove();
+    void handleEvents(SDL_Event* e);
+    bool pollCheck();
+    bool pollDiscoverAttack(int piece, int x, int y);
+    bool isGameOver() const;
+    bool isOutOfTime();
     bool isPaused() const;
     void pause();
-    void drawButtons();
-    
-    
-protected:
-
-private:
-    LObserver* mAppObserver;
     void fillDeadPieceTab(const int fallenPiece);
     int pieceValue(int const pieceType) const;
     void calculateRemainingTime();
     void readSettingsFromFile();
-    void initGameSettings();
-    void playMoveSound();
     bool pollCheckMate(int mapCopy[SPL][SPL]);
     bool checkMate();
     void enPassant(int destinationPosX);
-    void changeTurn();
     void move(int destX, int destY, int srcX, int srcY, int piece);
     bool castling(int piece, int destinationPosX, int destinationPosY);
     void movePiece(SDL_Event* e);
@@ -136,27 +145,24 @@ private:
     int mSelectedPieceType,
         mSelectedPieceXPos,
         mSelectedPieceYPos,
-        mTileColor,
-        mPieceTheme,
         mCheckStatus,
         mLastMovedPiece,
         mLastMovedPieceXSrc,
         mLastMovedPieceYSrc,
         mLastMovedPieceXDes,
         mLastMovedPieceYDes;
-    bool mAPieceIsSelected;
-    bool mWhiteTurn,
-         mEnPassantTurn,
-         mPreviewMove,
-         mTookAPiece,
-         mIsCastling,
-         mGameOver,
-         mWKingHasMoved,
-         mBKingHasMoved,
-         mWRook1HasMoved,
-         mWRook2HasMoved,
-         mBRook1HasMoved,
-         mBRook2HasMoved;
+    bool mWhiteTurn = true,
+         mAPieceIsSelected = false,
+         mEnPassantTurn = false,
+         mTookAPiece = false,
+         mIsCastling = false,
+         mGameOver = false,
+         mWKingHasMoved = false,
+         mBKingHasMoved = false,
+         mWRook1HasMoved = false,
+         mWRook2HasMoved = false,
+         mBRook1HasMoved = false,
+         mBRook2HasMoved = false;
     LKing mKing;
     LRook mRook;
     LBishop mBishop;
@@ -164,7 +170,6 @@ private:
     LQueen mQueen;
     LPawn mPawn;
     
-    int mSettingsTable[TOTAL_CLICKABLE_ITEMS - 1]; //minus back
 };
 
 #endif
