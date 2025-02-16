@@ -105,6 +105,8 @@ enum SettingsMenuButtons {
     TOTAL_CLICKABLE_ITEMS
 };
 
+// This is the order in which the pieces are stored in the texture sheet
+// The order is important for the clipping
 enum Pieces {
     BBISHOP, 
     BKING,
