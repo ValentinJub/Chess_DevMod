@@ -11,7 +11,7 @@ class LMusicPlayer {
         void free();
         void play(const char* music);
         void playFadeIn(const char* music, int ms);
-        void stop();
+        void pause();
         void setVolume(uint8_t volume);
         uint8_t getVolume() const;
         bool isPlaying() const;

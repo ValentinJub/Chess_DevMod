@@ -30,8 +30,6 @@ private:
     void handleMouseEvents(SDL_Event* e);
     void isNowSelected(int position);
 
-    SDL_Rect mMiniPieceClip[TOTAL_PIECES - 1]; // 32x32 clipping of the spritesheet
-    LTexture* mMiniPieceTexture;
     LTextureClickable* mMenuTextures[TOTAL_MENU_ITEMS];
     LObserver* mAppObserver;
     std::shared_ptr<spdlog::logger> mLogger;

@@ -19,7 +19,7 @@ LMusicPlayer* LMusicPlayer::Instance() {
 }
 
 void LMusicPlayer::free() {
-    this->stop();
+    this->pause();
 }
 
 void LMusicPlayer::play(const char* music) {
@@ -42,9 +42,11 @@ bool LMusicPlayer::isPlaying() const {
     return Mix_PlayingMusic();
 }
 
-void LMusicPlayer::stop() {
+void LMusicPlayer::pause() {
     if(Mix_PlayingMusic()) {
         Mix_HaltMusic();
+    } else {
+        Mix_ResumeMusic();
     }
 }
 

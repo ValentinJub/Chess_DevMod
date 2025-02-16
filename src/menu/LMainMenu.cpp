@@ -132,12 +132,12 @@ void LMainMenu::handleKeyEvents(SDL_Event* e) {
 				gStateMachine->pop();
 				break;
             case SDLK_1:
-				gMusicPlayer->stop();
+				gMusicPlayer->pause();
 				gStateMachine->push(new LBoardState);
                 Util::flushEvents();
                 break;
             case SDLK_2:
-				gMusicPlayer->stop();
+				gMusicPlayer->pause();
                 playerVersusComputer();
                 Util::flushEvents();
                 break;
@@ -157,13 +157,13 @@ void LMainMenu::handleMouseEvents(SDL_Event* e) {
 			if(mMenuTextures[i]->isClicked(e)) {
 				switch (i) {
 				case PLAY:
-					gMusicPlayer->stop();
+					gMusicPlayer->pause();
 					Util::flushEvents();
 					gStateMachine->push(new LBoardState);
                 	Util::flushEvents();
 					break;
 				case PLAY_AI:
-					gMusicPlayer->stop();
+					gMusicPlayer->pause();
               		Util::flushEvents();
 					playerVersusComputer();
                 	Util::flushEvents();
