@@ -60,14 +60,13 @@ class LSlider
         void setVolume();
         void setMouseFollow(bool follow);
         bool mMouseFollow;
-        LTexture* mDotTexture;
         LDot* mDot;
+        int mSliderWidth,
+            mSliderHeight;
         //Top left position
         SDL_Point mSliderPosition;
         LTexture* mVolumeTexture;
         // slider width and height
-        int mSliderWidth,
-            mSliderHeight;
         
 
 };
