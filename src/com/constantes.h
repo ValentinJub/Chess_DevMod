@@ -67,6 +67,17 @@ const int KING_VALUE = 20;
 const int QUEEN_VALUE = 10;
 const int ROOK_VALUE = 5;
 
+const SDL_Point KingMoves[SPL] = {
+	SDL_Point{0, -1}, //U
+	SDL_Point{1, -1}, //UR
+	SDL_Point{1, 0}, //R
+	SDL_Point{1, 1}, //DR
+	SDL_Point{0, 1}, //D
+	SDL_Point{-1, 1}, //DL
+	SDL_Point{-1, 0}, //L
+	SDL_Point{-1, -1} //UL
+};
+
 enum CastlingResult {
     CASTLE_WR1,
     CASTLE_WR2,
