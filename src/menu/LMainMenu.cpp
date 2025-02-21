@@ -138,7 +138,7 @@ void LMainMenu::handleKeyEvents(SDL_Event* e) {
                 break;
             case SDLK_2:
 				gMusicPlayer->pause();
-                playerVersusComputer();
+                // playerVersusComputer();
                 Util::flushEvents();
                 break;
             case SDLK_3:
@@ -165,7 +165,7 @@ void LMainMenu::handleMouseEvents(SDL_Event* e) {
 				case PLAY_AI:
 					gMusicPlayer->pause();
               		Util::flushEvents();
-					playerVersusComputer();
+					// playerVersusComputer();
                 	Util::flushEvents();
 					break;
 				case SETTINGS:

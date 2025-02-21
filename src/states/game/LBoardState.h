@@ -12,7 +12,7 @@ Function prototypes for playPVP.cpp
 #include "states/LState.h"
 #include "utils/util.h"
 #include "graphics/LTexture.h"
-#include "LBoardPVP.h"
+#include "game/board/LBoardPVP.h"
 
 class LBoardState : public LState {
     public:
