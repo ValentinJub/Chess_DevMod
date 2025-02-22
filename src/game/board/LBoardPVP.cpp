@@ -316,7 +316,7 @@ void LBoardPVP::renderTile() {
 	}
 	//only highlight tile if a piece is selected
 	if(mAPieceIsSelected && mSettings.showLegalMoves == 0) {
-		std::vector<SDL_Point> legalMoves = mEngine->getLegalMoves(mMap, mSelectedPiecePos);
+		std::vector<SDL_Point> legalMoves = mEngine->getLegalMoves(mBoard, mSelectedPiecePos);
 		for(int z(0); z < legalMoves.size(); z++) {
 			yPos = OFFSET + (legalMoves[z].y * TOTAL_SQUARES);
 			xPos = OFFSET + (legalMoves[z].x * TOTAL_SQUARES);
@@ -345,18 +345,18 @@ void LBoardPVP::renderTile() {
 void LBoardPVP::renderPieces() {
 	for(int y(0); y < SPL; y++) {
 		for(int x(0); x < SPL; x++) {
-			if((mMap[y][x] >= 0) && (mMap[y][x] < TOTAL_PIECES - 1)) {
+			if((mBoard[y][x] >= 0) && (mBoard[y][x] < TOTAL_PIECES - 1)) {
 				if( (mAPieceIsSelected) && (mSelectedPiecePos.x == x) && (mSelectedPiecePos.y == y)) {
 					mHighlightedPieceTexture->renderAt(
 						OFFSET + (TOTAL_SQUARES * x), 
 						OFFSET + (TOTAL_SQUARES * y), 
-						&mPieceClip[mMap[y][x]]
+						&mPieceClip[mBoard[y][x]]
 					);
 				}
 				else mPieceTexture->renderAt(
 					OFFSET + (TOTAL_SQUARES * x), 
 					OFFSET + (TOTAL_SQUARES * y), 
-					&mPieceClip[mMap[y][x]]
+					&mPieceClip[mBoard[y][x]]
 				);
 			}
 		}
@@ -380,7 +380,7 @@ void LBoardPVP::setButtons() {
 	int i(0);
 	for(int y(0); y < SPL; y++) {
 		for(int x(0); x < SPL; x++) {
-			if((mMap[y][x] >= 0) && (mMap[y][x] < TOTAL_PIECES - 1)) {
+			if((mBoard[y][x] >= 0) && (mBoard[y][x] < TOTAL_PIECES - 1)) {
 				mPieceButtons[i]->setPos(
 					(x * TOTAL_SQUARES) + OFFSET, 
 					(y * TOTAL_SQUARES) + OFFSET
@@ -419,7 +419,7 @@ void LBoardPVP::handleEvents(SDL_Event* e) {
 				//if a piece is not selected 
 				//if a piece is already selected, count as clicking outside 
 				if(!(mAPieceIsSelected)) {
-					mSelectedPieceType = mMap[y][x];
+					mSelectedPieceType = mBoard[y][x];
 					//if white's turn - select white
 					if((mWhiteTurn) && (mSelectedPieceType >= WBISHOP) && (mSelectedPieceType < EMPTY)) {
 						outside = false;
@@ -472,7 +472,7 @@ void LBoardPVP::movePiece(SDL_Event* e) {
 	destinationPosY = (destinationPosY / TOTAL_SQUARES) - 1;
 	destPos = {destinationPosX, destinationPosY};
 	if((e->type == SDL_MOUSEBUTTONUP) && (e->button.button == SDL_BUTTON_LEFT)) {
-		std::vector<SDL_Point> legalPos = mEngine->getLegalMoves(mMap, mSelectedPiecePos);
+		std::vector<SDL_Point> legalPos = mEngine->getLegalMoves(mBoard, mSelectedPiecePos);
 		int size = legalPos.size();
 		for(int i(0); i < size; i++) {
 			if((destPos.x == legalPos[i].x) && (destPos.y == legalPos[i].y)) {
@@ -481,7 +481,7 @@ void LBoardPVP::movePiece(SDL_Event* e) {
 				int piece = mSelectedPieceType;
 				SDL_Point srcPos = mSelectedPiecePos;
 				//only move if it does not check your own king 
-				if(!mEngine->isMoveSelfCheck(mMap, srcPos, destPos, mWhiteTurn)) { 
+				if(!mEngine->isMoveSelfCheck(mBoard, srcPos, destPos, mWhiteTurn)) { 
 					//if castling returns false cant move
 					// if(castling(piece, destPos)) {
 							move(destPos, srcPos, mSelectedPieceType);
@@ -503,7 +503,7 @@ void LBoardPVP::movePiece(SDL_Event* e) {
 
 void LBoardPVP::enPassant(int destinationPosX) { 
 	if(destinationPosX == mLastMovedPieceDestPos.x) {
-		mMap[mLastMovedPieceDestPos.y][mLastMovedPieceDestPos.x] = EMPTY;
+		mBoard[mLastMovedPieceDestPos.y][mLastMovedPieceDestPos.x] = EMPTY;
 		mPieceButtons.resize(mPieceButtons.size() - 1);
 		if(mWhiteTurn) {
 			int fallenPiece = BPAWN;
@@ -523,19 +523,19 @@ void LBoardPVP::move(SDL_Point dest, SDL_Point src, int piece) {
 	}
 	
 	//if the square destination is not empty, substract a button
-	if(mMap[dest.y][dest.x] != EMPTY) {
+	if(mBoard[dest.y][dest.x] != EMPTY) {
 		mPieceButtons.resize(mPieceButtons.size() - 1);
 		mTookAPiece = true;
-		int fallenPiece = mMap[dest.y][dest.x];
+		int fallenPiece = mBoard[dest.y][dest.x];
 		fillDeadPieceTab(fallenPiece);
 	}
 	
 	
 	
 	//move selected piece to destination
-	mMap[dest.y][dest.x] = piece;
+	mBoard[dest.y][dest.x] = piece;
 	//empty source cell 
-	mMap[src.y][src.x] = EMPTY;
+	mBoard[src.y][src.x] = EMPTY;
 	
 	//manage playing sound according to played move
 	playMoveSound();
@@ -546,8 +546,8 @@ void LBoardPVP::move(SDL_Point dest, SDL_Point src, int piece) {
 	//turn Pawn into Queen if possible
 	checkPromotion(dest);
 	
-	if(mEngine->isKingInCheck(mMap, !mWhiteTurn)) {
-		if(mEngine->isCheckMate(mMap, mWhiteTurn)) {
+	if(mEngine->isKingInCheck(mBoard, !mWhiteTurn)) {
+		if(mEngine->isCheckMate(mBoard, mWhiteTurn)) {
 			mGameOver = true;
 		} else {
 			gChunkPlayer->play(CHUNK_CHECK);
@@ -572,14 +572,14 @@ void LBoardPVP::move(SDL_Point dest, SDL_Point src, int piece) {
 // 			//WR1
 // 			if((dest.y == 7) && (dest.x == 2)) {
 // 				dest.x += 1;
-// 				if(!mEngine->isMoveSelfCheck(mMap, srcPos, destPos, mWhiteTurn)) {
+// 				if(!mEngine->isMoveSelfCheck(mBoard, srcPos, destPos, mWhiteTurn)) {
 // 					castling = CASTLE_WR1;
 // 				} else castling = NO_MOVE;
 // 			}
 // 			//WR2
 // 			else if((dest.y == 7) && (dest.x == 6)) {
 // 				dest.x -= 1;
-// 				if(!mEngine->isMoveSelfCheck(mMap, srcPos, destPos, mWhiteTurn)) {
+// 				if(!mEngine->isMoveSelfCheck(mBoard, srcPos, destPos, mWhiteTurn)) {
 // 					castling = CASTLE_WR2;
 // 				} else castling = NO_MOVE;
 // 			}
@@ -590,13 +590,13 @@ void LBoardPVP::move(SDL_Point dest, SDL_Point src, int piece) {
 // 			//BR1
 // 			if((dest.y == 0) && (dest.x == 2)) {
 // 				dest.x += 1;
-// 				if(!mEngine->isMoveSelfCheck(mMap, srcPos, destPos, mWhiteTurn)) {
+// 				if(!mEngine->isMoveSelfCheck(mBoard, srcPos, destPos, mWhiteTurn)) {
 // 					castling = CASTLE_BR1;
 // 				} else castling = NO_MOVE;
 // 			}
 // 			//BR2
 // 			else if((dest.y == 0) && (dest.x == 6)) {
-// 				if(!mEngine->isMoveSelfCheck(mMap, srcPos, destPos, mWhiteTurn)) {
+// 				if(!mEngine->isMoveSelfCheck(mBoard, srcPos, destPos, mWhiteTurn)) {
 // 					castling = CASTLE_BR2;
 // 				} else castling = NO_MOVE;
 // 			}
@@ -604,23 +604,23 @@ void LBoardPVP::move(SDL_Point dest, SDL_Point src, int piece) {
 // 	}
 // 	switch(castling) {
 // 		case CASTLE_WR1:
-// 			mMap[7][3] = WROOK;
-// 			mMap[7][0] = EMPTY;
+// 			mBoard[7][3] = WROOK;
+// 			mBoard[7][0] = EMPTY;
 // 			mIsCastling = true;
 // 			return true;
 // 		case CASTLE_WR2:
-// 			mMap[7][5] = WROOK;
-// 			mMap[7][7] = EMPTY;
+// 			mBoard[7][5] = WROOK;
+// 			mBoard[7][7] = EMPTY;
 // 			mIsCastling = true;
 // 			return true;
 // 		case CASTLE_BR1:
-// 			mMap[0][3] = BROOK;
-// 			mMap[0][0] = EMPTY;
+// 			mBoard[0][3] = BROOK;
+// 			mBoard[0][0] = EMPTY;
 // 			mIsCastling = true;
 // 			return true;
 // 		case CASTLE_BR2:
-// 			mMap[0][5] = BROOK;
-// 			mMap[0][7] = EMPTY;
+// 			mBoard[0][5] = BROOK;
+// 			mBoard[0][7] = EMPTY;
 // 			mIsCastling = true;
 // 			return true;
 // 		case NO_CASTLING:
@@ -633,30 +633,42 @@ void LBoardPVP::move(SDL_Point dest, SDL_Point src, int piece) {
 // }
 
 void LBoardPVP::setCastlingBools(SDL_Point pos, int piece) {
-	if(piece == WKING) mWKingHasMoved = true;
-	else if(piece == BKING) mBKingHasMoved = true;
-	else if((piece == WROOK) && (pos.x == 0) && (pos.y == 7)) {
-		mWRook1HasMoved = true;
-	} 
-	else if((piece == WROOK) && (pos.x == 7) && (pos.y == 7)) {
-		mWRook2HasMoved = true;
-	} 
-	else if((piece == BROOK) && (pos.x == 7) && (pos.y == 0)) {
-		mBRook2HasMoved = true;
-	}
-	else if((piece == BROOK) && (pos.x == 0) && (pos.y == 0)) {
-		mBRook1HasMoved = true;
+	switch(piece) {
+		case WKING:
+			mEngine->setKingHasMoved(mWhiteTurn, true);
+			break;
+		case BKING:
+			mEngine->setKingHasMoved(mWhiteTurn, true);
+			break;
+		case WROOK:
+			if(pos.x == 0 && pos.y == 7) {
+				mEngine->setRookHasMoved(mWhiteTurn, 1, true);
+			}
+			else if(pos.x == 7 && pos.y == 7) {
+				mEngine->setRookHasMoved(mWhiteTurn, 2, true);
+			}
+			break;
+		case BROOK:
+			if(pos.x == 7 && pos.y == 0) {
+				mEngine->setRookHasMoved(mWhiteTurn, 2, true);
+			}
+			else if(pos.x == 0 && pos.y == 0) {
+				mEngine->setRookHasMoved(mWhiteTurn, 1, true);
+			}
+			break;
+		default:
+			break;
 	}
 }
 
 bool LBoardPVP::checkPromotion(SDL_Point pos) {
 	bool promotion = false;
 	if((mSelectedPieceType == WPAWN) && (pos.y == 0)) {
-		mMap[pos.y][pos.x] = WQUEEN;
+		mBoard[pos.y][pos.x] = WQUEEN;
 		promotion = true;
 	}
 	if((mSelectedPieceType == BPAWN) && (pos.y == 7)) {
-		mMap[pos.y][pos.x] = BQUEEN;
+		mBoard[pos.y][pos.x] = BQUEEN;
 		promotion = true;
 	}
 	return promotion;
@@ -687,7 +699,7 @@ bool LBoardPVP::initMap() {
 				}
 				//If the number is a valid piece number
 				if((pieceType >= 0) && (pieceType < TOTAL_PIECES)) {
-					mMap[y][x] = pieceType;
+					mBoard[y][x] = pieceType;
 				}
 				//If we don't recognize the tile type
 				else {
@@ -789,13 +801,13 @@ void LBoardPVP::renderScore() {
 	for(int y(0); y < SPL; y++) {
 		for(int x(0); x < SPL; x++) {
 			//black piece
-			if((mMap[y][x] < WBISHOP)) {
-				int piece = mMap[y][x];
+			if((mBoard[y][x] < WBISHOP)) {
+				int piece = mBoard[y][x];
 				blackScore += pieceValue(piece);
 			}
 			//white piece
-			else if((mMap[y][x] >= WBISHOP) && (mMap[y][x] < EMPTY)) {
-				int piece = mMap[y][x];
+			else if((mBoard[y][x] >= WBISHOP) && (mBoard[y][x] < EMPTY)) {
+				int piece = mBoard[y][x];
 				whiteScore += pieceValue(piece);
 			}
 		}

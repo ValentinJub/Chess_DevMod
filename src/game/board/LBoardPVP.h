@@ -4,7 +4,7 @@ Sun Mar 20 2022
 by Valentin
 -----------
 LBoard is the object containing:
-- the pieces position on the mMap[][]
+- the pieces position on the mBoard[][]
 - the pieces object that fill possible movements -> subject to change
 - pieces and tiles textures + their highlighted version + their clip
 - buttons "attached" to piece textures
@@ -24,12 +24,6 @@ Board also contains settings such as tile colors, legal move displayed on map...
 #include "graphics/LTexture.h"
 #include "graphics/LTileBorder.h"
 #include "LButton.h"
-#include "game/pieces/LKing.h"
-#include "game/pieces/LRook.h"
-#include "game/pieces/LBishop.h"
-#include "game/pieces/LKnight.h"
-#include "game/pieces/LQueen.h"
-#include "game/pieces/LPawn.h"
 #include "com/LTimer.h"
 #include "sound/LMusicPlayer.h"
 #include "sound/LChunkPlayer.h"
@@ -52,6 +46,37 @@ private:
     LObserver* mAppObserver;
     OptionValues mSettings;
     LEngine* mEngine;
+
+    //textures
+    LTexture *mPieceTexture;
+    LTexture *mMiniPieceTexture;
+    LTexture *mHighlightedPieceTexture;
+    LTexture *mTileTexture;
+    LTexture *mWhiteTimerTexture;
+    LTexture *mBlackTimerTexture;
+    LTexture *mWhiteScoreTexture;
+    LTexture *mBlackScoreTexture;
+    LTexture *mPauseBackgroundTexture;
+    LTexture *mPauseTextTexture;
+    LTexture *mOutOfTimeTexture;
+
+    //Texture clipping 
+    SDL_Rect mPieceClip[TOTAL_PIECES - 1];
+    SDL_Rect mMiniPieceClip[TOTAL_PIECES - 1];
+    SDL_Rect mTileRectClip[TOTAL_TILE_COLOR];
+    
+    //Buttons for pieces
+    std::vector <LButton*> mPieceButtons;
+    
+    // User highlighted tiles
+    std::vector<SDL_Point> mRightClickedTile;
+    //Legal moves coordinates
+    std::vector<SDL_Point> mLegalMoveTile;
+    
+    //Selected piece
+    SDL_Point mSelectedPiecePos;
+    SDL_Point mLastMovedPieceSrcPos;
+    SDL_Point mLastMovedPieceDestPos;
 
     bool initMap();
     bool initPiecesTextures();
@@ -89,14 +114,6 @@ private:
     void handleEvents(SDL_Event* e);
     void changeTurn();
 
-    // To do: decouple the chess logic from the board class
-    // and create a new class for the chess logic
-
-    // std::vector<SDL_Point> getLegalMoves();
-    // bool pollCheck();
-    // bool isSelfCheck(int piece, SDL_Point dest);
-    // bool pollCheckMate(std::array<std::array<int, SPL>, SPL> map);
-    // bool checkMate();
     bool castling(int piece, SDL_Point dest);
 
     bool isGameOver() const;
@@ -113,41 +130,13 @@ private:
     void setCastlingBools(SDL_Point src, int piece);
     bool checkPromotion(SDL_Point dest);
     
-    //contains the current piece layout
-    // int mMap[SPL][SPL];
-    // new map
-    std::array<std::array<int, SPL>, SPL> mMap;
+    std::array<std::array<int, SPL>, SPL> mBoard;
     LTimer mWhiteTimer;
     LTimer mBlackTimer;
     int mTimeLimit;
     int mDeadWhitePiece[EMPTY];
     int mDeadBlackPiece[EMPTY];
-    //textures
-    LTexture *mPieceTexture;
-    LTexture *mMiniPieceTexture;
-    LTexture *mHighlightedPieceTexture;
-    LTexture *mTileTexture;
-    LTexture *mWhiteTimerTexture;
-    LTexture *mBlackTimerTexture;
-    LTexture *mWhiteScoreTexture;
-    LTexture *mBlackScoreTexture;
-    LTexture *mPauseBackgroundTexture;
-    LTexture *mPauseTextTexture;
-    LTexture *mOutOfTimeTexture;
-    //Texture clipping 
-    SDL_Rect mPieceClip[TOTAL_PIECES - 1];
-    SDL_Rect mMiniPieceClip[TOTAL_PIECES - 1];
-    SDL_Rect mTileRectClip[TOTAL_TILE_COLOR];
-    //Buttons for pieces
-    std::vector <LButton*> mPieceButtons;
-    // User highlighted tiles
-    std::vector<SDL_Point> mRightClickedTile;
-    //Legal moves coordinates
-    std::vector<SDL_Point> mLegalMoveTile;
-    //Selected piece
-    SDL_Point mSelectedPiecePos;
-    SDL_Point mLastMovedPieceSrcPos;
-    SDL_Point mLastMovedPieceDestPos;
+
     int mSelectedPieceType,
         mCheckStatus,
         mLastMovedPiece;
@@ -167,12 +156,6 @@ private:
          mWRook2HasMoved = false,
          mBRook1HasMoved = false,
          mBRook2HasMoved = false;
-    LKing mKing;
-    LRook mRook;
-    LBishop mBishop;
-    LKnight mKnight;
-    LQueen mQueen;
-    LPawn mPawn;
 };
 
 #endif

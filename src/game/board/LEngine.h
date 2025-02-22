@@ -4,12 +4,6 @@
 #include "com/headers.h"
 #include "com/constantes.h"
 #include "game/pieces/util.h"
-#include "game/pieces/LKing.h"
-#include "game/pieces/LBishop.h"
-#include "game/pieces/LRook.h"
-#include "game/pieces/LKnight.h"
-#include "game/pieces/LPawn.h"
-#include "game/pieces/LQueen.h"
 
 class LEngine {
     public:
@@ -19,19 +13,34 @@ class LEngine {
         bool isMoveSelfCheck(const std::array<std::array<int, SPL>, SPL>& board, SDL_Point src, SDL_Point dst, bool isWhite);
         bool isKingInCheck(const std::array<std::array<int, SPL>, SPL>& board, bool isWhite);
         bool isCheckMate(const std::array<std::array<int, SPL>, SPL>& board, bool isWhite);
+        bool isPieceAttacked(const std::array<std::array<int, SPL>, SPL>& board, SDL_Point attackerPos, SDL_Point defenderPos, bool selfCheck = false);
         std::vector<SDL_Point> getLegalMoves(std::array<std::array<int, SPL>, SPL> board, SDL_Point piecePos);
+        void setKingHasMoved(bool isWhite, bool hasMoved);
+        void setRookHasMoved(bool isWhite, int rook, bool hasMoved);
+        bool getKingHasMoved(bool isWhite);
+        bool getRookHasMoved(bool isWhite, int rook);
         private:
 
-        bool isPieceAttacked(const std::array<std::array<int, SPL>, SPL>& board, SDL_Point attackerPos, SDL_Point defenderPos, bool selfCheck = false);
         SDL_Point findKing(const std::array<std::array<int, SPL>, SPL>& board, bool isWhite);
+        std::vector<SDL_Point> findKnights(const std::array<std::array<int, SPL>, SPL>& board, bool isWhite);
 
-        // To access the moves function of each piece
-        LKing mKing;
-        LBishop mBishop;
-        LRook mRook;
-        LKnight mKnight;
-        LPawn mPawn;
-        LQueen mQueen;
+        // Piece moves
+        std::vector<SDL_Point> bishopMoves(std::array<std::array<int, SPL>, SPL> map, SDL_Point bishopPos);
+        std::vector<SDL_Point> rookMoves(std::array<std::array<int, SPL>, SPL> map, SDL_Point rookPos);
+        std::vector<SDL_Point> knightMoves(std::array<std::array<int, SPL>, SPL> map, SDL_Point knightPos);
+        std::vector<SDL_Point> queenMoves(std::array<std::array<int, SPL>, SPL> map, SDL_Point queenPos);
+        std::vector<SDL_Point> kingMoves(std::array<std::array<int, SPL>, SPL> map, SDL_Point kingPos, bool kingMoved, bool rook1Moved, bool rook2Moved);
+        std::vector<SDL_Point> pawnMoves(std::array<std::array<int, SPL>, SPL> map, SDL_Point pawnPos, bool selfCheck = false);
+        std::vector<SDL_Point> wPawnMove(std::array<std::array<int, SPL>, SPL> map, SDL_Point pawnPos, bool selfCheck = false);
+        std::vector<SDL_Point> bPawnMove(std::array<std::array<int, SPL>, SPL> map, SDL_Point pawnPos, bool selfCheck = false);
+
+        // To castle we keep track of kings and rooks movements
+        bool mWKingHasMoved = false;
+        bool mBKingHasMoved = false;
+        bool mWRook1HasMoved = false;
+        bool mWRook2HasMoved = false;
+        bool mBRook1HasMoved = false;
+        bool mBRook2HasMoved = false;
 };
 
 #endif
