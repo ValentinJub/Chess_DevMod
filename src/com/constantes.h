@@ -69,7 +69,7 @@ const int KING_VALUE = 20;
 const int QUEEN_VALUE = 10;
 const int ROOK_VALUE = 5;
 
-const SDL_Point KingMoves[SPL] = {
+const std::array<SDL_Point, SPL> KingMoves = {
 	SDL_Point{0, -1}, //U
 	SDL_Point{1, -1}, //UR
 	SDL_Point{1, 0}, //R
@@ -80,25 +80,29 @@ const SDL_Point KingMoves[SPL] = {
 	SDL_Point{-1, -1} //UL
 };
 
-const SDL_Point BishopMoves[4] = {
-	{1, -1},
-	{1, 1},
-	{-1, 1},
-	{-1, -1}
+const std::array<SDL_Point, 4> BishopMoves = {
+	SDL_Point{1, -1},
+	SDL_Point{1, 1},
+	SDL_Point{-1, 1},
+	SDL_Point{-1, -1}
 };
 
-const SDL_Point KnightMoves[4] = {
-	{1, -2},
-	{1, 2},
-	{-1, 2},
-	{-1, -2}
+const std::array<SDL_Point, SPL> KnightMoves = {
+	SDL_Point{1, -2},
+    SDL_Point{2, -1},
+    SDL_Point{2, 1},
+    SDL_Point{1, 2},
+    SDL_Point{-1, 2},
+    SDL_Point{-2, 1},
+    SDL_Point{-2, -1},
+    SDL_Point{-1, -2}
 };
 
-const SDL_Point RookMoves[4] = {
-	{0, -1},
-	{1, 0},
-	{0, 1},
-	{-1, 0}
+const std::array<SDL_Point, 4> RookMoves = {
+	SDL_Point{0, -1},
+	SDL_Point{1, 0},
+	SDL_Point{0, 1},
+	SDL_Point{-1, 0}
 };
 
 const std::array<SDL_Point, 2> WhitePawnTakeMoves = {SDL_Point{-1, -1}, SDL_Point{1, -1}};

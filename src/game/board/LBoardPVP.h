@@ -75,11 +75,8 @@ private:
     
     //Selected piece
     SDL_Point mSelectedPiecePos;
-    SDL_Point mLastMovedPieceSrcPos;
-    SDL_Point mLastMovedPieceDestPos;
 
-    bool initMap();
-    void initTimer();
+    bool initBoard();
     bool initPiecesTextures();
     bool initTileTextures();
     bool initPauseTexture();
@@ -110,12 +107,10 @@ private:
 
     void playVictorySound() const;
     void playMusic();
-    void playMoveSound();
+    void playMoveSound(bool captured, bool castled) const;
 
     void handleEvents(SDL_Event* e);
     void changeTurn();
-
-    bool castling(int piece, SDL_Point dest);
 
     bool isGameOver() const;
     bool isOutOfTime();
@@ -123,11 +118,9 @@ private:
     void pause();
     void fillDeadPieceTab(const int fallenPiece);
     int pieceValue(int const pieceType) const;
-    void calculateRemainingTime();
 
-    void enPassant(int destinationPosX);
-    void move(SDL_Point dest, SDL_Point src, int piece);
-    void movePiece(SDL_Event* e);
+    void doMove(SDL_Point dest, SDL_Point src, int piece);
+    void move(SDL_Event* e);
     void setCastlingBools(SDL_Point src, int piece);
     bool checkPromotion(SDL_Point dest);
     
@@ -138,25 +131,14 @@ private:
     int mDeadWhitePiece[EMPTY];
     int mDeadBlackPiece[EMPTY];
 
-    int mSelectedPieceType,
-        mCheckStatus,
-        mLastMovedPiece;
+    int mSelectedPiece;
 
     bool mWhiteTurn = true,
          mWhiteTimerRanOut = false,
          mBlackTimerRanOut = false,
          mIsPaused = false,
          mAPieceIsSelected = false,
-         mEnPassantTurn = false,
-         mTookAPiece = false,
-         mIsCastling = false,
-         mGameOver = false,
-         mWKingHasMoved = false,
-         mBKingHasMoved = false,
-         mWRook1HasMoved = false,
-         mWRook2HasMoved = false,
-         mBRook1HasMoved = false,
-         mBRook2HasMoved = false;
+         mGameOver = false;
 };
 
 #endif

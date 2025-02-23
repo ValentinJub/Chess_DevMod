@@ -26,7 +26,7 @@ LBoardPVP::LBoardPVP(LObserver* observer) {
 	this->initTileTextures();
 	this->initPiecesTextures();
 	this->initPauseTexture();
-	this->initMap();
+	this->initBoard();
 	this->setTileRectClip();
 	this->setPiecesClip();
 
@@ -43,8 +43,6 @@ LBoardPVP::LBoardPVP(LObserver* observer) {
 	//Are highlighted at start
 	mSelectedPiecePos = {9, 9};
 
-	//Check status
-	mCheckStatus = NO_CHECK;
 	//start white and black timer and pause the black as white plays first
 	if(mSettings.useTimer == 0) {
 		mWhiteTimer = new LTimer();
@@ -56,7 +54,9 @@ LBoardPVP::LBoardPVP(LObserver* observer) {
 }
 
 void LBoardPVP::update() {
-	this->playMusic();
+	if(Mix_PlayingMusic() == 0) {
+		this->playMusic();
+	}
 	SDL_Event e;
 	while(SDL_PollEvent(&e) > 0) {
 		if(e.type == SDL_QUIT) {
@@ -83,10 +83,7 @@ void LBoardPVP::render() {
 	SDL_RenderClear(gRenderer);
 	SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 	gBackgroundTexture->render();
-	
-	//establish possible moves if a piece is selected
-	// this->showLegalMove();
-	
+
 	//display tiles
 	this->renderTile();
 	//display Pieces 
@@ -124,7 +121,7 @@ void LBoardPVP::render() {
 }
 
 void LBoardPVP::playMusic() {
-	if(Mix_PlayingMusic() == 0) {
+	if(Mix_PlayingMusic() == 0 && !mIsPaused) {
 		int i = rand() % 7;
 		std::string track;
 		if(mSettings.musicTheme == 1) {
@@ -222,6 +219,46 @@ void LBoardPVP::initSettings() {
 		values[5],
 		values[6]
 	};
+}
+
+bool LBoardPVP::initBoard() {
+	std::ifstream map( FILE_MAP );
+	bool success = true;
+	if(map.fail()) {
+		spdlog::error( "Unable to load map file!\n" );
+		success = false;
+	}
+	else {
+		for(int y(0); y < SPL; y++) {
+			for(int x(0); x < SPL; x++) {
+				//Determines what kind of tile will be made
+				int pieceType = -1;
+				
+				//Read piece from map file
+				map >> pieceType;
+				
+				//If the was a problem in reading the map
+				if(map.fail()) {
+					//Stop loading map
+					spdlog::error("Error loading map: Unexpected end of file!\n");
+					success = false;
+					break;
+				}
+				//If the number is a valid piece number
+				if((pieceType >= 0) && (pieceType < TOTAL_PIECES)) {
+					mBoard[y][x] = pieceType;
+				}
+				//If we don't recognize the tile type
+				else {
+					//Stop loading map
+					spdlog::error( "Error loading map: Invalid piece type at line %d element %d!\n", y, x);
+					success = false;
+					break;
+				}
+			}
+		}
+	}
+	return success;
 }
 
 bool LBoardPVP::initPiecesTextures() {
@@ -429,16 +466,16 @@ void LBoardPVP::handleEvents(SDL_Event* e) {
 				//if a piece is not selected 
 				//if a piece is already selected, count as clicking outside 
 				if(!(mAPieceIsSelected)) {
-					mSelectedPieceType = mBoard[y][x];
+					mSelectedPiece = mBoard[y][x];
 					//if white's turn - select white
-					if((mWhiteTurn) && (mSelectedPieceType >= WBISHOP) && (mSelectedPieceType < EMPTY)) {
+					if((mWhiteTurn) && (mSelectedPiece >= WBISHOP) && (mSelectedPiece < EMPTY)) {
 						outside = false;
 						mSelectedPiecePos = {x,y};
 						mAPieceIsSelected = true;
 						mRightClickedTile.clear();
 					}
 					//if black's turn - select black
-					else if(!(mWhiteTurn) && (mSelectedPieceType >= BBISHOP) && (mSelectedPieceType < WBISHOP)) {
+					else if(!(mWhiteTurn) && (mSelectedPiece >= BBISHOP) && (mSelectedPiece < WBISHOP)) {
 						outside = false;
 						mSelectedPiecePos = {x,y};
 						mAPieceIsSelected = true;
@@ -450,7 +487,7 @@ void LBoardPVP::handleEvents(SDL_Event* e) {
 	}
 	//if a piece is selected - can move
 	//to pos set in shwlegalMove()
-	if(mAPieceIsSelected) movePiece(e);
+	if(mAPieceIsSelected) move(e);
 	if(outside) {
 		if((e->type == SDL_MOUSEBUTTONUP) && (e->button.button == SDL_BUTTON_LEFT)) {
 			mAPieceIsSelected = false;
@@ -474,93 +511,78 @@ void LBoardPVP::handleEvents(SDL_Event* e) {
 	} 
 }
 
-void LBoardPVP::movePiece(SDL_Event* e) {
+void LBoardPVP::move(SDL_Event* e) {
 	int destinationPosX, destinationPosY;
-	SDL_Point destPos;
 	SDL_GetMouseState( &destinationPosX, &destinationPosY );
-	destinationPosX = (destinationPosX / TOTAL_SQUARES) - 1;
-	destinationPosY = (destinationPosY / TOTAL_SQUARES) - 1;
-	destPos = {destinationPosX, destinationPosY};
+	SDL_Point destPos = {(destinationPosX / TOTAL_SQUARES) - 1, (destinationPosY / TOTAL_SQUARES) - 1};
 	if((e->type == SDL_MOUSEBUTTONUP) && (e->button.button == SDL_BUTTON_LEFT)) {
 		std::vector<SDL_Point> legalPos = mEngine->getLegalMoves(mBoard, mSelectedPiecePos);
 		int size = legalPos.size();
 		for(int i(0); i < size; i++) {
 			if((destPos.x == legalPos[i].x) && (destPos.y == legalPos[i].y)) {
-				//make a copy of the pos and piece as it 
-				//will be messed with in the PrePollCheck()
-				int piece = mSelectedPieceType;
 				SDL_Point srcPos = mSelectedPiecePos;
 				//only move if it does not check your own king 
-				if(!mEngine->isMoveSelfCheck(mBoard, srcPos, destPos, mWhiteTurn)) { 
-					//if castling returns false cant move
-					// if(castling(piece, destPos)) {
-							move(destPos, srcPos, mSelectedPieceType);
-							i = 99;
-					// }
-					// else {
-						//Play unable to move sound 
-						// gChunkPlayer->play(CHUNK_ERROR);
-					// }
-				}
-				else {
-					//Play unable to move sound 
-					gChunkPlayer->play(CHUNK_ERROR);
-				}
+				if(!mEngine->isMoveSelfCheck(mBoard, mSelectedPiecePos, destPos, mWhiteTurn)) { 
+					doMove(destPos, mSelectedPiecePos, mSelectedPiece);
+					break;
+				} else gChunkPlayer->play(CHUNK_ERROR);
 			}
 		}
 	}
 }
 
-void LBoardPVP::move(SDL_Point dest, SDL_Point src, int piece) {
+void LBoardPVP::doMove(SDL_Point dest, SDL_Point src, int piece) {
+	bool captured = false;
 	//if the square destination is not empty, substract a button
 	if(mBoard[dest.y][dest.x] != EMPTY) {
 		mPieceButtons.resize(mPieceButtons.size() - 1);
-		mTookAPiece = true;
-		int fallenPiece = mBoard[dest.y][dest.x];
-		fillDeadPieceTab(fallenPiece);
+		fillDeadPieceTab(mBoard[dest.y][dest.x]);
+		captured = true;
 	}
 	
+	bool castled = false;
 	// Handle castling move
 	if((piece == WKING) && (src.x == 4) && (src.y == 7) && (dest.x == 6) && (dest.y == 7)) {
 		mBoard[7][5] = WROOK;
 		mBoard[7][7] = EMPTY;
+		castled = true;
 	}
 	else if((piece == WKING) && (src.x == 4) && (src.y == 7) && (dest.x == 2) && (dest.y == 7)) {
 		mBoard[7][3] = WROOK;
 		mBoard[7][0] = EMPTY;
+		castled = true;
 	}
 	else if((piece == BKING) && (src.x == 4) && (src.y == 0) && (dest.x == 6) && (dest.y == 0)) {
 		mBoard[0][5] = BROOK;
 		mBoard[0][7] = EMPTY;
+		castled = true;
 	}
 	else if((piece == BKING) && (src.x == 4) && (src.y == 0) && (dest.x == 2) && (dest.y == 0)) {
 		mBoard[0][3] = BROOK;
 		mBoard[0][0] = EMPTY;
+		castled = true;
 	}
 
 	// Handle en passant move
 	if((piece == WPAWN) && (src.x != dest.x) && (mBoard[dest.y][dest.x] == EMPTY)) {
 		mBoard[dest.y + 1][dest.x] = EMPTY;
 		mPieceButtons.resize(mPieceButtons.size() - 1);
-		int fallenPiece = BPAWN;
-		fillDeadPieceTab(fallenPiece);
-		mTookAPiece = true;
+		fillDeadPieceTab(BPAWN);
+		captured = true;
 	}
 	else if((piece == BPAWN) && (src.x != dest.x) && (mBoard[dest.y][dest.x] == EMPTY)) {
 		mBoard[dest.y - 1][dest.x] = EMPTY;
 		mPieceButtons.resize(mPieceButtons.size() - 1);
-		int fallenPiece = WPAWN;
-		fillDeadPieceTab(fallenPiece);
-		mTookAPiece = true;
+		fillDeadPieceTab(WPAWN);
+		captured = true;	
 	}
+
+	this->playMoveSound(captured, castled);
 	
 	//move selected piece to destination
 	mBoard[dest.y][dest.x] = piece;
 	//empty source cell 
 	mBoard[src.y][src.x] = EMPTY;
-	
-	//manage playing sound according to played move
-	playMoveSound();
 	
 	//turn castling bools to true if king or rook moves
 	setCastlingBools(src, piece); 
@@ -568,7 +590,9 @@ void LBoardPVP::move(SDL_Point dest, SDL_Point src, int piece) {
 	//turn Pawn into Queen if possible
 	checkPromotion(dest);
 	
+	// See if the move puts the king in check
 	if(mEngine->isKingInCheck(mBoard, !mWhiteTurn)) {
+		// Is it checkmate?
 		if(mEngine->isCheckMate(mBoard, mWhiteTurn)) {
 			mGameOver = true;
 		} else {
@@ -578,14 +602,8 @@ void LBoardPVP::move(SDL_Point dest, SDL_Point src, int piece) {
 	
 	//change turn
 	changeTurn();
-	
-	if(mEnPassantTurn) mEnPassantTurn = false;
-	
 	//en passant
 	mEngine->setEnPassant(piece, src, dest);
-	// mLastMovedPiece = piece;
-	// mLastMovedPieceSrcPos = src;
-	// mLastMovedPieceDestPos = dest;
 }
 
 void LBoardPVP::setCastlingBools(SDL_Point pos, int piece) {
@@ -619,55 +637,27 @@ void LBoardPVP::setCastlingBools(SDL_Point pos, int piece) {
 
 bool LBoardPVP::checkPromotion(SDL_Point pos) {
 	bool promotion = false;
-	if((mSelectedPieceType == WPAWN) && (pos.y == 0)) {
+	if((mSelectedPiece == WPAWN) && (pos.y == 0)) {
 		mBoard[pos.y][pos.x] = WQUEEN;
 		promotion = true;
 	}
-	if((mSelectedPieceType == BPAWN) && (pos.y == 7)) {
+	if((mSelectedPiece == BPAWN) && (pos.y == 7)) {
 		mBoard[pos.y][pos.x] = BQUEEN;
 		promotion = true;
 	}
 	return promotion;
 }
-		
-bool LBoardPVP::initMap() {
-	std::ifstream map( FILE_MAP );
-	bool success = true;
-	if(map.fail()) {
-		spdlog::error( "Unable to load map file!\n" );
-		success = false;
+
+void LBoardPVP::playMoveSound(bool captured, bool castled) const {
+	if(captured) {
+		gChunkPlayer->play(CHUNK_CAPTURE);
+	}
+	else if(castled) {
+		gChunkPlayer->play(CHUNK_CASTLE);
 	}
 	else {
-		for(int y(0); y < SPL; y++) {
-			for(int x(0); x < SPL; x++) {
-				//Determines what kind of tile will be made
-				int pieceType = -1;
-				
-				//Read piece from map file
-				map >> pieceType;
-				
-				//If the was a problem in reading the map
-				if(map.fail()) {
-					//Stop loading map
-					spdlog::error("Error loading map: Unexpected end of file!\n");
-					success = false;
-					break;
-				}
-				//If the number is a valid piece number
-				if((pieceType >= 0) && (pieceType < TOTAL_PIECES)) {
-					mBoard[y][x] = pieceType;
-				}
-				//If we don't recognize the tile type
-				else {
-					//Stop loading map
-					spdlog::error( "Error loading map: Invalid piece type at line %d element %d!\n", y, x);
-					success = false;
-					break;
-				}
-			}
-		}
+		gChunkPlayer->play(CHUNK_MOVE);
 	}
-	return success;
 }
 
 void LBoardPVP::playVictorySound() const {
@@ -681,22 +671,6 @@ void LBoardPVP::playVictorySound() const {
 	gChunkPlayer->play(CHUNK_VICTORY);
 	while(Mix_Playing(-1) > 0) {
 		SDL_Delay(16);
-	}
-}
-
-void LBoardPVP::playMoveSound() {
-	if((!(mTookAPiece)) && (!(mIsCastling))) {
-		//Play move sound 
-		gChunkPlayer->play(CHUNK_MOVE);
-	}
-	else if(mTookAPiece) {
-		gChunkPlayer->play(CHUNK_CAPTURE);
-		mTookAPiece = false;
-	}
-	else if(mIsCastling) {
-		//Play unable to move sound 
-		gChunkPlayer->play(CHUNK_CASTLE);
-		mIsCastling = false;
 	}
 }
 
@@ -825,18 +799,6 @@ void LBoardPVP::renderDeadPieces() {
 				whiteOffset += 32;
 			}
 		}
-	}
-}
-
-void LBoardPVP::calculateRemainingTime() {
-	//Handle white timer
-	if(mWhiteTurn) {
-		//number of elapsed seconds
-				
-	}
-	//Handle black timer
-	else {
-		
 	}
 }
 
