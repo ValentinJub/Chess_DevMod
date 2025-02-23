@@ -4,6 +4,7 @@ const char* FILE_SETTINGS = "resources/settings.config";
 const char* FILE_SETTINGS_LEFT = "resources/setl.config";
 const char* FILE_SETTINGS_RIGHT = "resources/setr.config";
 const char* FILE_MAP = "resources/map.map";
+const char* FILE_MAP_CASTLE = "resources/map.castling";
 
 const char* FONT_BRANDA = "resources/branda.ttf";
 

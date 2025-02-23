@@ -47,6 +47,8 @@ LBoardPVP::LBoardPVP(LObserver* observer) {
 	mCheckStatus = NO_CHECK;
 	//start white and black timer and pause the black as white plays first
 	if(mSettings.useTimer == 0) {
+		mWhiteTimer = new LTimer();
+		mBlackTimer = new LTimer();
 		this->startWhiteTimer();
 		this->startBlackTimer();
 		this->pauseBlackTimer();
@@ -104,7 +106,7 @@ void LBoardPVP::render() {
 	}
 	
 	SDL_RenderPresent(gRenderer);
-	SDL_Delay(16);
+	// SDL_Delay(16);
 
 	//check for victory
 	if(this->isGameOver()) {
@@ -183,6 +185,14 @@ void LBoardPVP::free() {
 		mBlackTimerTexture->free();
 		mBlackTimerTexture = NULL;
 	}
+	if(mWhiteTimer != NULL) {
+		delete mWhiteTimer;
+		mWhiteTimer = NULL;
+	}
+	if(mBlackTimer != NULL) {
+		delete mBlackTimer;
+		mBlackTimer = NULL;
+	}
 	
 	mWhiteScoreTexture->free();
 	mWhiteScoreTexture = NULL;
@@ -194,7 +204,7 @@ void LBoardPVP::free() {
 }
 
 void LBoardPVP::startWhiteTimer() {
-	mWhiteTimer.start();
+	mWhiteTimer->start();
 }
 
 void LBoardPVP::initSettings() {
@@ -501,27 +511,7 @@ void LBoardPVP::movePiece(SDL_Event* e) {
 	}
 }
 
-void LBoardPVP::enPassant(int destinationPosX) { 
-	if(destinationPosX == mLastMovedPieceDestPos.x) {
-		mBoard[mLastMovedPieceDestPos.y][mLastMovedPieceDestPos.x] = EMPTY;
-		mPieceButtons.resize(mPieceButtons.size() - 1);
-		if(mWhiteTurn) {
-			int fallenPiece = BPAWN;
-			fillDeadPieceTab(fallenPiece);
-		}
-		else {
-			int fallenPiece = WPAWN;
-			fillDeadPieceTab(fallenPiece);
-		}
-		mTookAPiece = true;
-	}
-}
-
 void LBoardPVP::move(SDL_Point dest, SDL_Point src, int piece) {
-	if(mEnPassantTurn) {
-		enPassant(dest.x);
-	}
-	
 	//if the square destination is not empty, substract a button
 	if(mBoard[dest.y][dest.x] != EMPTY) {
 		mPieceButtons.resize(mPieceButtons.size() - 1);
@@ -530,7 +520,39 @@ void LBoardPVP::move(SDL_Point dest, SDL_Point src, int piece) {
 		fillDeadPieceTab(fallenPiece);
 	}
 	
-	
+	// Handle castling move
+	if((piece == WKING) && (src.x == 4) && (src.y == 7) && (dest.x == 6) && (dest.y == 7)) {
+		mBoard[7][5] = WROOK;
+		mBoard[7][7] = EMPTY;
+	}
+	else if((piece == WKING) && (src.x == 4) && (src.y == 7) && (dest.x == 2) && (dest.y == 7)) {
+		mBoard[7][3] = WROOK;
+		mBoard[7][0] = EMPTY;
+	}
+	else if((piece == BKING) && (src.x == 4) && (src.y == 0) && (dest.x == 6) && (dest.y == 0)) {
+		mBoard[0][5] = BROOK;
+		mBoard[0][7] = EMPTY;
+	}
+	else if((piece == BKING) && (src.x == 4) && (src.y == 0) && (dest.x == 2) && (dest.y == 0)) {
+		mBoard[0][3] = BROOK;
+		mBoard[0][0] = EMPTY;
+	}
+
+	// Handle en passant move
+	if((piece == WPAWN) && (src.x != dest.x) && (mBoard[dest.y][dest.x] == EMPTY)) {
+		mBoard[dest.y + 1][dest.x] = EMPTY;
+		mPieceButtons.resize(mPieceButtons.size() - 1);
+		int fallenPiece = BPAWN;
+		fillDeadPieceTab(fallenPiece);
+		mTookAPiece = true;
+	}
+	else if((piece == BPAWN) && (src.x != dest.x) && (mBoard[dest.y][dest.x] == EMPTY)) {
+		mBoard[dest.y - 1][dest.x] = EMPTY;
+		mPieceButtons.resize(mPieceButtons.size() - 1);
+		int fallenPiece = WPAWN;
+		fillDeadPieceTab(fallenPiece);
+		mTookAPiece = true;
+	}
 	
 	//move selected piece to destination
 	mBoard[dest.y][dest.x] = piece;
@@ -560,77 +582,11 @@ void LBoardPVP::move(SDL_Point dest, SDL_Point src, int piece) {
 	if(mEnPassantTurn) mEnPassantTurn = false;
 	
 	//en passant
-	mLastMovedPiece = piece;
-	mLastMovedPieceSrcPos = src;
-	mLastMovedPieceDestPos = dest;
+	mEngine->setEnPassant(piece, src, dest);
+	// mLastMovedPiece = piece;
+	// mLastMovedPieceSrcPos = src;
+	// mLastMovedPieceDestPos = dest;
 }
-
-// bool LBoardPVP::castling(int piece, SDL_Point dest) {
-// 	int castling = NO_CASTLING;
-// 	if(piece == WKING) {
-// 		if(!(mWKingHasMoved)) {
-// 			//WR1
-// 			if((dest.y == 7) && (dest.x == 2)) {
-// 				dest.x += 1;
-// 				if(!mEngine->isMoveSelfCheck(mBoard, srcPos, destPos, mWhiteTurn)) {
-// 					castling = CASTLE_WR1;
-// 				} else castling = NO_MOVE;
-// 			}
-// 			//WR2
-// 			else if((dest.y == 7) && (dest.x == 6)) {
-// 				dest.x -= 1;
-// 				if(!mEngine->isMoveSelfCheck(mBoard, srcPos, destPos, mWhiteTurn)) {
-// 					castling = CASTLE_WR2;
-// 				} else castling = NO_MOVE;
-// 			}
-// 		}
-// 	}
-// 	else if(piece == BKING) {
-// 		if(!(mBKingHasMoved)) {
-// 			//BR1
-// 			if((dest.y == 0) && (dest.x == 2)) {
-// 				dest.x += 1;
-// 				if(!mEngine->isMoveSelfCheck(mBoard, srcPos, destPos, mWhiteTurn)) {
-// 					castling = CASTLE_BR1;
-// 				} else castling = NO_MOVE;
-// 			}
-// 			//BR2
-// 			else if((dest.y == 0) && (dest.x == 6)) {
-// 				if(!mEngine->isMoveSelfCheck(mBoard, srcPos, destPos, mWhiteTurn)) {
-// 					castling = CASTLE_BR2;
-// 				} else castling = NO_MOVE;
-// 			}
-// 		}
-// 	}
-// 	switch(castling) {
-// 		case CASTLE_WR1:
-// 			mBoard[7][3] = WROOK;
-// 			mBoard[7][0] = EMPTY;
-// 			mIsCastling = true;
-// 			return true;
-// 		case CASTLE_WR2:
-// 			mBoard[7][5] = WROOK;
-// 			mBoard[7][7] = EMPTY;
-// 			mIsCastling = true;
-// 			return true;
-// 		case CASTLE_BR1:
-// 			mBoard[0][3] = BROOK;
-// 			mBoard[0][0] = EMPTY;
-// 			mIsCastling = true;
-// 			return true;
-// 		case CASTLE_BR2:
-// 			mBoard[0][5] = BROOK;
-// 			mBoard[0][7] = EMPTY;
-// 			mIsCastling = true;
-// 			return true;
-// 		case NO_CASTLING:
-// 			return true;
-// 		case NO_MOVE:
-// 			return false;
-// 		default:
-// 			return false;
-// 	}
-// }
 
 void LBoardPVP::setCastlingBools(SDL_Point pos, int piece) {
 	switch(piece) {
@@ -747,7 +703,7 @@ void LBoardPVP::playMoveSound() {
 void LBoardPVP::renderTimer() {
 	if(mSettings.useTimer == 0) {
 		// white timer total time left in seconds
-		int wtime = mTimeLimit - (mWhiteTimer.getTicks() / 1000);
+		int wtime = mTimeLimit - (mWhiteTimer->getTicks() / 1000);
 
 		// if the timer ran out we set it to 0 to avoid displaying negative time
 		if(wtime < 0) {
@@ -771,7 +727,7 @@ void LBoardPVP::renderTimer() {
 		mWhiteTimerTexture->renderAt(0,SCREEN_HEIGHT - 64);
 		
 		// black timer total time left in seconds
-		int btime = mTimeLimit - (mBlackTimer.getTicks() / 1000);
+		int btime = mTimeLimit - (mBlackTimer->getTicks() / 1000);
 
 		// if the timer ran out we set it to 0 to avoid displaying negative time
 		if(btime < 0) {
@@ -958,29 +914,29 @@ void LBoardPVP::fillDeadPieceTab(const int fallenPiece) {
 }
 
 void LBoardPVP::startBlackTimer() {
-	mBlackTimer.start();
+	mBlackTimer->start();
 }
 
 void LBoardPVP::pauseWhiteTimer() {
-	mWhiteTimer.pause();
+	mWhiteTimer->pause();
 }
 
 void LBoardPVP::pauseBlackTimer() {
-	mBlackTimer.pause();
+	mBlackTimer->pause();
 }
 
 void LBoardPVP::unpauseWhiteTimer() {
-	mWhiteTimer.unpause();
+	mWhiteTimer->unpause();
 }
 
 void LBoardPVP::unpauseBlackTimer() {
-	mBlackTimer.unpause();
+	mBlackTimer->unpause();
 }
 
 void LBoardPVP::stopWhiteTimer() {
-	mWhiteTimer.stop();
+	mWhiteTimer->stop();
 }
 
 void LBoardPVP::stopBlackTimer() {
-	mBlackTimer.stop();
+	mBlackTimer->stop();
 }

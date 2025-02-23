@@ -3,7 +3,7 @@
 
 #include "com/headers.h"
 #include "com/constantes.h"
-#include "game/pieces/util.h"
+#include "game/board/util.h"
 
 class LEngine {
     public:
@@ -19,6 +19,8 @@ class LEngine {
         void setRookHasMoved(bool isWhite, int rook, bool hasMoved);
         bool getKingHasMoved(bool isWhite);
         bool getRookHasMoved(bool isWhite, int rook);
+
+        void setEnPassant(int piece, SDL_Point src, SDL_Point dest);
         private:
 
         SDL_Point findKing(const std::array<std::array<int, SPL>, SPL>& board, bool isWhite);
@@ -41,6 +43,11 @@ class LEngine {
         bool mWRook2HasMoved = false;
         bool mBRook1HasMoved = false;
         bool mBRook2HasMoved = false;
+
+        // For en passant
+        int       mLastMovedPiece;
+        SDL_Point mLastMovedPieceSrcPos;
+        SDL_Point mLastMovedPieceDestPos;
 };
 
 #endif

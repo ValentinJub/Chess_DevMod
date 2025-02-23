@@ -27,9 +27,9 @@ std::vector<SDL_Point> LEngine::getLegalMoves(std::array<std::array<int, SPL>, S
         return this->kingMoves(
             board,
             piecePos,
-            this->getKingHasMoved(UtilPiece::isWhite(piece)),
-            this->getRookHasMoved(UtilPiece::isWhite(piece), 1),
-            this->getRookHasMoved(UtilPiece::isWhite(piece), 2)
+            this->getKingHasMoved(isWhitePiece(piece)),
+            this->getRookHasMoved(isWhitePiece(piece), 1),
+            this->getRookHasMoved(isWhitePiece(piece), 2)
         );
     default:
         return std::vector<SDL_Point>();
@@ -45,15 +45,14 @@ bool LEngine::isMoveSelfCheck(const std::array<std::array<int, SPL>, SPL>& board
 }
 
 // Check if the king colored king is in check
-// This doesn't take into account the knights moves and need implemented
 bool LEngine::isKingInCheck(const std::array<std::array<int, SPL>, SPL>& board, bool isWhite) {
     SDL_Point kingPos = findKing(board, isWhite);
     SDL_Point nextPos = {kingPos.x, kingPos.y};
     for(int i(0); i < SPL; i++) {
         nextPos = {kingPos.x + KingMoves[i].x, kingPos.y + KingMoves[i].y};
-        while(UtilPiece::isInBounds(nextPos)) {
+        while(isInBounds(nextPos)) {
             if (board[nextPos.y][nextPos.x] != EMPTY) {
-                if(UtilPiece::isEnemy(board[kingPos.y][kingPos.x], board[nextPos.y][nextPos.x])) {
+                if(isEnemy(board[kingPos.y][kingPos.x], board[nextPos.y][nextPos.x])) {
                     if (this->isPieceAttacked(board, nextPos, kingPos, true)) {
                         return true;
                     }
@@ -93,7 +92,7 @@ bool LEngine::isCheckMate(const std::array<std::array<int, SPL>, SPL> &board, bo
         for(int x(0); x < SPL; x++) {
             const int next = board[y][x];
             // If the piece is the same color as the king 
-            if (next != EMPTY && !UtilPiece::isEnemy(king, next)) {
+            if (next != EMPTY && !isEnemy(king, next)) {
                 // Get the legal moves of the piece
                 std::vector<SDL_Point> mPieceMoves = this->getLegalMoves(board, SDL_Point{x, y});
                 for (auto move : mPieceMoves) {
@@ -220,8 +219,8 @@ std::vector<SDL_Point> LEngine::bishopMoves(std::array<std::array<int, SPL>, SPL
 	std::vector<SDL_Point> legalPos;
 	for(int i(0); i < 4; i++) {
 		SDL_Point nextPos = {bishopPos.x + BishopMoves[i].x, bishopPos.y + BishopMoves[i].y};
-		while(UtilPiece::isInBounds(nextPos)) {
-			if(UtilPiece::isEnemyOrEmpty(map[bishopPos.y][bishopPos.x], map[nextPos.y][nextPos.x])) {
+		while(isInBounds(nextPos)) {
+			if(isEnemyOrEmpty(map[bishopPos.y][bishopPos.x], map[nextPos.y][nextPos.x])) {
 				legalPos.push_back(nextPos);
 				if(map[nextPos.y][nextPos.x] != EMPTY) {
 					break;
@@ -240,8 +239,8 @@ std::vector<SDL_Point> LEngine::knightMoves(std::array<std::array<int, SPL>, SPL
 	std::vector<SDL_Point> legalPos;
     for(int i = 0; i < 4; i++) {
 		SDL_Point nextPos = {knightPos.x + KnightMoves[i].x, knightPos.y + KnightMoves[i].y};
-		if(UtilPiece::isInBounds(nextPos)) {
-			if(UtilPiece::isEnemyOrEmpty(map[knightPos.y][knightPos.x], map[nextPos.y][nextPos.x])) {
+		if(isInBounds(nextPos)) {
+			if(isEnemyOrEmpty(map[knightPos.y][knightPos.x], map[nextPos.y][nextPos.x])) {
 				legalPos.push_back(nextPos);
 			}
 		}
@@ -251,11 +250,11 @@ std::vector<SDL_Point> LEngine::knightMoves(std::array<std::array<int, SPL>, SPL
 
 std::vector<SDL_Point> LEngine::kingMoves(std::array<std::array<int, SPL>, SPL> map, SDL_Point kingPos, bool kingMoved, bool rook1Moved, bool rook2Moved) {
 	std::vector<SDL_Point> legalPos;
-	bool isWhite = UtilPiece::isWhite(map[kingPos.y][kingPos.x]);
+	bool isWhite = isWhitePiece(map[kingPos.y][kingPos.x]);
 	// Regular moves
 	for(int i(0); i < TOTAL_POS; i++) {
 		SDL_Point nxtPos = {kingPos.x + KingMoves[i].x, kingPos.y + KingMoves[i].y};
-		if(UtilPiece::isInBounds(nxtPos) && UtilPiece::isEnemyOrEmpty(map[kingPos.y][kingPos.x], map[nxtPos.y][nxtPos.x])) {
+		if(isInBounds(nxtPos) && isEnemyOrEmpty(map[kingPos.y][kingPos.x], map[nxtPos.y][nxtPos.x])) {
 			legalPos.push_back(nxtPos);
 		}
 	}
@@ -282,7 +281,7 @@ std::vector<SDL_Point> LEngine::kingMoves(std::array<std::array<int, SPL>, SPL> 
 			}
 		}
 		if(!rook2Moved) {
-			if(isWhite) { // H1 rool
+			if(isWhite) { // H1 rook
 				// Ensure the path is clear
 				if(map[7][5] == EMPTY && map[7][6] == EMPTY) {
 					// Ensure the king is not in check
@@ -309,8 +308,8 @@ std::vector<SDL_Point> LEngine::rookMoves(std::array<std::array<int, SPL>, SPL> 
 	std::vector<SDL_Point> legalPos;
 	for(int i(0); i < 4; i++) {
 		SDL_Point nextPos = {rookPos.x + RookMoves[i].x, rookPos.y + RookMoves[i].y};
-		while(UtilPiece::isInBounds(nextPos)) {
-			if(UtilPiece::isEnemyOrEmpty(map[rookPos.y][rookPos.x], map[nextPos.y][nextPos.x])) {
+		while(isInBounds(nextPos)) {
+			if(isEnemyOrEmpty(map[rookPos.y][rookPos.x], map[nextPos.y][nextPos.x])) {
 				legalPos.push_back(nextPos);
 				if(map[nextPos.y][nextPos.x] != EMPTY) {
 					break;
@@ -335,7 +334,7 @@ std::vector<SDL_Point> LEngine::queenMoves(std::array<std::array<int, SPL>, SPL>
 }
 
 std::vector<SDL_Point> LEngine::pawnMoves(std::array<std::array<int, SPL>, SPL> map, SDL_Point pawnPos, bool selfCheck) {
-	if(UtilPiece::isWhite(map[pawnPos.y][pawnPos.x])) {
+	if(isWhitePiece(map[pawnPos.y][pawnPos.x])) {
 		return this->wPawnMove(map, pawnPos, selfCheck);
 	}
 	else return this->bPawnMove(map, pawnPos, selfCheck);
@@ -346,7 +345,7 @@ std::vector<SDL_Point> LEngine::wPawnMove(std::array<std::array<int, SPL>, SPL> 
 	// Attacking moves
 	for(int i(0); i < 2; i++) {
 		SDL_Point nextPos = {pawnPos.x + WhitePawnTakeMoves[i].x, pawnPos.y + WhitePawnTakeMoves[i].y};
-		if(UtilPiece::isInBounds(nextPos) && UtilPiece::isEnemy(map[pawnPos.y][pawnPos.x], map[nextPos.y][nextPos.x])) {
+		if(isInBounds(nextPos) && isEnemy(map[pawnPos.y][pawnPos.x], map[nextPos.y][nextPos.x])) {
 			legalPos.push_back(nextPos);
 		}
 	}
@@ -359,7 +358,12 @@ std::vector<SDL_Point> LEngine::wPawnMove(std::array<std::array<int, SPL>, SPL> 
 			}
 		}
 	}
-	// En passant moves need to be added here later.
+
+    // If the last moved piece was a pawn and it moved two squares forward and landed next to the current pawn
+    // then the current pawn can take the last moved piece en passant
+    if(mLastMovedPiece == BPAWN && mLastMovedPieceDestPos.y == pawnPos.y && abs(mLastMovedPieceDestPos.x - pawnPos.x) == 1) {
+        legalPos.push_back(SDL_Point{mLastMovedPieceDestPos.x, mLastMovedPieceDestPos.y - 1});
+    }
 	return legalPos;
 }
 
@@ -368,7 +372,7 @@ std::vector<SDL_Point> LEngine::bPawnMove(std::array<std::array<int, SPL>, SPL> 
 	// Attacking moves
 	for(int i(0); i < 2; i++) {
 		SDL_Point nextPos = {pawnPos.x + BlackPawnTakeMoves[i].x, pawnPos.y + BlackPawnTakeMoves[i].y};
-		if(UtilPiece::isInBounds(nextPos) && UtilPiece::isEnemy(map[pawnPos.y][pawnPos.x], map[nextPos.y][nextPos.x])) {
+		if(isInBounds(nextPos) && isEnemy(map[pawnPos.y][pawnPos.x], map[nextPos.y][nextPos.x])) {
 			legalPos.push_back(nextPos);
 		}
 	}
@@ -381,6 +385,15 @@ std::vector<SDL_Point> LEngine::bPawnMove(std::array<std::array<int, SPL>, SPL> 
 			}
 		}
 	}
+    if(mLastMovedPiece == WPAWN && mLastMovedPieceDestPos.y == pawnPos.y && abs(mLastMovedPieceDestPos.x - pawnPos.x) == 1) {
+        legalPos.push_back(SDL_Point{mLastMovedPieceDestPos.x, mLastMovedPieceDestPos.y + 1});
+    }
 	// En passant moves need to be added here later.
 	return legalPos;
+}
+
+void LEngine::setEnPassant(int piece, SDL_Point src, SDL_Point dest) {
+    mLastMovedPiece = piece;
+    mLastMovedPieceSrcPos = src;
+    mLastMovedPieceDestPos = dest;
 }

@@ -10,6 +10,7 @@ main const
 #define HEADER_CONSTANTES
 
 #include "SDL2/SDL.h"
+#include <array>
 
 // Resource paths
 
@@ -33,6 +34,7 @@ extern const char* FILE_SETTINGS;
 extern const char* FILE_SETTINGS_LEFT;
 extern const char* FILE_SETTINGS_RIGHT;
 extern const char* FILE_MAP;
+extern const char* FILE_MAP_CASTLE;
 
 extern const char* SPRITE_BACKGROUND;
 extern const char* SPRITE_BACKGROUND_FULLBLACK;
@@ -77,6 +79,30 @@ const SDL_Point KingMoves[SPL] = {
 	SDL_Point{-1, 0}, //L
 	SDL_Point{-1, -1} //UL
 };
+
+const SDL_Point BishopMoves[4] = {
+	{1, -1},
+	{1, 1},
+	{-1, 1},
+	{-1, -1}
+};
+
+const SDL_Point KnightMoves[4] = {
+	{1, -2},
+	{1, 2},
+	{-1, 2},
+	{-1, -2}
+};
+
+const SDL_Point RookMoves[4] = {
+	{0, -1},
+	{1, 0},
+	{0, 1},
+	{-1, 0}
+};
+
+const std::array<SDL_Point, 2> WhitePawnTakeMoves = {SDL_Point{-1, -1}, SDL_Point{1, -1}};
+const std::array<SDL_Point, 2> BlackPawnTakeMoves = {SDL_Point{-1, 1}, SDL_Point{1, 1}};
 
 enum CastlingResult {
     CASTLE_WR1,

@@ -52,8 +52,8 @@ private:
     LTexture *mMiniPieceTexture;
     LTexture *mHighlightedPieceTexture;
     LTexture *mTileTexture;
-    LTexture *mWhiteTimerTexture;
-    LTexture *mBlackTimerTexture;
+    LTexture *mWhiteTimerTexture = NULL;
+    LTexture *mBlackTimerTexture = NULL;
     LTexture *mWhiteScoreTexture;
     LTexture *mBlackScoreTexture;
     LTexture *mPauseBackgroundTexture;
@@ -79,6 +79,7 @@ private:
     SDL_Point mLastMovedPieceDestPos;
 
     bool initMap();
+    void initTimer();
     bool initPiecesTextures();
     bool initTileTextures();
     bool initPauseTexture();
@@ -131,8 +132,8 @@ private:
     bool checkPromotion(SDL_Point dest);
     
     std::array<std::array<int, SPL>, SPL> mBoard;
-    LTimer mWhiteTimer;
-    LTimer mBlackTimer;
+    LTimer* mWhiteTimer = NULL;
+    LTimer* mBlackTimer = NULL;
     int mTimeLimit;
     int mDeadWhitePiece[EMPTY];
     int mDeadBlackPiece[EMPTY];

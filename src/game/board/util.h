@@ -14,12 +14,11 @@ headers for all files - do not put L*.h!!!!
 #include "com/constantes.h"
 #include <fstream>
 
-namespace UtilPiece {
-    bool isInBounds(SDL_Point point);
-    bool isWhite(int piece);
-    bool isBlack(int piece);
-    bool isEnemyOrEmpty(int curr, int next);
-    bool isEnemy(int curr, int next);
-}
+bool isInBounds(SDL_Point point);
+bool isWhitePiece(int piece);
+bool isBlackPiece(int piece);
+bool isEnemyOrEmpty(int curr, int next);
+bool isEnemy(int curr, int next);
+
 
 #endif
