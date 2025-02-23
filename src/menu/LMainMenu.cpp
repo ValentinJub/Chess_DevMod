@@ -132,18 +132,18 @@ void LMainMenu::handleKeyEvents(SDL_Event* e) {
 				gStateMachine->pop();
 				break;
             case SDLK_1:
-				gMusicPlayer->stop();
-                playPVP();
-                this->flushEvents();
+				gMusicPlayer->pause();
+				gStateMachine->push(new LBoardState);
+                Util::flushEvents();
                 break;
             case SDLK_2:
-				gMusicPlayer->stop();
-                playerVersusComputer();
-                this->flushEvents();
+				gMusicPlayer->pause();
+                // playerVersusComputer();
+                Util::flushEvents();
                 break;
             case SDLK_3:
                 SDL_Delay(20);
-                this->flushEvents();
+                Util::flushEvents();
 				gStateMachine->push(new LSettingsState);
                 break;
             }
@@ -157,36 +157,29 @@ void LMainMenu::handleMouseEvents(SDL_Event* e) {
 			if(mMenuTextures[i]->isClicked(e)) {
 				switch (i) {
 				case PLAY:
-					gMusicPlayer->stop();
-					this->flushEvents();
-					playPVP();
-                	this->flushEvents();
+					gMusicPlayer->pause();
+					Util::flushEvents();
+					gStateMachine->push(new LBoardState);
+                	Util::flushEvents();
 					break;
 				case PLAY_AI:
-					gMusicPlayer->stop();
-              		this->flushEvents();
-					playerVersusComputer();
-                	this->flushEvents();
+					gMusicPlayer->pause();
+              		Util::flushEvents();
+					// playerVersusComputer();
+                	Util::flushEvents();
 					break;
 				case SETTINGS:
 					SDL_Delay(20);
-					this->flushEvents();
+					Util::flushEvents();
 					gStateMachine->push(new LSettingsState);
-					this->flushEvents();
+					Util::flushEvents();
 					break;
 				case DEVMODE:
 					SDL_Delay(200);
-					this->flushEvents();
+					Util::flushEvents();
 					break;
 				}
 			}
 		}
 	}
-}
-
-// Pull hanging events from the queue and flush them
-// This is useful to avoid using an event from a previous state
-void LMainMenu::flushEvents() {
-	SDL_PumpEvents();
-	SDL_FlushEvents(SDL_MOUSEMOTION, SDL_MOUSEBUTTONUP);
 }

@@ -174,7 +174,7 @@ void LMenuSettings::handleEvents(SDL_Event* e, SDL_Point mouse) {
                 mOptionValues.pieceTheme = 1;
                 break;
             case BACK:
-                saveSettingsToFile();
+                this->saveSettingsToFile();
                 gStateMachine->pop();
                 break;
             default:
@@ -185,22 +185,7 @@ void LMenuSettings::handleEvents(SDL_Event* e, SDL_Point mouse) {
 }
 
 void LMenuSettings::loadSavedSettings() {
-    std::ifstream settings;
-    settings.open(FILE_SETTINGS, std::ios::in);
-    if(!settings.is_open()) {
-        mLogger->error("Unable to load settings file! {}", FILE_SETTINGS);
-        return;
-    }
-    std::vector<int> values;
-    std::string line;
-    while(std::getline(settings, line)) {
-        std::stringstream ss(line);
-        int a;
-        if(ss >> a) {
-            values.push_back(a);
-        }
-    }
-    settings.close();
+    std::vector<int> values = Util::readSettingsFromFile(FILE_SETTINGS);
     if(values.size() < 7) {
         mLogger->error("Settings file is corrupted! {} values found", values.size());
         return;
@@ -218,12 +203,6 @@ void LMenuSettings::loadSavedSettings() {
 }
 
 void LMenuSettings::saveSettingsToFile() {
-    std::ofstream settings;
-    settings.open(FILE_SETTINGS, std::ios::trunc);
-    if(!settings.is_open()) {
-        mLogger->error("Unable to open save settings file! {}", FILE_SETTINGS);
-        return;
-    }
     int values[LEFT_MENU] = {
         mOptionValues.showLegalMoves,
         mOptionValues.useTimer,
@@ -233,14 +212,7 @@ void LMenuSettings::saveSettingsToFile() {
         mOptionValues.volume,
         mOptionValues.pieceTheme
     };
-    for(int i(0); i < LEFT_MENU; i++) {
-        int a = values[i];
-        std::stringstream ss;
-        ss << a;
-        std::string str = ss.str();
-        settings << str + "\n";
-    }
-    settings.close();
+    Util::saveSettingsToFile(FILE_SETTINGS, values);
     mLogger->info("Settings saved to file");
 }
 

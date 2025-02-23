@@ -10,6 +10,7 @@ main const
 #define HEADER_CONSTANTES
 
 #include "SDL2/SDL.h"
+#include <array>
 
 // Resource paths
 
@@ -33,6 +34,7 @@ extern const char* FILE_SETTINGS;
 extern const char* FILE_SETTINGS_LEFT;
 extern const char* FILE_SETTINGS_RIGHT;
 extern const char* FILE_MAP;
+extern const char* FILE_MAP_CASTLE;
 
 extern const char* SPRITE_BACKGROUND;
 extern const char* SPRITE_BACKGROUND_FULLBLACK;
@@ -67,6 +69,45 @@ const int KING_VALUE = 20;
 const int QUEEN_VALUE = 10;
 const int ROOK_VALUE = 5;
 
+const std::array<SDL_Point, SPL> KingMoves = {
+	SDL_Point{0, -1}, //U
+	SDL_Point{1, -1}, //UR
+	SDL_Point{1, 0}, //R
+	SDL_Point{1, 1}, //DR
+	SDL_Point{0, 1}, //D
+	SDL_Point{-1, 1}, //DL
+	SDL_Point{-1, 0}, //L
+	SDL_Point{-1, -1} //UL
+};
+
+const std::array<SDL_Point, 4> BishopMoves = {
+	SDL_Point{1, -1},
+	SDL_Point{1, 1},
+	SDL_Point{-1, 1},
+	SDL_Point{-1, -1}
+};
+
+const std::array<SDL_Point, SPL> KnightMoves = {
+	SDL_Point{1, -2},
+    SDL_Point{2, -1},
+    SDL_Point{2, 1},
+    SDL_Point{1, 2},
+    SDL_Point{-1, 2},
+    SDL_Point{-2, 1},
+    SDL_Point{-2, -1},
+    SDL_Point{-1, -2}
+};
+
+const std::array<SDL_Point, 4> RookMoves = {
+	SDL_Point{0, -1},
+	SDL_Point{1, 0},
+	SDL_Point{0, 1},
+	SDL_Point{-1, 0}
+};
+
+const std::array<SDL_Point, 2> WhitePawnTakeMoves = {SDL_Point{-1, -1}, SDL_Point{1, -1}};
+const std::array<SDL_Point, 2> BlackPawnTakeMoves = {SDL_Point{-1, 1}, SDL_Point{1, 1}};
+
 enum CastlingResult {
     CASTLE_WR1,
     CASTLE_WR2,
@@ -74,6 +115,16 @@ enum CastlingResult {
     CASTLE_BR2,
     NO_CASTLING,
     NO_MOVE
+};
+
+struct OptionValues {
+    int showLegalMoves;
+    int useTimer;
+    int timeLimit;
+    int tileColor;
+    int musicTheme;
+    int volume;
+    int pieceTheme;
 };
 
 const int TOTAL_SETTINGS_RIGHT_MENU_TEXT_ITEMS = 11;
@@ -95,6 +146,8 @@ enum SettingsMenuButtons {
     TOTAL_CLICKABLE_ITEMS
 };
 
+// This is the order in which the pieces are stored in the texture sheet
+// The order is important for the clipping
 enum Pieces {
     BBISHOP, 
     BKING,

@@ -11,8 +11,8 @@ Function prototypes for playPVAI.cpp
 
 #include "utils/util.h"
 #include "graphics/LTexture.h"
-#include "LBoardPVAI.h"
+#include "game/board/LBoardPVAI.h"
 
-void playerVersusComputer();
+// void playerVersusComputer();
 
 #endif 

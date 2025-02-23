@@ -84,3 +84,45 @@ void Util::initLogger(int argc, char *argv[]) {
 		std::cerr << "Log init failed: " << ex.what() << std::endl;
 	}
 }
+
+std::vector<int> Util::readSettingsFromFile(const char* path) {
+    std::ifstream settings;
+    settings.open(path, std::ios::in);
+    if(!settings.is_open()) {
+        spdlog::error("Unable to open file! {}", path);
+        return std::vector<int>();
+    }
+    std::vector<int> values;
+    std::string line;
+    while(std::getline(settings, line)) {
+        std::stringstream ss(line);
+        int a;
+        if(ss >> a) {
+            values.push_back(a);
+        }
+    }
+    settings.close();
+    return values;
+}
+
+void Util::saveSettingsToFile(const char* path, int values[]) {
+    std::ofstream settings;
+    settings.open(path, std::ios::trunc);
+    if(!settings.is_open()) {
+        spdlog::error("Unable to open file! {}", path);
+        return;
+    }
+    for(int i(0); i < LEFT_MENU; i++) {
+        int a = values[i];
+        std::stringstream ss;
+        ss << a;
+        std::string str = ss.str();
+        settings << str + "\n";
+    }
+    settings.close();
+}
+
+void Util::flushEvents() {
+	SDL_PumpEvents();
+	SDL_FlushEvents(SDL_MOUSEMOTION, SDL_MOUSEBUTTONUP);
+}

@@ -23,10 +23,9 @@ LSlider::LSlider(int width, int height, int posX, int posY) : mSliderWidth(width
 }
 
 LSlider::~LSlider() {
-    delete mDot;
+    mDot->free();
     mDot = NULL;
     mVolumeTexture = NULL;
-    mDotTexture = NULL;
 }
 
 int LSlider::getVolume() const {

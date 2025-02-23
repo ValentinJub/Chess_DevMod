@@ -48,15 +48,7 @@ const std::array<std::string, TOTAL_SETTINGS_RIGHT_MENU_TEXT_ITEMS> MENU_RIGHT_T
     "Back.."
 };
 
-struct OptionValues {
-    int showLegalMoves;
-    int useTimer;
-    int timeLimit;
-    int tileColor;
-    int musicTheme;
-    int volume;
-    int pieceTheme;
-};
+
 
 class LMenuSettings : public LSubject, public LVisualComponent {
 public:
