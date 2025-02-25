@@ -7,6 +7,7 @@ Methods for class LBoardPVP
 */
 
 #include "game/board/LBoardPVP.h"
+#include "states/menu/LMainMenuState.h"
 
 using std::vector;
 extern TTF_Font* gFont64;
@@ -19,6 +20,7 @@ extern LStateMachine* gStateMachine;
 extern LTexture* gBackgroundTexture;
 
 LBoardPVP::LBoardPVP(LObserver* observer) {
+	gStateMachine->push(new LTransition(FADE_IN, NULL));
 	mEngine = new LEngine();
 	this->Attach(observer);
 	this->initSettings();
@@ -66,7 +68,7 @@ void LBoardPVP::update() {
 		}
 		else if(e.type == SDL_KEYDOWN) {
 			if(e.key.keysym.sym == SDLK_ESCAPE) {
-				gStateMachine->pop();
+				gStateMachine->push(new LTransition(FADE_OUT, new LMainMenuState));
 				return;
 			}
 			else if(e.key.keysym.sym == SDLK_SPACE) {
@@ -80,10 +82,7 @@ void LBoardPVP::update() {
 }
 
 void LBoardPVP::render() {
-	SDL_RenderClear(gRenderer);
 	SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-	gBackgroundTexture->render();
-
 	//display tiles
 	this->renderTile();
 	//display Pieces 
@@ -101,9 +100,6 @@ void LBoardPVP::render() {
 	if(this->isPaused()) {
 		this->renderPause();
 	}
-	
-	SDL_RenderPresent(gRenderer);
-	// SDL_Delay(16);
 
 	//check for victory
 	if(this->isGameOver()) {
@@ -520,7 +516,6 @@ void LBoardPVP::move(SDL_Event* e) {
 		int size = legalPos.size();
 		for(int i(0); i < size; i++) {
 			if((destPos.x == legalPos[i].x) && (destPos.y == legalPos[i].y)) {
-				SDL_Point srcPos = mSelectedPiecePos;
 				//only move if it does not check your own king 
 				if(!mEngine->isMoveSelfCheck(mBoard, mSelectedPiecePos, destPos, mWhiteTurn)) { 
 					doMove(destPos, mSelectedPiecePos, mSelectedPiece);
@@ -805,13 +800,17 @@ void LBoardPVP::renderDeadPieces() {
 void LBoardPVP::changeTurn() {
 	if(mWhiteTurn) {
 		mWhiteTurn = false;
-		pauseWhiteTimer();
-		unpauseBlackTimer();
+		if(mSettings.useTimer == 0) {
+			pauseWhiteTimer();
+			unpauseBlackTimer();
+		}
 	}
 	else {
 		mWhiteTurn = true;
-		unpauseWhiteTimer();
-		pauseBlackTimer();
+		if(mSettings.useTimer == 0) {
+			pauseBlackTimer();
+			unpauseWhiteTimer();
+		}
 	}
 }
 

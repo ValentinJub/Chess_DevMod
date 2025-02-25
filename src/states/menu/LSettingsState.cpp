@@ -26,7 +26,7 @@ void LSettingsState::exit() {
 	mSettings = NULL;
 };
 
-void LSettingsState::update() {
+void LSettingsState::update(Uint64 dt) {
 	mSettings->update();
 };
 

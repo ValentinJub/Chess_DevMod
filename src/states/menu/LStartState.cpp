@@ -8,6 +8,8 @@ extern LMediaFactory* gMediaFactory;
 extern LChunkPlayer* gChunkPlayer;
 extern LStateMachine* gStateMachine;
 
+using tweeny::easing;
+
 LStartState::LStartState() {
 	try {
 		mLogger = spdlog::basic_logger_mt("LStartState", "logs/CApp.log");
@@ -15,6 +17,8 @@ LStartState::LStartState() {
 	catch(const spdlog::spdlog_ex& ex) {
 		std::cerr << "Log init failed: " << ex.what() << std::endl;
 	}
+	mAlpha = 0;
+	mRect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
 };
 
 void LStartState::enter(LObserver* observer) {
@@ -31,7 +35,7 @@ void LStartState::exit() {
 	this->free();
 }
 
-void LStartState::update() {
+void LStartState::update(Uint64 dt) {
 	SDL_Event e;
 	while(SDL_PollEvent(&e) > 0) {
 		if(e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_q)) {
@@ -42,17 +46,30 @@ void LStartState::update() {
 	}
 	// The title screen will only be displayed while the music is playing
 	if(!gChunkPlayer->isPlaying()) {
-		gStateMachine->pop();
+		if(mAlpha == 0) {
+			mTween = tweeny::from(0).to(255).during(2000).via(easing::linear).onStep([this](int alpha) {
+				mAlpha = alpha;
+				return false;
+			});
+		}
+		Uint32 dt32 = static_cast<Uint32>(dt);
+    	mTween.step(dt32);
+		if(mAlpha == 255) {
+			gStateMachine->pop();
+			gStateMachine->push(new LMainMenuState);
+		}
 	}
 }
 
 void LStartState::render() {
-		SDL_RenderClear(gRenderer);
-		gBackgroundTexture->render();
 		for(int i = 0; i < TOTAL_TITLE_ITEMS; i++) {
 			mTitleTexture[i]->render();
 		}
-		SDL_RenderPresent(gRenderer);
+		if(mAlpha > 0) {
+			SDL_SetRenderDrawBlendMode(gRenderer, SDL_BLENDMODE_BLEND);
+			SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, mAlpha);
+			SDL_RenderFillRect(gRenderer, &mRect);
+		}
 }
 
 void LStartState::free() {

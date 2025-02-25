@@ -84,9 +84,10 @@ bool CApp::initWindow() {
 }
 
 bool CApp::initMenus() {
-	gStateMachine->push(new LMainMenuState);
 	if(mShowTitleScreen) {
 		gStateMachine->push(new LStartState);
+	} else {
+		gStateMachine->push(new LMainMenuState);
 	}
 	return true;
 }
@@ -154,9 +155,17 @@ int CApp::exec() {
 		spdlog::error("Critical failure: failed to initialize!");
 	}
 	else {
+		Uint64 NOW = SDL_GetPerformanceCounter();
+		Uint64 LAST = 0;
 		while(this->mAppIsRunning) {
-			gStateMachine->update();
+			LAST = NOW;
+			NOW = SDL_GetPerformanceCounter();
+			double dt = ((NOW - LAST) * 1000 / (double)SDL_GetPerformanceFrequency());
+			gStateMachine->update(dt);
+			SDL_RenderClear(gRenderer);
+			gBackgroundTexture->render();
 			gStateMachine->render();
+			SDL_RenderPresent(gRenderer);
 		}
 	}
 	spdlog::info("Exiting...");

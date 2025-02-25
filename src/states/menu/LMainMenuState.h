@@ -24,7 +24,7 @@ public:
     LMainMenuState();
     void enter(LObserver* observer);
     void exit();
-    void update();
+    void update(Uint64 dt);
     void render();
 
 private:

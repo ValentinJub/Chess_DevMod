@@ -18,7 +18,7 @@ void LBoardState::exit() {
 	mBoard->free();
 }
 
-void LBoardState::update() {
+void LBoardState::update(Uint64 dt) {
 	mBoard->update();
 }
 

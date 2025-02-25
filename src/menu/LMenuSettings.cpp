@@ -6,7 +6,8 @@ Methods for LMenuSettings class
 
 */
 
-#include "LMenuSettings.h"
+#include "menu/LMenuSettings.h"
+#include "states/menu/LMainMenuState.h"
 #include "com/LBorderDecorator.h"
 
 extern SDL_Renderer* gRenderer;
@@ -62,15 +63,12 @@ void LMenuSettings::update() {
 }
 
 void LMenuSettings::render() {
-    SDL_RenderClear(gRenderer);
-    gBackgroundTexture->render();
     this->renderLeftTexture();
     this->renderClickableTexture();
     this->renderSlider();
     if(mShowButtonOutline) {
         this->drawButtons();
     }
-    SDL_RenderPresent(gRenderer);
 }
 
 void LMenuSettings::initFont() {
@@ -176,6 +174,7 @@ void LMenuSettings::handleEvents(SDL_Event* e, SDL_Point mouse) {
             case BACK:
                 this->saveSettingsToFile();
                 gStateMachine->pop();
+                gStateMachine->push(new LMainMenuState);
                 break;
             default:
                 break;

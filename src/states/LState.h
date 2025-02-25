@@ -16,6 +16,7 @@
 #define LSTATE_H
 
 #include <com/logger.h>
+#include "SDL2/SDL.h"
 
 class LObserver;
 
@@ -25,7 +26,7 @@ public:
     virtual void enter(LObserver* observer) = 0;
     virtual void exit() = 0;
     virtual void render() = 0;
-    virtual void update() = 0;
+    virtual void update(Uint64 dt) = 0;
 };
 
 #endif

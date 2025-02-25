@@ -1,4 +1,5 @@
 #include "menu/LMainMenu.h"
+#include "states/game/LBoardState.h"
 
 extern TTF_Font* gFont64; 
 extern TTF_Font* gFont32;
@@ -46,12 +47,9 @@ void LMainMenu::update() {
 }
 
 void LMainMenu::render() {
-	SDL_RenderClear(gRenderer);
-	gBackgroundTexture->render();
 	for(int i(0); i < TOTAL_MENU_ITEMS; i++) {
 		mMenuTextures[i]->render();
 	}
-	SDL_RenderPresent(gRenderer);
 }
 
 void LMainMenu::free() {
@@ -133,7 +131,8 @@ void LMainMenu::handleKeyEvents(SDL_Event* e) {
 				break;
             case SDLK_1:
 				gMusicPlayer->pause();
-				gStateMachine->push(new LBoardState);
+				gStateMachine->push(new LTransition(FADE_OUT, new LBoardState));
+				// gStateMachine->pop();
                 Util::flushEvents();
                 break;
             case SDLK_2:
@@ -144,6 +143,7 @@ void LMainMenu::handleKeyEvents(SDL_Event* e) {
             case SDLK_3:
                 SDL_Delay(20);
                 Util::flushEvents();
+				gStateMachine->pop();
 				gStateMachine->push(new LSettingsState);
                 break;
             }
@@ -159,7 +159,7 @@ void LMainMenu::handleMouseEvents(SDL_Event* e) {
 				case PLAY:
 					gMusicPlayer->pause();
 					Util::flushEvents();
-					gStateMachine->push(new LBoardState);
+					gStateMachine->push(new LTransition(FADE_OUT, new LBoardState));
                 	Util::flushEvents();
 					break;
 				case PLAY_AI:
@@ -171,6 +171,7 @@ void LMainMenu::handleMouseEvents(SDL_Event* e) {
 				case SETTINGS:
 					SDL_Delay(20);
 					Util::flushEvents();
+					gStateMachine->pop();
 					gStateMachine->push(new LSettingsState);
 					Util::flushEvents();
 					break;
