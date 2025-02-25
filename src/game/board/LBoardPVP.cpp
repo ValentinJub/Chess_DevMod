@@ -800,13 +800,17 @@ void LBoardPVP::renderDeadPieces() {
 void LBoardPVP::changeTurn() {
 	if(mWhiteTurn) {
 		mWhiteTurn = false;
-		pauseWhiteTimer();
-		unpauseBlackTimer();
+		if(mSettings.useTimer == 0) {
+			pauseWhiteTimer();
+			unpauseBlackTimer();
+		}
 	}
 	else {
 		mWhiteTurn = true;
-		unpauseWhiteTimer();
-		pauseBlackTimer();
+		if(mSettings.useTimer == 0) {
+			pauseBlackTimer();
+			unpauseWhiteTimer();
+		}
 	}
 }
 

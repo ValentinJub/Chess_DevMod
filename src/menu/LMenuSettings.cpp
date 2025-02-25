@@ -6,7 +6,8 @@ Methods for LMenuSettings class
 
 */
 
-#include "LMenuSettings.h"
+#include "menu/LMenuSettings.h"
+#include "states/menu/LMainMenuState.h"
 #include "com/LBorderDecorator.h"
 
 extern SDL_Renderer* gRenderer;
@@ -173,6 +174,7 @@ void LMenuSettings::handleEvents(SDL_Event* e, SDL_Point mouse) {
             case BACK:
                 this->saveSettingsToFile();
                 gStateMachine->pop();
+                gStateMachine->push(new LMainMenuState);
                 break;
             default:
                 break;
