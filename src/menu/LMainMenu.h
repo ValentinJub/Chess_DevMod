@@ -11,8 +11,9 @@
 #include "factories/LMediaFactory.h"
 #include "sound/LMusicPlayer.h"
 #include "playPVAI.h"
-#include "states/game/LBoardState.h"
+// #include "states/game/LBoardState.h"
 #include "com/logger.h"
+#include "states/LTransition.h"
 
 class LMainMenu : public LSubject, public LVisualComponent {
 public:

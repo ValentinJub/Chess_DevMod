@@ -10,7 +10,7 @@ void LMainMenuState::exit() {
 	mMainMenu->free();
 }
 
-void LMainMenuState::update() {
+void LMainMenuState::update(Uint64 dt) {
 	mMainMenu->update();
 }
 

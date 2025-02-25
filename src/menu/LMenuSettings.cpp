@@ -62,15 +62,12 @@ void LMenuSettings::update() {
 }
 
 void LMenuSettings::render() {
-    SDL_RenderClear(gRenderer);
-    gBackgroundTexture->render();
     this->renderLeftTexture();
     this->renderClickableTexture();
     this->renderSlider();
     if(mShowButtonOutline) {
         this->drawButtons();
     }
-    SDL_RenderPresent(gRenderer);
 }
 
 void LMenuSettings::initFont() {

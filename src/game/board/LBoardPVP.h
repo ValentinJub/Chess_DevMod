@@ -31,6 +31,8 @@ Board also contains settings such as tile colors, legal move displayed on map...
 #include "com/LObserver.h"
 #include "com/LSubject.h"
 #include "states/LStateMachine.h"
+#include "states/LTransition.h"
+// #include "states/menu/LMainMenuState.h"
 #include "game/board/LEngine.h"
 
 class LBoardPVP : public LSubject {

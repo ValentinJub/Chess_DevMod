@@ -20,7 +20,7 @@ public:
     LSettingsState() {};
     void enter(LObserver* observer);
     void exit();
-    void update();
+    void update(Uint64 dt);
     void render();
     void free();
     void Notify();

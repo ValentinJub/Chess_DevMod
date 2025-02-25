@@ -20,7 +20,7 @@ class LBoardState : public LState {
         ~LBoardState();
         void enter(LObserver* observer) override;
         void exit() override;
-        void update() override;
+        void update(Uint64 dt) override;
         void render() override;
     private:
         LBoardPVP* mBoard;
