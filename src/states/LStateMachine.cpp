@@ -14,6 +14,7 @@ void LStateMachine::free() {
 
 // This updates the top most state in the state machine
 void LStateMachine::update(Uint64 dt) {
+    if(mStates.empty()) return;
     mStates.back()->update(dt);
 }
 

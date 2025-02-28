@@ -34,9 +34,41 @@ LMainMenu::LMainMenu(LObserver* observer) {
     if(!this->init()) {
         mLogger->error("Failed to initialize main menu");
     }
+	mPieceTexture = gMediaFactory->getImg(SPRITE_PIECE_SHEET);
+	for(int i(0); i < TOTAL_PIECES - 1; i++) {
+		mPieceClip[i].x = TOTAL_SQUARES*i;
+		mPieceClip[i].y = 0;
+		mPieceClip[i].w = TOTAL_SQUARES;
+		mPieceClip[i].h = TOTAL_SQUARES;
+	}
+	for(int i(0); i < 25; i++) {
+		const int y = -1 * (TOTAL_SQUARES * (rand() % (i + 1)));
+		const int length = rand() % 15000 + 10000;
+		mPieces.push_back(FPiece{
+			rand() % TOTAL_PIECES, 
+			{rand() % SCREEN_WIDTH, y}, 
+			tweeny::from(y).to(SCREEN_HEIGHT).during(length).via(easing::linear).onStep([this, i](int y) {
+				mPieces.at(i).pos.y = y;
+				return false;
+		})});
+	}
 }
 
-void LMainMenu::update() {
+void LMainMenu::update(Uint64 dt) {
+	for(int i(0); i < mPieces.size(); i++) {
+		const int y = -1 * (TOTAL_SQUARES * (rand() % (i + 1)));
+		const int length = rand() % 15000 + 10000;
+		mPieces[i].tween.step(static_cast<Uint32>(dt));
+		if(mPieces[i].pos.y >= SCREEN_HEIGHT) {
+			mPieces[i].pos.y = y;
+			mPieces[i].pos.x = rand() % SCREEN_WIDTH;
+			mPieces[i].piece = rand() % TOTAL_PIECES;
+			mPieces[i].tween = tweeny::from(y).to(SCREEN_HEIGHT).during(length).via(easing::linear).onStep([this, i](int y) {
+				mPieces.at(i).pos.y = y;
+				return false;
+			});
+		}
+	}
     if(!gMusicPlayer->isPlaying()) {
 		gMusicPlayer->play(MUSIC_MENU);
 	}
@@ -47,6 +79,9 @@ void LMainMenu::update() {
 }
 
 void LMainMenu::render() {
+	for(auto piece : mPieces) {
+		mPieceTexture->renderAt(piece.pos.x, piece.pos.y, &mPieceClip[piece.piece]);
+	}
 	for(int i(0); i < TOTAL_MENU_ITEMS; i++) {
 		mMenuTextures[i]->render();
 	}
@@ -58,6 +93,7 @@ void LMainMenu::free() {
     for(int i(0); i < TOTAL_MENU_ITEMS; i++) {
         mMenuTextures[i]->free();
     }
+	mPieces.clear();
 }
 
 bool LMainMenu::init() {

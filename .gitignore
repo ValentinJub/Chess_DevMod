@@ -44,4 +44,5 @@ build/*
 
 resources/settings.config
 chess
-logs/*.log
+logs/*
+logs/CApp.log

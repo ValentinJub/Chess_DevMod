@@ -11,7 +11,7 @@ void LMainMenuState::exit() {
 }
 
 void LMainMenuState::update(Uint64 dt) {
-	mMainMenu->update();
+	mMainMenu->update(dt);
 }
 
 void LMainMenuState::render() {

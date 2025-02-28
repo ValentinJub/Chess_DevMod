@@ -13,12 +13,20 @@
 #include "playPVAI.h"
 // #include "states/game/LBoardState.h"
 #include "com/logger.h"
+#include "tweeny/include/tweeny.h"
 #include "states/LTransition.h"
+using tweeny::easing;
+
+struct FPiece {
+    int piece;
+    SDL_Point pos;
+    tweeny::tween<int> tween;
+};
 
 class LMainMenu : public LSubject, public LVisualComponent {
 public:
     LMainMenu(LObserver* observer);
-    void update();
+    void update(Uint64 dt);
     void free() override;
     void render() override;
 private:
@@ -34,6 +42,13 @@ private:
     LTextureClickable* mMenuTextures[TOTAL_MENU_ITEMS];
     LObserver* mAppObserver;
     std::shared_ptr<spdlog::logger> mLogger;
+
+    // Piece textures and clip
+    LTexture* mPieceTexture;
+    SDL_Rect mPieceClip[TOTAL_PIECES];
+
+    // The vector of piece positions
+    std::vector<FPiece> mPieces;
 };
 
 #endif
