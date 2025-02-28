@@ -94,6 +94,7 @@ void LMainMenu::free() {
         mMenuTextures[i]->free();
     }
 	mPieces.clear();
+	gMusicPlayer->pause();
 }
 
 bool LMainMenu::init() {
@@ -166,13 +167,13 @@ void LMainMenu::handleKeyEvents(SDL_Event* e) {
 				gStateMachine->pop();
 				break;
             case SDLK_1:
-				gMusicPlayer->pause();
+				// gMusicPlayer->pause();
 				gStateMachine->push(new LTransition(FADE_OUT, new LBoardState));
 				// gStateMachine->pop();
                 Util::flushEvents();
                 break;
             case SDLK_2:
-				gMusicPlayer->pause();
+				// gMusicPlayer->pause();
                 // playerVersusComputer();
                 Util::flushEvents();
                 break;
@@ -193,13 +194,13 @@ void LMainMenu::handleMouseEvents(SDL_Event* e) {
 			if(mMenuTextures[i]->isClicked(e)) {
 				switch (i) {
 				case PLAY:
-					gMusicPlayer->pause();
+					// gMusicPlayer->pause();
 					Util::flushEvents();
 					gStateMachine->push(new LTransition(FADE_OUT, new LBoardState));
                 	Util::flushEvents();
 					break;
 				case PLAY_AI:
-					gMusicPlayer->pause();
+					// gMusicPlayer->pause();
               		Util::flushEvents();
 					// playerVersusComputer();
                 	Util::flushEvents();
