@@ -12,7 +12,7 @@ headers for CApp
 #include "utils/util.h"
 #include <memory>
 #include "graphics/LTexture.h"
-#include "LButton.h"
+#include "com/LButton.h"
 #include "com/LWindow.h"
 #include "com/LTimer.h"
 #include "states/LStateMachine.h"

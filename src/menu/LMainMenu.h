@@ -3,7 +3,7 @@
 
 #include "com/headers.h"
 #include "com/constantes.h"
-#include "LButton.h"
+#include "com/LButton.h"
 #include "graphics/LTextureClickable.h"
 #include "com/LSubject.h"
 #include "states/LStateMachine.h"

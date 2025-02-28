@@ -22,7 +22,7 @@ Board also contains settings such as tile colors, legal move displayed on map...
 // #include "iostream"
 // #include "vector"
 // #include "graphics/LTexture.h"
-// #include "LButton.h"
+// #include "com/LButton.h"
 // #include "game/pieces/LKing.h"
 // #include "game/pieces/LRook.h"
 // #include "game/pieces/LBishop.h"

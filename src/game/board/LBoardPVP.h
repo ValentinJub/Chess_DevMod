@@ -23,7 +23,7 @@ Board also contains settings such as tile colors, legal move displayed on map...
 #include "vector"
 #include "graphics/LTexture.h"
 #include "graphics/LTileBorder.h"
-#include "LButton.h"
+#include "com/LButton.h"
 #include "com/LTimer.h"
 #include "sound/LMusicPlayer.h"
 #include "sound/LChunkPlayer.h"

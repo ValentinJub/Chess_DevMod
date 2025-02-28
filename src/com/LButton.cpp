@@ -6,7 +6,7 @@ Methods for LButtons class
 
 */
 
-#include "LButton.h"
+#include "com/LButton.h"
 
 LButton::LButton(int x, int y, int w, int h) {
     mPosition.x = x;

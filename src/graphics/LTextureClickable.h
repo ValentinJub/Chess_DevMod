@@ -2,7 +2,7 @@
 #define LTEXTURECLICKABLE_H
 
 #include "graphics/LTexture.h"
-#include "LButton.h"
+#include "com/LButton.h"
 
 class LTextureClickable : public LTexture {
     public:
