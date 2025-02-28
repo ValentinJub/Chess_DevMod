@@ -8,6 +8,7 @@ Methods for class LBoardPVP
 
 #include "game/board/LBoardPVP.h"
 #include "states/menu/LMainMenuState.h"
+#include "game/board/LClock.h"
 
 using std::vector;
 extern TTF_Font* gFont64;
@@ -19,7 +20,7 @@ extern LMusicPlayer* gMusicPlayer;
 extern LStateMachine* gStateMachine;
 extern LTexture* gBackgroundTexture;
 
-LBoardPVP::LBoardPVP(LObserver* observer) {
+LBoardPVP::LBoardPVP(LObserver* observer) : mAppObserver(observer) {
 	gStateMachine->push(new LTransition(FADE_IN, NULL));
 	mEngine = new LEngine();
 	this->Attach(observer);
@@ -45,13 +46,9 @@ LBoardPVP::LBoardPVP(LObserver* observer) {
 	//Are highlighted at start
 	mSelectedPiecePos = {9, 9};
 
-	//start white and black timer and pause the black as white plays first
-	if(mSettings.useTimer == 0) {
-		mWhiteTimer = new LTimer();
-		mBlackTimer = new LTimer();
-		this->startWhiteTimer();
-		this->startBlackTimer();
-		this->pauseBlackTimer();
+	mClock = mSettings.useTimer == 0 ? new LClock(mTimeLimit) : NULL;
+	if(mClock != NULL) {
+		mClock->start();
 	}
 }
 
@@ -87,8 +84,9 @@ void LBoardPVP::render() {
 	this->renderTile();
 	//display Pieces 
 	this->renderPieces();
-	//display timer and checks for time remaining
-	this->renderTimer();
+	if(mSettings.useTimer == 0) {
+		this->renderTimer();
+	}
 	//display score
 	this->renderScore();
 	//display dead pieces
@@ -97,15 +95,16 @@ void LBoardPVP::render() {
 	//set buttons according to piece pos
 	this->setButtons();
 	
-	if(this->isPaused()) {
+	if(mIsPaused) {
 		this->renderPause();
 	}
 
 	//check for victory
-	if(this->isGameOver()) {
+	if(mGameOver) {
 		//Pay victory sound and quit
 		this->playVictorySound();
 		gStateMachine->pop();
+		gStateMachine->push(new LMainMenuState);
 		return;
 	}
 	//check for defeat by time out
@@ -131,29 +130,16 @@ void LBoardPVP::playMusic() {
 	}
 }
 
-bool LBoardPVP::isPaused() const {
-	return mIsPaused;
+void LBoardPVP::pause() {
+	if(mIsPaused && mSettings.useTimer == 0) {
+		mClock->unpause();
+	} else if(!mIsPaused && mSettings.useTimer == 0) {
+		mClock->pause();
+	}
+	mIsPaused = !mIsPaused;
+	gMusicPlayer->pause();
 }
 
-void LBoardPVP::pause() {
-	if(mIsPaused) {
-		gMusicPlayer->pause();
-		mIsPaused = false;
-		if(mSettings.useTimer == 0) {
-			if(mWhiteTurn) unpauseWhiteTimer();
-			else unpauseBlackTimer();
-		}
-	}
-	else {
-		mIsPaused = true;
-		gMusicPlayer->pause();
-		if(mSettings.useTimer == 0) {
-			if(mWhiteTurn) pauseWhiteTimer();
-			else pauseBlackTimer();
-		}
-	}
-}
-		
 LBoardPVP::~LBoardPVP() {
 	free();
 }
@@ -178,14 +164,6 @@ void LBoardPVP::free() {
 		mBlackTimerTexture->free();
 		mBlackTimerTexture = NULL;
 	}
-	if(mWhiteTimer != NULL) {
-		delete mWhiteTimer;
-		mWhiteTimer = NULL;
-	}
-	if(mBlackTimer != NULL) {
-		delete mBlackTimer;
-		mBlackTimer = NULL;
-	}
 	
 	mWhiteScoreTexture->free();
 	mWhiteScoreTexture = NULL;
@@ -194,10 +172,6 @@ void LBoardPVP::free() {
 	
 	mPieceButtons.clear();
 	mLegalMoveTile.clear();
-}
-
-void LBoardPVP::startWhiteTimer() {
-	mWhiteTimer->start();
 }
 
 void LBoardPVP::initSettings() {
@@ -670,52 +644,48 @@ void LBoardPVP::playVictorySound() const {
 }
 
 void LBoardPVP::renderTimer() {
-	if(mSettings.useTimer == 0) {
-		// white timer total time left in seconds
-		int wtime = mTimeLimit - (mWhiteTimer->getTicks() / 1000);
-
-		// if the timer ran out we set it to 0 to avoid displaying negative time
-		if(wtime < 0) {
-			wtime = 0;
-			mWhiteTimerRanOut = true;
-		}
-
-		// minutes left for white 
-		int wminutes = wtime / 60;
-		// seconds left for white 
-		int ws = wtime % 60;
-		
-		//In memory text stream
-		std::stringstream whiteTimeText;
-		if(ws > 9) {
-			whiteTimeText << std::to_string(wminutes) + ":" + std::to_string(ws);
-		}
-		else whiteTimeText << std::to_string(wminutes) + ":" + "0" + std::to_string(ws);
-		
-		mWhiteTimerTexture = gMediaFactory->getTxt(whiteTimeText.str().c_str(), gFont64, COLOR_BLACK);
-		mWhiteTimerTexture->renderAt(0,SCREEN_HEIGHT - 64);
-		
-		// black timer total time left in seconds
-		int btime = mTimeLimit - (mBlackTimer->getTicks() / 1000);
-
-		// if the timer ran out we set it to 0 to avoid displaying negative time
-		if(btime < 0) {
-			btime = 0;
-			mBlackTimerRanOut = true;
-		}
-
-		// minutes left for black
-		int bminutes = btime / 60;
-		// seconds left for black
-		int bs = btime % 60;
-		
-		//In memory text stream
-		std::stringstream blackTimeText;
-		if(bs > 9) blackTimeText << std::to_string(bminutes) + ":" + std::to_string(bs);
-		else blackTimeText << std::to_string(bminutes) + ":" + "0" + std::to_string(bs);
-		mBlackTimerTexture = gMediaFactory->getTxt(blackTimeText.str().c_str(), gFont64, COLOR_BLACK);
-		mBlackTimerTexture->renderAt(0,0);
+	// white timer total time left in seconds
+	int wtime = mClock->white();
+	// if the timer ran out we set it to 0 to avoid displaying negative time
+	if(wtime < 0) {
+		wtime = 0;
+		mWhiteTimerRanOut = true;
 	}
+
+	// minutes left for white 
+	int wminutes = wtime / 60;
+	// seconds left for white 
+	int ws = wtime % 60;
+	
+	//In memory text stream
+	std::stringstream whiteTimeText;
+	if(ws > 9) {
+		whiteTimeText << std::to_string(wminutes) + ":" + std::to_string(ws);
+	}
+	else whiteTimeText << std::to_string(wminutes) + ":" + "0" + std::to_string(ws);
+	
+	mWhiteTimerTexture = gMediaFactory->getTxt(whiteTimeText.str().c_str(), gFont64, COLOR_BLACK);
+	mWhiteTimerTexture->renderAt(0,SCREEN_HEIGHT - 64);
+	
+	// black timer total time left in seconds
+	int btime = mClock->black();
+	// if the timer ran out we set it to 0 to avoid displaying negative time
+	if(btime < 0) {
+		btime = 0;
+		mBlackTimerRanOut = true;
+	}
+
+	// minutes left for black
+	int bminutes = btime / 60;
+	// seconds left for black
+	int bs = btime % 60;
+	
+	//In memory text stream
+	std::stringstream blackTimeText;
+	if(bs > 9) blackTimeText << std::to_string(bminutes) + ":" + std::to_string(bs);
+	else blackTimeText << std::to_string(bminutes) + ":" + "0" + std::to_string(bs);
+	mBlackTimerTexture = gMediaFactory->getTxt(blackTimeText.str().c_str(), gFont64, COLOR_BLACK);
+	mBlackTimerTexture->renderAt(0,0);
 }
 
 void LBoardPVP::renderScore() {
@@ -798,25 +768,15 @@ void LBoardPVP::renderDeadPieces() {
 }
 
 void LBoardPVP::changeTurn() {
-	if(mWhiteTurn) {
-		mWhiteTurn = false;
-		if(mSettings.useTimer == 0) {
-			pauseWhiteTimer();
-			unpauseBlackTimer();
-		}
-	}
-	else {
-		mWhiteTurn = true;
-		if(mSettings.useTimer == 0) {
-			pauseBlackTimer();
-			unpauseWhiteTimer();
-		}
+	mWhiteTurn = !mWhiteTurn;
+	if(mSettings.useTimer == 0) {
+		mClock->next();
 	}
 }
 
-bool LBoardPVP::isGameOver() const {
-	return mGameOver;
-}
+// bool LBoardPVP::isGameOver() const {
+// 	return mGameOver;
+// }
 
 bool LBoardPVP::isOutOfTime() {
 	if(mWhiteTimerRanOut || mBlackTimerRanOut) {
@@ -872,32 +832,4 @@ void LBoardPVP::fillDeadPieceTab(const int fallenPiece) {
 	else {
 		mDeadWhitePiece[fallenPiece]++;
 	}
-}
-
-void LBoardPVP::startBlackTimer() {
-	mBlackTimer->start();
-}
-
-void LBoardPVP::pauseWhiteTimer() {
-	mWhiteTimer->pause();
-}
-
-void LBoardPVP::pauseBlackTimer() {
-	mBlackTimer->pause();
-}
-
-void LBoardPVP::unpauseWhiteTimer() {
-	mWhiteTimer->unpause();
-}
-
-void LBoardPVP::unpauseBlackTimer() {
-	mBlackTimer->unpause();
-}
-
-void LBoardPVP::stopWhiteTimer() {
-	mWhiteTimer->stop();
-}
-
-void LBoardPVP::stopBlackTimer() {
-	mBlackTimer->stop();
 }

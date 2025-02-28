@@ -32,8 +32,9 @@ Board also contains settings such as tile colors, legal move displayed on map...
 #include "com/LSubject.h"
 #include "states/LStateMachine.h"
 #include "states/LTransition.h"
-// #include "states/menu/LMainMenuState.h"
 #include "game/board/LEngine.h"
+
+class LClock;
 
 class LBoardPVP : public LSubject {
 
@@ -48,6 +49,8 @@ private:
     LObserver* mAppObserver;
     OptionValues mSettings;
     LEngine* mEngine;
+    LClock* mClock;
+    std::array<std::array<int, SPL>, SPL> mBoard;
 
     //textures
     LTexture *mPieceTexture;
@@ -98,15 +101,6 @@ private:
     void renderPause();
     void drawButtons();
 
-    void startWhiteTimer();
-    void startBlackTimer();
-    void pauseWhiteTimer();
-    void pauseBlackTimer();
-    void unpauseWhiteTimer();
-    void unpauseBlackTimer();
-    void stopWhiteTimer();
-    void stopBlackTimer();
-
     void playVictorySound() const;
     void playMusic();
     void playMoveSound(bool captured, bool castled) const;
@@ -114,9 +108,8 @@ private:
     void handleEvents(SDL_Event* e);
     void changeTurn();
 
-    bool isGameOver() const;
+    // bool isGameOver() const;
     bool isOutOfTime();
-    bool isPaused() const;
     void pause();
     void fillDeadPieceTab(const int fallenPiece);
     int pieceValue(int const pieceType) const;
@@ -125,10 +118,7 @@ private:
     void move(SDL_Event* e);
     void setCastlingBools(SDL_Point src, int piece);
     bool checkPromotion(SDL_Point dest);
-    
-    std::array<std::array<int, SPL>, SPL> mBoard;
-    LTimer* mWhiteTimer = NULL;
-    LTimer* mBlackTimer = NULL;
+
     int mTimeLimit;
     int mDeadWhitePiece[EMPTY];
     int mDeadBlackPiece[EMPTY];
