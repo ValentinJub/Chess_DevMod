@@ -24,12 +24,14 @@ bool LChunkPlayer::isPlaying() const {
     return Mix_Playing(-1);
 }
 
-void LChunkPlayer::play(const char* chunk, int loop) {
+int LChunkPlayer::play(const char* chunk, int loop) {
     Mix_Chunk* sound = gMediaFactory->getChunk(chunk);
     if(sound != NULL) {
         int chan = Mix_PlayChannel(-1, sound, loop);
         Mix_Volume(chan, mVolume);
+        return chan;
     }
+    return -1;
 }
 
 void LChunkPlayer::stop() {

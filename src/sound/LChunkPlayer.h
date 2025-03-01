@@ -9,7 +9,7 @@ public:
     static LChunkPlayer* Instance();
     ~LChunkPlayer();
     void free();
-    void play(const char* chunk, int loop = 0);
+    int play(const char* chunk, int loop = 0);
     void stop();
     bool isPlaying() const;
     void setVolume(uint8_t volume);
