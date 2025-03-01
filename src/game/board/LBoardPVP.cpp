@@ -61,6 +61,35 @@ void LBoardPVP::poll(LSubject* sub, int value) {
 }
 
 void LBoardPVP::update() {
+	if(mGameOver) {
+		if(Mix_PlayingMusic()) {
+			Mix_FadeOutMusic(3000);
+		}
+		const int chanCM = gChunkPlayer->play(CHUNK_CHECKMATE);
+		while(Mix_Playing(chanCM) > 0) {
+			SDL_Delay(16);
+		}
+		const int chanVictory = gChunkPlayer->play(CHUNK_VICTORY);
+		while(Mix_Playing(chanVictory) > 0) {
+			SDL_Delay(16);
+		}
+		gStateMachine->push(new LTransition(FADE_OUT, new LMainMenuState));
+		return;
+	}
+	else if(mWhiteTimerRanOut || mBlackTimerRanOut) {
+		if(Mix_PlayingMusic()) {
+			Mix_FadeOutMusic(500);
+		}
+		this->initOutOfTimeTexture();
+		this->renderOutOfTimeScreen();
+		const int chanDef = gChunkPlayer->play(CHUNK_DEFEAT);
+		while(Mix_Playing(chanDef) > 0) {
+			SDL_Delay(16);
+		}
+		gStateMachine->push(new LTransition(FADE_OUT, new LMainMenuState));
+		return;
+	}
+
 	if(Mix_PlayingMusic() == 0) {
 		this->playMusic();
 	}
@@ -78,50 +107,36 @@ void LBoardPVP::update() {
 			}
 			else if(e.key.keysym.sym == SDLK_SPACE) {
 				this->pause();
-			} else if(e.key.keysym.sym == SDLK_x) {
+			} 
+			else if(e.key.keysym.sym == SDLK_x) {
 				mBoard = promotionBoard;
+			} 
+			else if(e.key.keysym.sym == SDLK_c) {
+				mBoard = castlingBoard;
+			}
+			else if(e.key.keysym.sym == SDLK_r) {
+				mBoard = normalBoard;
 			}
 		}
 		if(!(mIsPaused)) {
 			this->handleEvents(&e);
 		}
 	}
+	//set buttons according to piece pos
+	this->setButtons();
 }
 
 void LBoardPVP::render() {
 	SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-	//display tiles
 	this->renderTile();
-	//display Pieces 
 	this->renderPieces();
 	if(mSettings.useTimer == 0) {
 		this->renderTimer();
 	}
-	//display score
 	this->renderScore();
-	//display dead pieces
 	this->renderDeadPieces();
-	
-	//set buttons according to piece pos
-	this->setButtons();
-	
 	if(mIsPaused) {
 		this->renderPause();
-	}
-
-	//check for victory
-	if(mGameOver) {
-		//Pay victory sound and quit
-		this->playVictorySound();
-		gStateMachine->pop();
-		gStateMachine->push(new LMainMenuState);
-		return;
-	}
-	//check for defeat by time out
-	if(this->isOutOfTime()) {
-		SDL_Delay(1750);
-		gStateMachine->pop();
-		return;
 	}
 }
 
@@ -200,7 +215,7 @@ void LBoardPVP::initSettings() {
 		values[6]
 	};
 
-	mTimeLimit = mSettings.timeLimit == 0 ? 300 : 600;
+	mTimeLimit = mSettings.timeLimit == 0 ? 3 : 600;
 }
 
 bool LBoardPVP::initPiecesTextures() {
@@ -585,7 +600,7 @@ void LBoardPVP::setCastlingBools(SDL_Point pos, int piece) {
 
 bool LBoardPVP::checkPromotion(SDL_Point pos) {
 	if((mSelectedPiece == WPAWN && pos.y == 0) || (mSelectedPiece == BPAWN && pos.y == 7)) {
-		gStateMachine->push(new LPromotion(mWhiteTurn, pos.x, this));
+		gStateMachine->push(new LPromotion(mWhiteTurn, pos.x, mSettings.pieceTheme == 0 ? SPRITE_PIECE_SHEET : SPRITE_RETRO_PIECE_SHEET, this));
 		mPromotedPiecePos = pos;
 		return true;
 	}
@@ -605,17 +620,7 @@ void LBoardPVP::playMoveSound(bool captured, bool castled) const {
 }
 
 void LBoardPVP::playVictorySound() const {
-	if(Mix_PlayingMusic()) {
-		Mix_FadeOutMusic(3000);
-	}
-	gChunkPlayer->play(CHUNK_CHECKMATE);
-	while(Mix_Playing(-1) > 0) {
-		SDL_Delay(16);
-	}
-	gChunkPlayer->play(CHUNK_VICTORY);
-	while(Mix_Playing(-1) > 0) {
-		SDL_Delay(16);
-	}
+	
 }
 
 void LBoardPVP::renderTimer() {
@@ -747,22 +752,6 @@ void LBoardPVP::changeTurn() {
 	if(mSettings.useTimer == 0) {
 		mClock->next();
 	}
-}
-
-bool LBoardPVP::isOutOfTime() {
-	if(mWhiteTimerRanOut || mBlackTimerRanOut) {
-		if(Mix_PlayingMusic()) {
-			Mix_FadeOutMusic(500);
-		}
-		this->initOutOfTimeTexture();
-		this->renderOutOfTimeScreen();
-		gChunkPlayer->play(CHUNK_DEFEAT);
-		while(Mix_Playing(-1) > 0) {
-			SDL_Delay(16);
-		}
-		return 1;
-	}
-	return 0;
 }
 
 void LBoardPVP::fillDeadPieceTab(const int fallenPiece) {

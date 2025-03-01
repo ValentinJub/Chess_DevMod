@@ -113,7 +113,6 @@ private:
     void postMove(SDL_Point dest);
     void changeTurn();
 
-    bool isOutOfTime();
     void pause();
     void fillDeadPieceTab(const int fallenPiece);
     bool checkPromotion(SDL_Point dest);
