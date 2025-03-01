@@ -21,6 +21,8 @@ class LEngine {
         bool getRookHasMoved(bool isWhite, int rook);
 
         void setEnPassant(int piece, SDL_Point src, SDL_Point dest);
+
+        int pieceValue(int const pieceType) const;
         private:
 
         SDL_Point findKing(const std::array<std::array<int, SPL>, SPL>& board, bool isWhite);

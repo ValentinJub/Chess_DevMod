@@ -397,3 +397,34 @@ void LEngine::setEnPassant(int piece, SDL_Point src, SDL_Point dest) {
     mLastMovedPieceSrcPos = src;
     mLastMovedPieceDestPos = dest;
 }
+
+int LEngine::pieceValue(int const pieceType) const {
+	switch(pieceType) {
+		case BBISHOP: 
+			return BISHOP_VALUE;
+		case BKING:
+			return KING_VALUE;
+		case BKNIGHT:
+			return KNIGHT_VALUE;
+		case BPAWN:
+			return PAWN_VALUE;
+		case BQUEEN:
+			return QUEEN_VALUE;
+		case BROOK:
+			return ROOK_VALUE;
+		case WBISHOP:
+			return BISHOP_VALUE;
+		case WKING:
+			return KING_VALUE;
+		case WKNIGHT:
+			return KNIGHT_VALUE;
+		case WPAWN:
+			return PAWN_VALUE;
+		case WQUEEN:
+			return QUEEN_VALUE;
+		case WROOK:
+			return ROOK_VALUE;
+		default:
+			return 0;
+	}
+}

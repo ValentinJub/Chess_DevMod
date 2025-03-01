@@ -1,6 +1,6 @@
 CXX = g++
 
-CFLAGS = -Wall -std=c++11 -ferror-limit=100
+CFLAGS = -Wall -std=c++14 -ferror-limit=100
 
 LDFLAGS = -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lfmt -lspdlog
 

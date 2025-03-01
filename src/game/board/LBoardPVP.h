@@ -36,7 +36,7 @@ Board also contains settings such as tile colors, legal move displayed on map...
 
 class LClock;
 
-class LBoardPVP : public LSubject {
+class LBoardPVP : public LSubject, public LObserver {
 
 public:
     LBoardPVP(LObserver* observer);
@@ -44,11 +44,12 @@ public:
     void update();
     void render();
     void free();
+    void poll(LSubject* sub, int value) override;
 
 private:
     LObserver* mAppObserver;
     OptionValues mSettings;
-    LEngine* mEngine;
+    LEngine mEngine;
     LClock* mClock;
     std::array<std::array<int, SPL>, SPL> mBoard;
 
@@ -80,8 +81,8 @@ private:
     
     //Selected piece
     SDL_Point mSelectedPiecePos;
+    SDL_Point mPromotedPiecePos;
 
-    bool initBoard();
     bool initPiecesTextures();
     bool initTileTextures();
     bool initPauseTexture();
@@ -91,6 +92,7 @@ private:
     void setPiecesClip();
     void setTileRectClip();
     void setButtons();
+    void setCastlingBools(SDL_Point src, int piece);
 
     void renderTile();
     void renderPieces();
@@ -106,24 +108,21 @@ private:
     void playMoveSound(bool captured, bool castled) const;
 
     void handleEvents(SDL_Event* e);
+    void doMove(SDL_Point dest, SDL_Point src, int piece);
+    void move(SDL_Event* e);
+    void postMove(SDL_Point dest);
     void changeTurn();
 
-    // bool isGameOver() const;
     bool isOutOfTime();
     void pause();
     void fillDeadPieceTab(const int fallenPiece);
-    int pieceValue(int const pieceType) const;
-
-    void doMove(SDL_Point dest, SDL_Point src, int piece);
-    void move(SDL_Event* e);
-    void setCastlingBools(SDL_Point src, int piece);
     bool checkPromotion(SDL_Point dest);
 
     int mTimeLimit;
     int mDeadWhitePiece[EMPTY];
     int mDeadBlackPiece[EMPTY];
 
-    int mSelectedPiece;
+    int mSelectedPiece = EMPTY;
 
     bool mWhiteTurn = true,
          mWhiteTimerRanOut = false,
