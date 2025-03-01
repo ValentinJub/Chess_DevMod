@@ -11,6 +11,7 @@ Methods for class LBoard
 #include "game/board/LClock.h"
 #include "graphics/LPromotion.h"
 #include "game/board/layout.h"
+#include "game/board/LComputer.h"
 
 using std::vector;
 extern TTF_Font* gFont64;
@@ -31,6 +32,12 @@ LBoard::LBoard(LObserver* observer, PlayMode mode) : mAppObserver(observer), mPl
 	this->initPauseTexture();
 	this->setTileRectClip();
 	this->setPiecesClip();
+
+	if(mPlayMode == PVAI) {
+		mComputer = new LComputer(new LEngine);
+	} else {
+		mComputer = NULL;
+	}
 
 	mBoard = normalBoard;
 
@@ -61,6 +68,11 @@ void LBoard::poll(LSubject* sub, int value) {
 }
 
 void LBoard::update() {
+	if(mPlayMode == PVAI && !mWhiteTurn && !mIsPaused) {
+		this->computerMove();
+		SDL_Delay(500);
+		return;
+	}
 	if(mGameOver) {
 		if(Mix_PlayingMusic()) {
 			Mix_FadeOutMusic(3000);
@@ -761,4 +773,11 @@ void LBoard::fillDeadPieceTab(const int fallenPiece) {
 	else {
 		mDeadWhitePiece[fallenPiece]++;
 	}
+}
+
+void LBoard::computerMove() {
+	// Generate a move
+	ChessMove move = mComputer->play(mBoard, mWhiteTurn);
+	// Move the piece
+	this->doMove(move.dst, move.src, move.piece);
 }

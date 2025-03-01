@@ -35,6 +35,7 @@ Board also contains settings such as tile colors, legal move displayed on map...
 #include "game/board/LEngine.h"
 
 class LClock;
+class LComputer;
 
 enum PlayMode {
     PVP = 0,
@@ -56,6 +57,7 @@ private:
     LObserver* mAppObserver;
     OptionValues mSettings;
     LEngine mEngine;
+    LComputer* mComputer;
     LClock* mClock;
     std::array<std::array<int, SPL>, SPL> mBoard;
 
@@ -114,10 +116,12 @@ private:
     void playMoveSound(bool captured, bool castled) const;
 
     void handleEvents(SDL_Event* e);
+    void changeTurn();
+
     void doMove(SDL_Point dest, SDL_Point src, int piece);
     void move(SDL_Event* e);
     void postMove(SDL_Point dest);
-    void changeTurn();
+    void computerMove();
 
     void pause();
     void fillDeadPieceTab(const int fallenPiece);
