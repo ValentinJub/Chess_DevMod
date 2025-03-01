@@ -38,7 +38,7 @@ private:
 	void free();
 	void closeSDL();
 	void freeGlobalVars();
-	void poll(LSubject* subject);
+	void poll(LSubject* subject, int value);
 	// bool loadWindowIcon(std::string path);
 
 	bool mAppIsRunning, mShowTitleScreen;

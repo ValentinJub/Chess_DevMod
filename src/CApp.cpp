@@ -129,7 +129,8 @@ bool CApp::init() {
 	return initSDL() && initWindow() && initGlobalVars() && initMenus();
 }
 
-void CApp::poll(LSubject* subject) {
+void CApp::poll(LSubject* subject, int value) {
+	// We don't use any of the params here, a signal is enough to stop the app
 	mAppIsRunning = false;
 }
 
