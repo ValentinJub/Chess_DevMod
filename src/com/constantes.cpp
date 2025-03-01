@@ -6,7 +6,7 @@ const char* FILE_SETTINGS_RIGHT = "resources/setr.config";
 const char* FILE_MAP = "resources/map.map";
 const char* FILE_MAP_CASTLE = "resources/map.castling";
 
-const char* FONT_BRANDA = "resources/branda.ttf";
+const char* FONT_BRANDA = "media/fonts/branda.ttf";
 
 const char* CHUNK_CHIME = "media/soundeffects/chime.wav";
 const char* CHUNK_CHECK = "media/soundeffects/checkUS.wav";
