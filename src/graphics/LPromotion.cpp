@@ -9,7 +9,7 @@ extern LStateMachine* gStateMachine;
 const std::array<int, 4> WhitePiece = {WBISHOP, WKNIGHT, WQUEEN, WROOK};
 const std::array<int, 4> BlackPiece = {BBISHOP, BKNIGHT, BQUEEN, BROOK};
 
-LPromotion::LPromotion(bool isWhite, int column, LObserver* observer) : mIsWhite(isWhite), mBoardObs(observer) {
+LPromotion::LPromotion(bool isWhite, int column, const char* pieceType, LObserver* observer) : mIsWhite(isWhite), mBoardObs(observer) {
     this->Attach(observer);
     int x = column * TOTAL_SQUARES + (4 * TOTAL_SQUARES) < SCREEN_WIDTH ? column * TOTAL_SQUARES : SCREEN_WIDTH - (4 * TOTAL_SQUARES);
     x = column > 0 && column < 7 ? x - (TOTAL_SQUARES / 2) : x; // adjust x position to be centered to the piece we promote
@@ -19,7 +19,7 @@ LPromotion::LPromotion(bool isWhite, int column, LObserver* observer) : mIsWhite
         mRect = {x, SCREEN_HEIGHT - TOTAL_SQUARES, TOTAL_SQUARES * 4, TOTAL_SQUARES};
     }
     for(int i(0); i < 4; i++) {
-        mTexture[i] = gMediaFactory->getImgClickable(SPRITE_PIECE_SHEET);
+        mTexture[i] = gMediaFactory->getImgClickable(pieceType);
         if(isWhite) {
             mTexture[i]->setClip(new SDL_Rect{WhitePiece[i] * TOTAL_SQUARES, 0, TOTAL_SQUARES, TOTAL_SQUARES});
         } else {

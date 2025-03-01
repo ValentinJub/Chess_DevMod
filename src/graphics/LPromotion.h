@@ -7,7 +7,7 @@
 
 class LPromotion : public LVisualComponent, public LSubject, public LState {
 public:
-    LPromotion(bool isWhite, int column, LObserver* observer);
+    LPromotion(bool isWhite, int column, const char* pieceType, LObserver* observer);
     void enter(LObserver* observer);
     void exit();
     void update(Uint64 dt);
