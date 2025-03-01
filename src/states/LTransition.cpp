@@ -62,7 +62,7 @@ void LTransition::update(Uint64 dt) {
 	while(SDL_PollEvent(&e) > 0) {
 		if(e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_q)) {
 			mLogger->info("Detected quit signal");
-			this->Notify();
+			this->Notify(0);
 			gStateMachine->pop();
 		}
 	}

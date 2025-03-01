@@ -122,7 +122,7 @@ bool LMenuSettings::getMouseFollow() const {
 
 void LMenuSettings::handleEvents(SDL_Event* e, SDL_Point mouse) {
     if(e->type == SDL_QUIT) {
-        this->Notify();
+        this->Notify(0);
     }
     // handles slider events to control the volume
     mSlider->handleEvents(e, mouse);

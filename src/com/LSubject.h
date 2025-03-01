@@ -8,7 +8,7 @@ class LSubject {
 public:
     virtual void Attach(LObserver* observer);
     virtual void Detach(LObserver* observer);
-    virtual void Notify();
+    virtual void Notify(int value);
 protected:
     LSubject();
 private:

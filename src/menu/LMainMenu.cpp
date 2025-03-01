@@ -157,13 +157,13 @@ void LMainMenu::handleEvents(SDL_Event* e) {
 
 void LMainMenu::handleKeyEvents(SDL_Event* e) {
 	if(e->type == SDL_QUIT) {
-		this->Notify();
+		this->Notify(0);
 		gStateMachine->pop();
 	} 
     else if(e->type == SDL_KEYDOWN) {
         switch(e->key.keysym.sym) {
             case SDLK_ESCAPE:
-				this->Notify();
+				this->Notify(0);
 				gStateMachine->pop();
 				break;
             case SDLK_1:

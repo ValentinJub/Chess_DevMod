@@ -10,8 +10,8 @@ void LSubject::Detach(LObserver* observer) {
     mObservers.erase(std::remove(mObservers.begin(), mObservers.end(), observer), mObservers.end());
 }
 
-void LSubject::Notify() {
+void LSubject::Notify(int value) {
     for(auto observer : mObservers) {
-        observer->poll(this);
+        observer->poll(this, value);
     }
 }
