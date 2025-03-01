@@ -10,8 +10,6 @@
 #include "states/menu/LSettingsState.h"
 #include "factories/LMediaFactory.h"
 #include "sound/LMusicPlayer.h"
-#include "playPVAI.h"
-// #include "states/game/LBoardState.h"
 #include "com/logger.h"
 #include "tweeny/include/tweeny.h"
 #include "states/LTransition.h"
