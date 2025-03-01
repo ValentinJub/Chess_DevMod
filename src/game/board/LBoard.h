@@ -1,5 +1,5 @@
 /*
-LBoardPVP.h
+LBoard.h
 Sun Mar 20 2022
 by Valentin
 -----------
@@ -36,17 +36,23 @@ Board also contains settings such as tile colors, legal move displayed on map...
 
 class LClock;
 
-class LBoardPVP : public LSubject, public LObserver {
+enum PlayMode {
+    PVP = 0,
+    PVAI = 1
+};
+
+class LBoard : public LSubject, public LObserver {
 
 public:
-    LBoardPVP(LObserver* observer);
-    ~LBoardPVP();
+    LBoard(LObserver* observer, PlayMode mode);
+    ~LBoard();
     void update();
     void render();
     void free();
     void poll(LSubject* sub, int value) override;
 
 private:
+    PlayMode mPlayMode;
     LObserver* mAppObserver;
     OptionValues mSettings;
     LEngine mEngine;
