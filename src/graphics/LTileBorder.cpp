@@ -16,7 +16,6 @@ LTileBorder::~LTileBorder() {
 
 void LTileBorder::render() {
     SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0xFF, 0xFF);
-    int length = (mW < mH) ? mW / 4 : mH / 4;
     for(int i(0); i < mThickness; i++) {
         // draw the lines from point TL horizontally
         SDL_RenderDrawLine(

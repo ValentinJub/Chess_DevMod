@@ -17,8 +17,6 @@ private:
     bool mIsWhite;
     // The piece spritesheet texture
     std::array<LTextureClickable*, 4> mTexture;
-    // The pieces clip
-    SDL_Rect mClip[4];
     // The rectangle for the promotion
     SDL_Rect mRect;
     LObserver* mBoardObs;
