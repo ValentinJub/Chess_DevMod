@@ -70,8 +70,8 @@ void LBoard::poll(LSubject* sub, int value) {
 
 void LBoard::update() {
 	if(mPlayMode == PVAI && !mWhiteTurn && !mIsPaused) {
-		this->computerMove();
 		SDL_Delay(500);
+		this->computerMove();
 		return;
 	}
 	if(mGameOver) {
