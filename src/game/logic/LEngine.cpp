@@ -260,6 +260,10 @@ std::vector<SDL_Point> LEngine::kingMoves(std::array<std::array<int, SPL>, SPL> 
 	}
 	// Castling
 	if(!kingMoved) {
+		// No castling can happen if the king is currently in check
+		if(this->isKingInCheck(map, isWhite)) {
+			return legalPos;
+		}
 		if(!rook1Moved) { 
 			if(isWhite) { // A1 rook
 				// Ensure the path is clear
