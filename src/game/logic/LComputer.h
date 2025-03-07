@@ -3,6 +3,8 @@
 
 #include "com/headers.h"
 #include "com/constantes.h"
+#include "com/logger.h"
+#include "utils/util.h"
 #include <vector>
 
 struct ChessMove {
@@ -46,6 +48,7 @@ class LComputer {
         ChessMove playTest(std::array<std::array<int, SPL>, SPL> board, bool isWhite, int depth);
     private:
         LEngine* mEngine;
+        std::shared_ptr<spdlog::logger> mLogger;
         // https://www.chessprogramming.org/Simplified_Evaluation_Function
         int evaluate(std::array<std::array<int, SPL>, SPL> board, bool isWhite);
         int scorePieces(std::array<std::array<int, SPL>, SPL> board, bool isWhite);

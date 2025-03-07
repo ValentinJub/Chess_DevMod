@@ -3,41 +3,66 @@
 #include "game/logic/pieceSquareTables.h"
 #include <algorithm>
 
-LComputer::LComputer(LEngine* engine) : mEngine(engine) {}
+LComputer::LComputer(LEngine* engine) : mEngine(engine) {
+   try {
+		mLogger = spdlog::basic_logger_mt("LMainMenu", "logs/CApp.log");
+	}
+	catch(const spdlog::spdlog_ex& ex) {
+		std::cerr << "Log init failed: " << ex.what() << std::endl;
+	}
+}
 
 LComputer::~LComputer() {
     mEngine = NULL;
 }
 
 ChessMove LComputer::playTest(std::array<std::array<int, SPL>, SPL> board, bool isWhite, int depth) {
-    // The current score of the board
-    int score = this->evaluate(board, isWhite);
-
+    mLogger->debug("~~~~~~~~~~~~Start~~~~~~~~~~~");
+    mLogger->debug("Starting to find a move to play for the AI - this is the playTest() function with depth {}", depth);
+    
+    // The current score of the player
+    const int currentScore = this->evaluate(board, isWhite);
+    // The current score of the opponent
+    const int opponentScore = this->evaluate(board, !isWhite);
+    // The current delta between the two scores
+    const int delta = currentScore - opponentScore;
+    // The best score we can get
+    int bestScore = delta;
     // The list of legal moves
     std::vector<ChessMove> moves = this->getMoves(board, isWhite);
-    
     // The best move, we default to a random move in case we can't find one that leads to a better score
     ChessMove bestMove = moves[rand() % moves.size()];
     
-    for(auto move : moves) {
-        int pieceDst = board[move.dst.y][move.dst.x];
-        int pieceSrc = board[move.src.y][move.src.x];
+    for(int i(0); i < moves.size(); i++) {
+        ChessMove move = moves[i];
 
-
+        mLogger->debug("~~~~~~~~~~~~Move {}~~~~~~~~~~~", i + 1);
+        mLogger->debug("Current board score: {}\n{}", currentScore, Util::printBoard(board));        
+        mLogger->debug("Move from {} {} to {} {}", move.src.x, move.src.y, move.dst.x, move.dst.y);    
         // Simulate the move
         std::array<std::array<int, SPL>, SPL> newBoard = board;
         newBoard[move.dst.y][move.dst.x] = move.piece;
         newBoard[move.src.y][move.src.x] = EMPTY;
-        
-        // Get the score of the new board
-        int newScore = this->evaluate(newBoard, isWhite);
 
+        // Get the new score of the player
+        const int newScore = this->evaluate(newBoard, isWhite);
+        // Get the new score of the opponent
+        const int newOpponentScore = this->evaluate(newBoard, !isWhite);
+        // Get the new delta between the two scores
+        const int newDelta = newScore - newOpponentScore;
+        mLogger->debug("New board delta score: {}\n{}", newDelta, Util::printBoard(newBoard));
+        
         // If the new score is better than the current score, we update the move
-        if(newScore > score) {
-            score = newScore;
+        if(newDelta > bestScore) {
+            bestScore = newDelta;
             bestMove = move;
+            mLogger->debug("~~~~~~~~~~~~New Best Move~~~~~~~~~~~");
+            mLogger->debug("New best move: {} {} to {} {} with new best delta score of: {}", move.src.x, move.src.y, move.dst.x, move.dst.y, bestScore);
         }
     }
+    mLogger->debug("Current board: \n{}", Util::printBoard(board));       
+    mLogger->debug("Best move: {} {} to {} {}", bestMove.src.x, bestMove.src.y, bestMove.dst.x, bestMove.dst.y);
+    mLogger->debug("~~~~~~~~~~~~End~~~~~~~~~~~");
     return bestMove;
 }
 
@@ -166,11 +191,11 @@ int LComputer::evaluate(std::array<std::array<int, SPL>, SPL> board, bool isWhit
     if(mEngine->isCheckMate(board, !isWhite)) {
         return 1000000;
     }
-    // If we do checkmate on ourselves, it's the worst score
+    // If we do checkmate on ourselves, it's the worst score, in theory it should not happen since we can't make a move that puts us in check
     if(mEngine->isCheckMate(board, isWhite)) {
         return -1000000;
     }
-    // If we are in check, it's a bad score
+    // If we are in check, it's a bad score, should it ever happen if we can't make a move that puts us in check?
     if(mEngine->isKingInCheck(board, isWhite)) {
         score += -200;
     }
@@ -179,6 +204,10 @@ int LComputer::evaluate(std::array<std::array<int, SPL>, SPL> board, bool isWhit
         score += 200;
     }
     score += this->scorePieces(board, isWhite);
+    // We score the pieces values and their positions
+    // we can add more scoring functions here
+
+    // We can also add a scoring function that checks if a piece is defended, if it is, we add half the value of the piece?
     return score;
 }
 
@@ -193,8 +222,15 @@ int LComputer::scorePieces(std::array<std::array<int, SPL>, SPL> board, bool isW
             }
             if(isWhite && isWhitePiece(piece)) {
                 score += mEngine->pieceValue(piece);
+                if(mEngine->isPieceAttacked(board, pos)) {
+                    score -= mEngine->pieceValue(piece) / 2;
+                }
+                // If the piece is defended, we add half the value of the piece?
             } else if(!isWhite && !isWhitePiece(piece)) {
                 score += mEngine->pieceValue(piece);
+                if(mEngine->isPieceAttacked(board, pos)) {
+                    score -= mEngine->pieceValue(piece) / 2;
+                }
             }
             score += this->scorePosition(pos, piece, isWhite);
         }
