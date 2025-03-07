@@ -53,7 +53,7 @@ bool LEngine::isKingInCheck(const std::array<std::array<int, SPL>, SPL>& board, 
         while(isInBounds(nextPos)) {
             if (board[nextPos.y][nextPos.x] != EMPTY) {
                 if(isEnemy(board[kingPos.y][kingPos.x], board[nextPos.y][nextPos.x])) {
-                    if (this->isPieceAttacked(board, nextPos, kingPos, true)) {
+                    if (this->isPieceAttacked(board, nextPos, kingPos)) {
                         return true;
                     }
                 } else {
@@ -65,7 +65,7 @@ bool LEngine::isKingInCheck(const std::array<std::array<int, SPL>, SPL>& board, 
     }
     std::vector<SDL_Point> knightPos = this->findKnights(board, !isWhite);
     for (auto pos : knightPos) {
-        if (this->isPieceAttacked(board, pos, kingPos, true)) {
+        if (this->isPieceAttacked(board, pos, kingPos)) {
             return true;
         }
     }   
@@ -143,7 +143,7 @@ bool LEngine::getRookHasMoved(bool isWhite, int rook) {
     }
 }
 
-bool LEngine::isPieceAttacked(const std::array<std::array<int, SPL>, SPL>& board, SDL_Point attackerPos, SDL_Point defenderPos, bool selfCheck) {
+bool LEngine::isPieceAttacked(const std::array<std::array<int, SPL>, SPL>& board, SDL_Point attackerPos, SDL_Point defenderPos) {
     std::vector<SDL_Point> mEnemyMoves;
     switch(board[attackerPos.y][attackerPos.x]) {
         case WPAWN:
@@ -199,6 +199,20 @@ bool LEngine::isPieceAttacked(const std::array<std::array<int, SPL>, SPL>& board
             break;
     }
     return false;
+}
+
+bool LEngine::isPieceAttacked(const std::array<std::array<int, SPL>, SPL>& board, SDL_Point defPos) {
+	const int defender = board[defPos.y][defPos.x];
+	for(int y(0); y < SPL; y++) {
+		for(int x(0); x < SPL; x++) {
+			if(isEnemy(defender, board[y][x])) {
+				if(this->isPieceAttacked(board, SDL_Point{x, y}, defPos)) {
+					return true;
+				}
+			}
+		}
+	}
+	return false;
 }
 
 
