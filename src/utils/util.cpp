@@ -126,3 +126,29 @@ void Util::flushEvents() {
 	SDL_PumpEvents();
 	SDL_FlushEvents(SDL_MOUSEMOTION, SDL_MOUSEBUTTONUP);
 }
+
+std::string Util::printBoard(const std::array<std::array<int, SPL>, SPL>& board) {
+	std::map<int, std::string> pieceMap = {
+		{EMPTY, "."},
+		{WPAWN, "♟"},
+		{WROOK, "♜"},
+		{WKNIGHT, "♞"},
+		{WBISHOP, "♝"},
+		{WQUEEN, "♛"},
+		{WKING, "♚"},
+		{BPAWN, "♙"},
+		{BROOK, "♖"},
+		{BKNIGHT, "♘"},
+		{BBISHOP, "♗"},
+		{BQUEEN, "♕"},
+		{BKING, "♔"}
+	};
+	std::string str = "";
+	for(int y(0); y < SPL; y++) {
+		for(int x(0); x < SPL; x++) {
+			str += pieceMap[board[y][x]];
+		}
+		str += "\n";
+	}
+	return str;
+}

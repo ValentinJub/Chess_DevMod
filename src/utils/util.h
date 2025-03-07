@@ -29,7 +29,7 @@ namespace Util {
     void saveSettingsToFile(const char* path, int settings[]);
     std::vector<int> readSettingsFromFile(const char* path);
     void flushEvents();
-    bool isInBounds(SDL_Point point);
+    std::string printBoard(const std::array<std::array<int, SPL>, SPL>& board);
 }
 
 #endif
