@@ -32,7 +32,7 @@ Board also contains settings such as tile colors, legal move displayed on map...
 #include "com/LSubject.h"
 #include "states/LStateMachine.h"
 #include "states/LTransition.h"
-#include "game/board/LEngine.h"
+#include "game/logic/LEngine.h"
 
 class LClock;
 class LComputer;
@@ -104,6 +104,7 @@ private:
 
     void renderTile();
     void renderPieces();
+    void renderTileCoordinates();
     void renderOutOfTimeScreen();
     void renderTimer();
     void renderScore();

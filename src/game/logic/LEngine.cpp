@@ -1,4 +1,4 @@
-#include "game/board/LEngine.h"
+#include "game/logic/LEngine.h"
 
 bool operator==(const SDL_Point& a, const SDL_Point& b) {
     return a.x == b.x && a.y == b.y;

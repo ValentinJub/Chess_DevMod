@@ -11,10 +11,11 @@ Methods for class LBoard
 #include "game/board/LClock.h"
 #include "graphics/LPromotion.h"
 #include "game/board/layout.h"
-#include "game/board/LComputer.h"
+#include "game/logic/LComputer.h"
 
 using std::vector;
 extern TTF_Font* gFont64;
+extern TTF_Font* gFont16;
 extern SDL_Renderer* gRenderer;
 extern uint8_t gMusicVolume;
 extern LMediaFactory* gMediaFactory;
@@ -23,7 +24,7 @@ extern LMusicPlayer* gMusicPlayer;
 extern LStateMachine* gStateMachine;
 extern LTexture* gBackgroundTexture;
 
-LBoard::LBoard(LObserver* observer, PlayMode mode) : mAppObserver(observer), mPlayMode(mode) {
+LBoard::LBoard(LObserver* observer, PlayMode mode) : mPlayMode(mode), mAppObserver(observer) {
 	gStateMachine->push(new LTransition(FADE_IN, NULL));
 	this->Attach(observer);
 	this->initSettings();
@@ -150,6 +151,10 @@ void LBoard::render() {
 	if(mIsPaused) {
 		this->renderPause();
 	}
+}
+
+void LBoard::renderTileCoordinates() {
+
 }
 
 void LBoard::playMusic() {
@@ -303,7 +308,6 @@ void LBoard::renderTile() {
 		for(int x(0); x < SPL; x++) {
 			xPos = OFFSET + (TOTAL_SQUARES * x);
 			yPos = OFFSET + (TOTAL_SQUARES * y);
-
 			if(y % 2 == 0) {
 				if(mSettings.tileColor == 0) {
 					if(!light) mTileTexture->renderAt(xPos, yPos, &mTileRectClip[DARK1]);
@@ -327,6 +331,16 @@ void LBoard::renderTile() {
 				}
 				if(dark) dark = false;
 				else dark = true;
+			}
+			if(x == 0) {
+				const int coord = 8 - y;
+				LTexture* txt = gMediaFactory->getTxt(std::to_string(coord), gFont16, COLOR_RED);
+				txt->renderAt(xPos, yPos);
+			}
+			if(y == 7) {
+				const char coord = 'a' + x;
+				LTexture* txt = gMediaFactory->getTxt(std::string(1, coord), gFont16, COLOR_RED);
+				txt->renderAt(xPos + OFFSET - txt->w() , yPos + OFFSET - txt->h());
 			}
 		}
 	}
@@ -571,6 +585,7 @@ void LBoard::postMove(SDL_Point dest) {
 		// Is it checkmate?
 		if(mEngine.isCheckMate(mBoard, mWhiteTurn)) {
 			mGameOver = true;
+			return;
 		} else {
 			gChunkPlayer->play(CHUNK_CHECK);
 		}
@@ -776,8 +791,6 @@ void LBoard::fillDeadPieceTab(const int fallenPiece) {
 }
 
 void LBoard::computerMove() {
-	// Generate a move
-	ChessMove move = mComputer->play(mBoard, mWhiteTurn);
-	// Move the piece
+	ChessMove move = mComputer->playTest(mBoard, mWhiteTurn, 1);
 	this->doMove(move.dst, move.src, move.piece);
 }

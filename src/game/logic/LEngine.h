@@ -3,7 +3,9 @@
 
 #include "com/headers.h"
 #include "com/constantes.h"
-#include "game/board/util.h"
+#include "game/logic/util.h"
+
+bool operator==(const SDL_Point& a, const SDL_Point& b);
 
 class LEngine {
     public:
@@ -21,7 +23,6 @@ class LEngine {
         bool getRookHasMoved(bool isWhite, int rook);
 
         void setEnPassant(int piece, SDL_Point src, SDL_Point dest);
-
         int pieceValue(int const pieceType) const;
         private:
 
