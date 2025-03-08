@@ -17,7 +17,7 @@ class LEngine {
         bool isCheckMate(const std::array<std::array<int, SPL>, SPL>& board, bool isWhite);
         bool isPieceAttacked(const std::array<std::array<int, SPL>, SPL>& board, SDL_Point attackerPos, SDL_Point defenderPos);
         bool isPieceAttacked(const std::array<std::array<int, SPL>, SPL>& board, SDL_Point defenderPos);
-        std::vector<SDL_Point> getLegalMoves(std::array<std::array<int, SPL>, SPL> board, SDL_Point piecePos);
+        std::vector<SDL_Point> getPseudoLegalMoves(std::array<std::array<int, SPL>, SPL> board, SDL_Point piecePos);
         void setKingHasMoved(bool isWhite, bool hasMoved);
         void setRookHasMoved(bool isWhite, int rook, bool hasMoved);
         bool getKingHasMoved(bool isWhite);

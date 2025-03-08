@@ -4,7 +4,11 @@ bool operator==(const SDL_Point& a, const SDL_Point& b) {
     return a.x == b.x && a.y == b.y;
 }
 
-std::vector<SDL_Point> LEngine::getLegalMoves(std::array<std::array<int, SPL>, SPL> board, SDL_Point piecePos) {
+/*
+Return the list of pseudo legal move for the piece at piecePos
+This function doesn't check if the move puts the king in check
+ */
+std::vector<SDL_Point> LEngine::getPseudoLegalMoves(std::array<std::array<int, SPL>, SPL> board, SDL_Point piecePos) {
 	const int piece = board[piecePos.y][piecePos.x];
     switch(piece) {
     case BPAWN:
@@ -94,7 +98,7 @@ bool LEngine::isCheckMate(const std::array<std::array<int, SPL>, SPL> &board, bo
             // If the piece is the same color as the king 
             if (next != EMPTY && !isEnemy(king, next)) {
                 // Get the legal moves of the piece
-                std::vector<SDL_Point> mPieceMoves = this->getLegalMoves(board, SDL_Point{x, y});
+                std::vector<SDL_Point> mPieceMoves = this->getPseudoLegalMoves(board, SDL_Point{x, y});
                 for (auto move : mPieceMoves) {
                     // If the move doesn't put the king in check then the move cancels the current check
                     if (!this->isMoveSelfCheck(board, SDL_Point{x, y}, move, !isWhite)) {

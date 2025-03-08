@@ -172,7 +172,7 @@ std::vector<ChessMove> LComputer::getMoves(std::array<std::array<int, SPL>, SPL>
                 continue;
             }
             else if((isWhite && isWhitePiece(piece)) || (!isWhite && !isWhitePiece(piece))) {
-                std::vector<SDL_Point> legalMoves = mEngine->getLegalMoves(board, SDL_Point{x, y});
+                std::vector<SDL_Point> legalMoves = mEngine->getPseudoLegalMoves(board, SDL_Point{x, y});
                 for(auto& move : legalMoves) {
                     // Only push the move if it doesn't put the king in check
                     if(!mEngine->isMoveSelfCheck(board, SDL_Point{x, y}, move, isWhite)) {

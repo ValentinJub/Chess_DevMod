@@ -23,6 +23,7 @@ extern LChunkPlayer* gChunkPlayer;
 extern LMusicPlayer* gMusicPlayer;
 extern LStateMachine* gStateMachine;
 extern LTexture* gBackgroundTexture;
+constexpr int AI_DELAY = 1000;
 
 LBoard::LBoard(LObserver* observer, PlayMode mode) : mPlayMode(mode), mAppObserver(observer) {
 	gStateMachine->push(new LTransition(FADE_IN, NULL));
@@ -70,7 +71,7 @@ void LBoard::poll(LSubject* sub, int value) {
 
 void LBoard::update() {
 	if(mPlayMode == PVAI && !mWhiteTurn && !mIsPaused) {
-		SDL_Delay(500);
+		SDL_Delay(AI_DELAY);
 		this->computerMove();
 		return;
 	}
@@ -346,7 +347,7 @@ void LBoard::renderTile() {
 	}
 	//only highlight tile if a piece is selected
 	if(mAPieceIsSelected && mSettings.showLegalMoves == 0) {
-		std::vector<SDL_Point> legalMoves = mEngine.getLegalMoves(mBoard, mSelectedPiecePos);
+		std::vector<SDL_Point> legalMoves = mEngine.getPseudoLegalMoves(mBoard, mSelectedPiecePos);
 		for(int z(0); z < legalMoves.size(); z++) {
 			yPos = OFFSET + (legalMoves[z].y * TOTAL_SQUARES);
 			xPos = OFFSET + (legalMoves[z].x * TOTAL_SQUARES);
@@ -499,7 +500,7 @@ void LBoard::move(SDL_Event* e) {
 	SDL_GetMouseState( &destinationPosX, &destinationPosY );
 	SDL_Point destPos = {(destinationPosX / TOTAL_SQUARES) - 1, (destinationPosY / TOTAL_SQUARES) - 1};
 	if((e->type == SDL_MOUSEBUTTONUP) && (e->button.button == SDL_BUTTON_LEFT)) {
-		std::vector<SDL_Point> legalPos = mEngine.getLegalMoves(mBoard, mSelectedPiecePos);
+		std::vector<SDL_Point> legalPos = mEngine.getPseudoLegalMoves(mBoard, mSelectedPiecePos);
 		int size = legalPos.size();
 		for(int i(0); i < size; i++) {
 			if((destPos.x == legalPos[i].x) && (destPos.y == legalPos[i].y)) {
