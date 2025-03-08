@@ -6,7 +6,6 @@
 #include "states/LState.h"
 #include "states/LStateMachine.h"
 #include "com/constantes.h"
-#include "playPVAI.h"
 #include "states/game/LBoardState.h"
 #include "menu/LMainMenu.h"
 

@@ -46,7 +46,6 @@ void LTransition::exit() {
 }
 
 void LTransition::update(Uint64 dt) {
-    mLogger->debug("Dt in transition: {}", dt);
     Uint32 dt32 = static_cast<Uint32>(dt);
     mTween.step(dt32);
     const int ts = mTransitionState == FADE_OUT ? 255 : 0;

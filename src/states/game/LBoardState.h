@@ -12,18 +12,19 @@ Function prototypes for playPVP.cpp
 #include "states/LState.h"
 #include "utils/util.h"
 #include "graphics/LTexture.h"
-#include "game/board/LBoardPVP.h"
+#include "game/board/LBoard.h"
 
 class LBoardState : public LState {
     public:
-        LBoardState();
+        LBoardState(PlayMode mode);
         ~LBoardState();
         void enter(LObserver* observer) override;
         void exit() override;
         void update(Uint64 dt) override;
         void render() override;
     private:
-        LBoardPVP* mBoard;
+        PlayMode mPlayMode;
+        LBoard* mBoard;
 };
 
 void playPVP();

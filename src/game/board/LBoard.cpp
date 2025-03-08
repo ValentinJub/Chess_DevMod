@@ -1,19 +1,21 @@
 /*
-LBoardPVP.cpp
+LBoard.cpp
 Sun Mar 20 2022
 by Valentin
 -----------
-Methods for class LBoardPVP
+Methods for class LBoard
 */
 
-#include "game/board/LBoardPVP.h"
+#include "game/board/LBoard.h"
 #include "states/menu/LMainMenuState.h"
 #include "game/board/LClock.h"
 #include "graphics/LPromotion.h"
 #include "game/board/layout.h"
+#include "game/logic/LComputer.h"
 
 using std::vector;
 extern TTF_Font* gFont64;
+extern TTF_Font* gFont16;
 extern SDL_Renderer* gRenderer;
 extern uint8_t gMusicVolume;
 extern LMediaFactory* gMediaFactory;
@@ -21,8 +23,9 @@ extern LChunkPlayer* gChunkPlayer;
 extern LMusicPlayer* gMusicPlayer;
 extern LStateMachine* gStateMachine;
 extern LTexture* gBackgroundTexture;
+constexpr int AI_DELAY = 1000;
 
-LBoardPVP::LBoardPVP(LObserver* observer) : mAppObserver(observer) {
+LBoard::LBoard(LObserver* observer, PlayMode mode) : mPlayMode(mode), mAppObserver(observer) {
 	gStateMachine->push(new LTransition(FADE_IN, NULL));
 	this->Attach(observer);
 	this->initSettings();
@@ -31,6 +34,12 @@ LBoardPVP::LBoardPVP(LObserver* observer) : mAppObserver(observer) {
 	this->initPauseTexture();
 	this->setTileRectClip();
 	this->setPiecesClip();
+
+	if(mPlayMode == PVAI) {
+		mComputer = new LComputer(new LEngine);
+	} else {
+		mComputer = NULL;
+	}
 
 	mBoard = normalBoard;
 
@@ -53,14 +62,19 @@ LBoardPVP::LBoardPVP(LObserver* observer) : mAppObserver(observer) {
 	}
 }
 
-void LBoardPVP::poll(LSubject* sub, int value) {
+void LBoard::poll(LSubject* sub, int value) {
 	if(value != -1) {
 		mBoard[mPromotedPiecePos.y][mPromotedPiecePos.x] = value;
 		this->postMove(mPromotedPiecePos);
 	}
 }
 
-void LBoardPVP::update() {
+void LBoard::update() {
+	if(mPlayMode == PVAI && !mWhiteTurn && !mIsPaused) {
+		SDL_Delay(AI_DELAY);
+		this->computerMove();
+		return;
+	}
 	if(mGameOver) {
 		if(Mix_PlayingMusic()) {
 			Mix_FadeOutMusic(3000);
@@ -126,7 +140,7 @@ void LBoardPVP::update() {
 	this->setButtons();
 }
 
-void LBoardPVP::render() {
+void LBoard::render() {
 	SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 	this->renderTile();
 	this->renderPieces();
@@ -140,7 +154,11 @@ void LBoardPVP::render() {
 	}
 }
 
-void LBoardPVP::playMusic() {
+void LBoard::renderTileCoordinates() {
+
+}
+
+void LBoard::playMusic() {
 	if(Mix_PlayingMusic() == 0 && !mIsPaused) {
 		int i = rand() % 7;
 		std::string track;
@@ -155,7 +173,7 @@ void LBoardPVP::playMusic() {
 	}
 }
 
-void LBoardPVP::pause() {
+void LBoard::pause() {
 	if(mIsPaused && mSettings.useTimer == 0) {
 		mClock->unpause();
 	} else if(!mIsPaused && mSettings.useTimer == 0) {
@@ -165,11 +183,11 @@ void LBoardPVP::pause() {
 	gMusicPlayer->pause();
 }
 
-LBoardPVP::~LBoardPVP() {
+LBoard::~LBoard() {
 	free();
 }
 
-void LBoardPVP::free() {
+void LBoard::free() {
 	gMusicPlayer->pause();
 	this->Detach(mAppObserver);
 	mPieceTexture->free();
@@ -199,7 +217,7 @@ void LBoardPVP::free() {
 	mLegalMoveTile.clear();
 }
 
-void LBoardPVP::initSettings() {
+void LBoard::initSettings() {
 	std::vector<int> values = Util::readSettingsFromFile(FILE_SETTINGS);	
 	if(values.size() < 7) {
 		spdlog::error("Settings file is corrupted! {} values found", values.size());
@@ -218,7 +236,7 @@ void LBoardPVP::initSettings() {
 	mTimeLimit = mSettings.timeLimit == 0 ? 3 : 600;
 }
 
-bool LBoardPVP::initPiecesTextures() {
+bool LBoard::initPiecesTextures() {
 	const char* spriteSheet = mSettings.pieceTheme == 0 ? SPRITE_PIECE_SHEET : SPRITE_RETRO_PIECE_SHEET;
 	mPieceTexture = gMediaFactory->getImg(spriteSheet);
 	mHighlightedPieceTexture = gMediaFactory->getImgUnique(spriteSheet);
@@ -227,12 +245,12 @@ bool LBoardPVP::initPiecesTextures() {
 	return mPieceTexture != NULL && mHighlightedPieceTexture != NULL && mMiniPieceTexture != NULL; 
 }
 
-bool LBoardPVP::initTileTextures() {
+bool LBoard::initTileTextures() {
 	mTileTexture = gMediaFactory->getImg(SPRITE_BOARD);
 	return mTileTexture != NULL;
 }
 
-bool LBoardPVP::initPauseTexture() {
+bool LBoard::initPauseTexture() {
 	mPauseBackgroundTexture = gMediaFactory->getImg(SPRITE_BACKGROUND_FULLBLACK);
 	mPauseBackgroundTexture->setAlpha(127);
 	mPauseBackgroundTexture->setBlendMode(SDL_BLENDMODE_BLEND);
@@ -240,12 +258,12 @@ bool LBoardPVP::initPauseTexture() {
 	return mPauseBackgroundTexture != NULL && mPauseTextTexture != NULL;
 }
 
-bool LBoardPVP::initOutOfTimeTexture() {
+bool LBoard::initOutOfTimeTexture() {
 	mOutOfTimeTexture = gMediaFactory->getTxt("Out of time!", gFont64, COLOR_WHITE);
 	return mOutOfTimeTexture != NULL;
 }
 
-void LBoardPVP::setPiecesClip() {
+void LBoard::setPiecesClip() {
 	for(int i(0); i < TOTAL_PIECES - 1; i++) {
 		mPieceClip[i].x = TOTAL_SQUARES*i;
 		mPieceClip[i].y = 0;
@@ -259,7 +277,7 @@ void LBoardPVP::setPiecesClip() {
 	}
 }
 
-void LBoardPVP::setTileRectClip() {
+void LBoard::setTileRectClip() {
 	mTileRectClip[DARK1].x = 0;
 	mTileRectClip[DARK1].y = 0;
 	mTileRectClip[DARK1].w = TOTAL_SQUARES;
@@ -281,7 +299,7 @@ void LBoardPVP::setTileRectClip() {
 	mTileRectClip[LIGHT2].h = TOTAL_SQUARES;
 }
 
-void LBoardPVP::renderTile() {
+void LBoard::renderTile() {
 	bool light = true,
 	dark = true;
 	int xPos(0);
@@ -291,7 +309,6 @@ void LBoardPVP::renderTile() {
 		for(int x(0); x < SPL; x++) {
 			xPos = OFFSET + (TOTAL_SQUARES * x);
 			yPos = OFFSET + (TOTAL_SQUARES * y);
-
 			if(y % 2 == 0) {
 				if(mSettings.tileColor == 0) {
 					if(!light) mTileTexture->renderAt(xPos, yPos, &mTileRectClip[DARK1]);
@@ -316,11 +333,21 @@ void LBoardPVP::renderTile() {
 				if(dark) dark = false;
 				else dark = true;
 			}
+			if(x == 0) {
+				const int coord = 8 - y;
+				LTexture* txt = gMediaFactory->getTxt(std::to_string(coord), gFont16, COLOR_RED);
+				txt->renderAt(xPos, yPos);
+			}
+			if(y == 7) {
+				const char coord = 'a' + x;
+				LTexture* txt = gMediaFactory->getTxt(std::string(1, coord), gFont16, COLOR_RED);
+				txt->renderAt(xPos + OFFSET - txt->w() , yPos + OFFSET - txt->h());
+			}
 		}
 	}
 	//only highlight tile if a piece is selected
 	if(mAPieceIsSelected && mSettings.showLegalMoves == 0) {
-		std::vector<SDL_Point> legalMoves = mEngine.getLegalMoves(mBoard, mSelectedPiecePos);
+		std::vector<SDL_Point> legalMoves = mEngine.getPseudoLegalMoves(mBoard, mSelectedPiecePos);
 		for(int z(0); z < legalMoves.size(); z++) {
 			yPos = OFFSET + (legalMoves[z].y * TOTAL_SQUARES);
 			xPos = OFFSET + (legalMoves[z].x * TOTAL_SQUARES);
@@ -346,7 +373,7 @@ void LBoardPVP::renderTile() {
 	}
 }
 	
-void LBoardPVP::renderPieces() {
+void LBoard::renderPieces() {
 	for(int y(0); y < SPL; y++) {
 		for(int x(0); x < SPL; x++) {
 			if((mBoard[y][x] >= 0) && (mBoard[y][x] < TOTAL_PIECES - 1)) {
@@ -368,7 +395,7 @@ void LBoardPVP::renderPieces() {
 }
 
 //function used to check the buttons box are set properly
-void LBoardPVP::drawButtons() {
+void LBoard::drawButtons() {
 	for(int i(0); i < INITIAL_PIECES_TOTAL - 1; i++) {
 		SDL_Rect r;
 		r.x = mPieceButtons[i]->getX();
@@ -380,7 +407,7 @@ void LBoardPVP::drawButtons() {
 	}
 }
 
-void LBoardPVP::setButtons() {
+void LBoard::setButtons() {
 	int i(0);
 	for(int y(0); y < SPL; y++) {
 		for(int x(0); x < SPL; x++) {
@@ -396,18 +423,18 @@ void LBoardPVP::setButtons() {
 	}
 }
 
-void LBoardPVP::renderPause() {
+void LBoard::renderPause() {
 	mPauseBackgroundTexture->render();
 	mPauseTextTexture->renderAt((SCREEN_WIDTH - mPauseTextTexture->w()) / 2, (SCREEN_HEIGHT - mPauseTextTexture->h()) / 2); 
 }
 
-void LBoardPVP::renderOutOfTimeScreen() {
+void LBoard::renderOutOfTimeScreen() {
 	mPauseBackgroundTexture->render();
 	mOutOfTimeTexture->renderAt((SCREEN_WIDTH - mOutOfTimeTexture->w()) / 2, (SCREEN_HEIGHT - mOutOfTimeTexture->h()) / 2);
 	SDL_RenderPresent(gRenderer);
 }
 
-void LBoardPVP::handleEvents(SDL_Event* e) {
+void LBoard::handleEvents(SDL_Event* e) {
 	bool outside = true; 
 	int x, y;
 	SDL_GetMouseState( &x, &y );
@@ -468,12 +495,12 @@ void LBoardPVP::handleEvents(SDL_Event* e) {
 	}
 }
 
-void LBoardPVP::move(SDL_Event* e) {
+void LBoard::move(SDL_Event* e) {
 	int destinationPosX, destinationPosY;
 	SDL_GetMouseState( &destinationPosX, &destinationPosY );
 	SDL_Point destPos = {(destinationPosX / TOTAL_SQUARES) - 1, (destinationPosY / TOTAL_SQUARES) - 1};
 	if((e->type == SDL_MOUSEBUTTONUP) && (e->button.button == SDL_BUTTON_LEFT)) {
-		std::vector<SDL_Point> legalPos = mEngine.getLegalMoves(mBoard, mSelectedPiecePos);
+		std::vector<SDL_Point> legalPos = mEngine.getPseudoLegalMoves(mBoard, mSelectedPiecePos);
 		int size = legalPos.size();
 		for(int i(0); i < size; i++) {
 			if((destPos.x == legalPos[i].x) && (destPos.y == legalPos[i].y)) {
@@ -487,7 +514,7 @@ void LBoardPVP::move(SDL_Event* e) {
 	}
 }
 
-void LBoardPVP::doMove(SDL_Point dest, SDL_Point src, int piece) {
+void LBoard::doMove(SDL_Point dest, SDL_Point src, int piece) {
 	bool captured = false;
 	//if the square destination is not empty, substract a button
 	if(mBoard[dest.y][dest.x] != EMPTY) {
@@ -553,12 +580,13 @@ void LBoardPVP::doMove(SDL_Point dest, SDL_Point src, int piece) {
 	this->postMove(dest);
 }
 
-void LBoardPVP::postMove(SDL_Point dest) {
+void LBoard::postMove(SDL_Point dest) {
 	// See if the move puts the king in check
 	if(mEngine.isKingInCheck(mBoard, !mWhiteTurn)) {
 		// Is it checkmate?
 		if(mEngine.isCheckMate(mBoard, mWhiteTurn)) {
 			mGameOver = true;
+			return;
 		} else {
 			gChunkPlayer->play(CHUNK_CHECK);
 		}
@@ -569,7 +597,7 @@ void LBoardPVP::postMove(SDL_Point dest) {
 	mEngine.setEnPassant(mSelectedPiece, mSelectedPiecePos, dest);	
 }
 
-void LBoardPVP::setCastlingBools(SDL_Point pos, int piece) {
+void LBoard::setCastlingBools(SDL_Point pos, int piece) {
 	switch(piece) {
 		case WKING:
 			mEngine.setKingHasMoved(mWhiteTurn, true);
@@ -598,7 +626,7 @@ void LBoardPVP::setCastlingBools(SDL_Point pos, int piece) {
 	}
 }
 
-bool LBoardPVP::checkPromotion(SDL_Point pos) {
+bool LBoard::checkPromotion(SDL_Point pos) {
 	if((mSelectedPiece == WPAWN && pos.y == 0) || (mSelectedPiece == BPAWN && pos.y == 7)) {
 		gStateMachine->push(new LPromotion(mWhiteTurn, pos.x, mSettings.pieceTheme == 0 ? SPRITE_PIECE_SHEET : SPRITE_RETRO_PIECE_SHEET, this));
 		mPromotedPiecePos = pos;
@@ -607,7 +635,7 @@ bool LBoardPVP::checkPromotion(SDL_Point pos) {
 	return false;
 }
 
-void LBoardPVP::playMoveSound(bool captured, bool castled) const {
+void LBoard::playMoveSound(bool captured, bool castled) const {
 	if(captured) {
 		gChunkPlayer->play(CHUNK_CAPTURE);
 	}
@@ -619,11 +647,11 @@ void LBoardPVP::playMoveSound(bool captured, bool castled) const {
 	}
 }
 
-void LBoardPVP::playVictorySound() const {
+void LBoard::playVictorySound() const {
 	
 }
 
-void LBoardPVP::renderTimer() {
+void LBoard::renderTimer() {
 	// white timer total time left in seconds
 	int wtime = mClock->white();
 	// if the timer ran out we set it to 0 to avoid displaying negative time
@@ -668,7 +696,7 @@ void LBoardPVP::renderTimer() {
 	mBlackTimerTexture->renderAt(0,0);
 }
 
-void LBoardPVP::renderScore() {
+void LBoard::renderScore() {
 	//sum up each score
 	int whiteScore(0);
 	int blackScore(0);
@@ -712,7 +740,7 @@ void LBoardPVP::renderScore() {
 	}
 }
 
-void LBoardPVP::renderDeadPieces() {
+void LBoard::renderDeadPieces() {
 	int whiteOffset = 0;
 	int blackOffset = 0;
 	int whitePosX = OFFSET * 4;
@@ -747,18 +775,23 @@ void LBoardPVP::renderDeadPieces() {
 	}
 }
 
-void LBoardPVP::changeTurn() {
+void LBoard::changeTurn() {
 	mWhiteTurn = !mWhiteTurn;
 	if(mSettings.useTimer == 0) {
 		mClock->next();
 	}
 }
 
-void LBoardPVP::fillDeadPieceTab(const int fallenPiece) {
+void LBoard::fillDeadPieceTab(const int fallenPiece) {
 	if(mWhiteTurn) {
 		mDeadBlackPiece[fallenPiece]++;
 	}
 	else {
 		mDeadWhitePiece[fallenPiece]++;
 	}
+}
+
+void LBoard::computerMove() {
+	ChessMove move = mComputer->playTest(mBoard, mWhiteTurn, 1);
+	this->doMove(move.dst, move.src, move.piece);
 }

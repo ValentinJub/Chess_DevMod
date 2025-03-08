@@ -3,7 +3,7 @@
 extern SDL_Renderer* gRenderer;
 extern LTexture* gBackgroundTexture;
 
-LBoardState::LBoardState() {}
+LBoardState::LBoardState(PlayMode mode) : mPlayMode(mode) {}
 
 LBoardState::~LBoardState() {
 	mBoard->free();
@@ -11,7 +11,7 @@ LBoardState::~LBoardState() {
 }
 
 void LBoardState::enter(LObserver* observer) {
-	mBoard = new LBoardPVP(observer);
+	mBoard = new LBoard(observer, mPlayMode);
 }
 
 void LBoardState::exit() {

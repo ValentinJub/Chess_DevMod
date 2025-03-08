@@ -1,10 +1,14 @@
-#include "game/board/LEngine.h"
+#include "game/logic/LEngine.h"
 
 bool operator==(const SDL_Point& a, const SDL_Point& b) {
     return a.x == b.x && a.y == b.y;
 }
 
-std::vector<SDL_Point> LEngine::getLegalMoves(std::array<std::array<int, SPL>, SPL> board, SDL_Point piecePos) {
+/*
+Return the list of pseudo legal move for the piece at piecePos
+This function doesn't check if the move puts the king in check
+ */
+std::vector<SDL_Point> LEngine::getPseudoLegalMoves(std::array<std::array<int, SPL>, SPL> board, SDL_Point piecePos) {
 	const int piece = board[piecePos.y][piecePos.x];
     switch(piece) {
     case BPAWN:
@@ -53,7 +57,7 @@ bool LEngine::isKingInCheck(const std::array<std::array<int, SPL>, SPL>& board, 
         while(isInBounds(nextPos)) {
             if (board[nextPos.y][nextPos.x] != EMPTY) {
                 if(isEnemy(board[kingPos.y][kingPos.x], board[nextPos.y][nextPos.x])) {
-                    if (this->isPieceAttacked(board, nextPos, kingPos, true)) {
+                    if (this->isPieceAttacked(board, nextPos, kingPos)) {
                         return true;
                     }
                 } else {
@@ -65,7 +69,7 @@ bool LEngine::isKingInCheck(const std::array<std::array<int, SPL>, SPL>& board, 
     }
     std::vector<SDL_Point> knightPos = this->findKnights(board, !isWhite);
     for (auto pos : knightPos) {
-        if (this->isPieceAttacked(board, pos, kingPos, true)) {
+        if (this->isPieceAttacked(board, pos, kingPos)) {
             return true;
         }
     }   
@@ -94,7 +98,7 @@ bool LEngine::isCheckMate(const std::array<std::array<int, SPL>, SPL> &board, bo
             // If the piece is the same color as the king 
             if (next != EMPTY && !isEnemy(king, next)) {
                 // Get the legal moves of the piece
-                std::vector<SDL_Point> mPieceMoves = this->getLegalMoves(board, SDL_Point{x, y});
+                std::vector<SDL_Point> mPieceMoves = this->getPseudoLegalMoves(board, SDL_Point{x, y});
                 for (auto move : mPieceMoves) {
                     // If the move doesn't put the king in check then the move cancels the current check
                     if (!this->isMoveSelfCheck(board, SDL_Point{x, y}, move, !isWhite)) {
@@ -143,7 +147,7 @@ bool LEngine::getRookHasMoved(bool isWhite, int rook) {
     }
 }
 
-bool LEngine::isPieceAttacked(const std::array<std::array<int, SPL>, SPL>& board, SDL_Point attackerPos, SDL_Point defenderPos, bool selfCheck) {
+bool LEngine::isPieceAttacked(const std::array<std::array<int, SPL>, SPL>& board, SDL_Point attackerPos, SDL_Point defenderPos) {
     std::vector<SDL_Point> mEnemyMoves;
     switch(board[attackerPos.y][attackerPos.x]) {
         case WPAWN:
@@ -199,6 +203,20 @@ bool LEngine::isPieceAttacked(const std::array<std::array<int, SPL>, SPL>& board
             break;
     }
     return false;
+}
+
+bool LEngine::isPieceAttacked(const std::array<std::array<int, SPL>, SPL>& board, SDL_Point defPos) {
+	const int defender = board[defPos.y][defPos.x];
+	for(int y(0); y < SPL; y++) {
+		for(int x(0); x < SPL; x++) {
+			if(isEnemy(defender, board[y][x])) {
+				if(this->isPieceAttacked(board, SDL_Point{x, y}, defPos)) {
+					return true;
+				}
+			}
+		}
+	}
+	return false;
 }
 
 
@@ -260,6 +278,10 @@ std::vector<SDL_Point> LEngine::kingMoves(std::array<std::array<int, SPL>, SPL> 
 	}
 	// Castling
 	if(!kingMoved) {
+		// No castling can happen if the king is currently in check
+		if(this->isKingInCheck(map, isWhite)) {
+			return legalPos;
+		}
 		if(!rook1Moved) { 
 			if(isWhite) { // A1 rook
 				// Ensure the path is clear
@@ -388,7 +410,6 @@ std::vector<SDL_Point> LEngine::bPawnMove(std::array<std::array<int, SPL>, SPL> 
     if(mLastMovedPiece == WPAWN && abs(mLastMovedPieceSrcPos.y - mLastMovedPieceDestPos.y) == 2 && mLastMovedPieceDestPos.y == pawnPos.y && abs(mLastMovedPieceDestPos.x - pawnPos.x) == 1) {
         legalPos.push_back(SDL_Point{mLastMovedPieceDestPos.x, mLastMovedPieceDestPos.y + 1});
     }
-	// En passant moves need to be added here later.
 	return legalPos;
 }
 

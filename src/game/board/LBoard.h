@@ -1,5 +1,5 @@
 /*
-LBoardPVP.h
+LBoard.h
 Sun Mar 20 2022
 by Valentin
 -----------
@@ -32,24 +32,32 @@ Board also contains settings such as tile colors, legal move displayed on map...
 #include "com/LSubject.h"
 #include "states/LStateMachine.h"
 #include "states/LTransition.h"
-#include "game/board/LEngine.h"
+#include "game/logic/LEngine.h"
 
 class LClock;
+class LComputer;
 
-class LBoardPVP : public LSubject, public LObserver {
+enum PlayMode {
+    PVP = 0,
+    PVAI = 1
+};
+
+class LBoard : public LSubject, public LObserver {
 
 public:
-    LBoardPVP(LObserver* observer);
-    ~LBoardPVP();
+    LBoard(LObserver* observer, PlayMode mode);
+    ~LBoard();
     void update();
     void render();
     void free();
     void poll(LSubject* sub, int value) override;
 
 private:
+    PlayMode mPlayMode;
     LObserver* mAppObserver;
     OptionValues mSettings;
     LEngine mEngine;
+    LComputer* mComputer;
     LClock* mClock;
     std::array<std::array<int, SPL>, SPL> mBoard;
 
@@ -96,6 +104,7 @@ private:
 
     void renderTile();
     void renderPieces();
+    void renderTileCoordinates();
     void renderOutOfTimeScreen();
     void renderTimer();
     void renderScore();
@@ -108,10 +117,12 @@ private:
     void playMoveSound(bool captured, bool castled) const;
 
     void handleEvents(SDL_Event* e);
+    void changeTurn();
+
     void doMove(SDL_Point dest, SDL_Point src, int piece);
     void move(SDL_Event* e);
     void postMove(SDL_Point dest);
-    void changeTurn();
+    void computerMove();
 
     void pause();
     void fillDeadPieceTab(const int fallenPiece);

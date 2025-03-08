@@ -8,6 +8,7 @@ LChunkPlayer* gChunkPlayer;
 LTexture* gBackgroundTexture;
 TTF_Font* gFont64;
 TTF_Font* gFont32;
+TTF_Font* gFont16;
 extern std::shared_ptr<spdlog::logger> gLogger;
 
 // Global music volume, between 0 and 128.
@@ -115,6 +116,15 @@ bool CApp::initGlobalVars() {
 	}
 	gFont32 = gMediaFactory->getFont( FONT_BRANDA, 32 );
 	if (gFont32 == NULL) {
+		spdlog::error("Failed to load {} font! SDL_ttf Error: {}", FONT_BRANDA, TTF_GetError());
+		return false;
+	}gFont32 = gMediaFactory->getFont( FONT_BRANDA, 32 );
+	if (gFont32 == NULL) {
+		spdlog::error("Failed to load {} font! SDL_ttf Error: {}", FONT_BRANDA, TTF_GetError());
+		return false;
+	}
+	gFont16 = gMediaFactory->getFont( FONT_BRANDA, 16 );
+	if (gFont16 == NULL) {
 		spdlog::error("Failed to load {} font! SDL_ttf Error: {}", FONT_BRANDA, TTF_GetError());
 		return false;
 	}

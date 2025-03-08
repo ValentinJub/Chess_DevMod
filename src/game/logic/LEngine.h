@@ -3,7 +3,9 @@
 
 #include "com/headers.h"
 #include "com/constantes.h"
-#include "game/board/util.h"
+#include "game/logic/util.h"
+
+bool operator==(const SDL_Point& a, const SDL_Point& b);
 
 class LEngine {
     public:
@@ -13,15 +15,15 @@ class LEngine {
         bool isMoveSelfCheck(const std::array<std::array<int, SPL>, SPL>& board, SDL_Point src, SDL_Point dst, bool isWhite);
         bool isKingInCheck(const std::array<std::array<int, SPL>, SPL>& board, bool isWhite);
         bool isCheckMate(const std::array<std::array<int, SPL>, SPL>& board, bool isWhite);
-        bool isPieceAttacked(const std::array<std::array<int, SPL>, SPL>& board, SDL_Point attackerPos, SDL_Point defenderPos, bool selfCheck = false);
-        std::vector<SDL_Point> getLegalMoves(std::array<std::array<int, SPL>, SPL> board, SDL_Point piecePos);
+        bool isPieceAttacked(const std::array<std::array<int, SPL>, SPL>& board, SDL_Point attackerPos, SDL_Point defenderPos);
+        bool isPieceAttacked(const std::array<std::array<int, SPL>, SPL>& board, SDL_Point defenderPos);
+        std::vector<SDL_Point> getPseudoLegalMoves(std::array<std::array<int, SPL>, SPL> board, SDL_Point piecePos);
         void setKingHasMoved(bool isWhite, bool hasMoved);
         void setRookHasMoved(bool isWhite, int rook, bool hasMoved);
         bool getKingHasMoved(bool isWhite);
         bool getRookHasMoved(bool isWhite, int rook);
 
         void setEnPassant(int piece, SDL_Point src, SDL_Point dest);
-
         int pieceValue(int const pieceType) const;
         private:
 

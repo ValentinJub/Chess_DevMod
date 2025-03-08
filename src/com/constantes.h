@@ -46,30 +46,33 @@ extern const char* SPRITE_DOT;
 extern const char* SPRITE_QUEEN_NORMAL;
 extern const char* SPRITE_QUEEN_RETRO;
 
-const SDL_Color COLOR_BLACK = {0,0,0,0xFF};
-const SDL_Color COLOR_WHITE = {0xFF,0xFF,0xFF,0xFF};
-const SDL_Color COLOR_RED = {0xFF,0,0,0xFF};
+constexpr SDL_Color COLOR_BLACK = {0,0,0,0xFF};
+constexpr SDL_Color COLOR_WHITE = {0xFF,0xFF,0xFF,0xFF};
+constexpr SDL_Color COLOR_RED = {0xFF,0,0,0xFF};
 
-const int SCREEN_WIDTH = 64*10;
-const int SCREEN_HEIGHT = 64*10;
-const int NBR_OF_MUSIC = 7;
+constexpr int SCREEN_WIDTH = 64*10;
+constexpr int SCREEN_HEIGHT = 64*10;
+constexpr int NBR_OF_MUSIC = 7;
 
-const int LEFT_MENU = 8;
-const int TOTAL_SETTINGS_MENU_TEXTURES = 17;
-const int TOTAL_SQUARES = 64;
-const int OFFSET = 64;
-const int SPL = 8;
-const int INITIAL_PIECES_TOTAL = 32;
-const int PLACEHOLDER = 1;
+constexpr int LEFT_MENU = 8;
+constexpr int TOTAL_SETTINGS_MENU_TEXTURES = 17;
+constexpr int TOTAL_SQUARES = 64;
+constexpr int OFFSET = 64;
+constexpr int SPL = 8;
+constexpr int INITIAL_PIECES_TOTAL = 32;
+constexpr int PLACEHOLDER = 1;
 
-const int BISHOP_VALUE = 3;
-const int KNIGHT_VALUE = 3;
-const int PAWN_VALUE = 1;
-const int KING_VALUE = 20;
-const int QUEEN_VALUE = 10;
-const int ROOK_VALUE = 5;
+// https://www.chessprogramming.org/Simplified_Evaluation_Function
+enum PieceValues {
+    BISHOP_VALUE = 330,
+    KNIGHT_VALUE = 320,
+    PAWN_VALUE = 100,
+    KING_VALUE = 20000,
+    QUEEN_VALUE = 900,
+    ROOK_VALUE = 500
+};
 
-const std::array<SDL_Point, SPL> KingMoves = {
+constexpr std::array<SDL_Point, SPL> KingMoves = {
 	SDL_Point{0, -1}, //U
 	SDL_Point{1, -1}, //UR
 	SDL_Point{1, 0}, //R
@@ -80,14 +83,14 @@ const std::array<SDL_Point, SPL> KingMoves = {
 	SDL_Point{-1, -1} //UL
 };
 
-const std::array<SDL_Point, 4> BishopMoves = {
+constexpr std::array<SDL_Point, 4> BishopMoves = {
 	SDL_Point{1, -1},
 	SDL_Point{1, 1},
 	SDL_Point{-1, 1},
 	SDL_Point{-1, -1}
 };
 
-const std::array<SDL_Point, SPL> KnightMoves = {
+constexpr std::array<SDL_Point, SPL> KnightMoves = {
 	SDL_Point{1, -2},
     SDL_Point{2, -1},
     SDL_Point{2, 1},
@@ -98,15 +101,15 @@ const std::array<SDL_Point, SPL> KnightMoves = {
     SDL_Point{-1, -2}
 };
 
-const std::array<SDL_Point, 4> RookMoves = {
+constexpr std::array<SDL_Point, 4> RookMoves = {
 	SDL_Point{0, -1},
 	SDL_Point{1, 0},
 	SDL_Point{0, 1},
 	SDL_Point{-1, 0}
 };
 
-const std::array<SDL_Point, 2> WhitePawnTakeMoves = {SDL_Point{-1, -1}, SDL_Point{1, -1}};
-const std::array<SDL_Point, 2> BlackPawnTakeMoves = {SDL_Point{-1, 1}, SDL_Point{1, 1}};
+constexpr std::array<SDL_Point, 2> WhitePawnTakeMoves = {SDL_Point{-1, -1}, SDL_Point{1, -1}};
+constexpr std::array<SDL_Point, 2> BlackPawnTakeMoves = {SDL_Point{-1, 1}, SDL_Point{1, 1}};
 
 enum CastlingResult {
     CASTLE_WR1,
@@ -127,7 +130,7 @@ struct OptionValues {
     int pieceTheme;
 };
 
-const int TOTAL_SETTINGS_RIGHT_MENU_TEXT_ITEMS = 11;
+constexpr int TOTAL_SETTINGS_RIGHT_MENU_TEXT_ITEMS = 11;
 
 enum SettingsMenuButtons {
     SLM_YES,

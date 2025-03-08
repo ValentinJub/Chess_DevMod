@@ -164,24 +164,19 @@ void LMainMenu::handleKeyEvents(SDL_Event* e) {
         switch(e->key.keysym.sym) {
             case SDLK_ESCAPE:
 				this->Notify(0);
-				gStateMachine->pop();
-				break;
+				return;
             case SDLK_1:
-				// gMusicPlayer->pause();
-				gStateMachine->push(new LTransition(FADE_OUT, new LBoardState));
-				// gStateMachine->pop();
+				gStateMachine->push(new LTransition(FADE_OUT, new LBoardState(PVP)));
                 Util::flushEvents();
                 break;
             case SDLK_2:
-				// gMusicPlayer->pause();
-                // playerVersusComputer();
+				gStateMachine->push(new LTransition(FADE_OUT, new LBoardState(PVAI)));
                 Util::flushEvents();
                 break;
             case SDLK_3:
-                SDL_Delay(20);
-                Util::flushEvents();
 				gStateMachine->pop();
 				gStateMachine->push(new LSettingsState);
+                Util::flushEvents();
                 break;
             }
 	}
@@ -194,27 +189,19 @@ void LMainMenu::handleMouseEvents(SDL_Event* e) {
 			if(mMenuTextures[i]->isClicked(e)) {
 				switch (i) {
 				case PLAY:
-					// gMusicPlayer->pause();
+					gStateMachine->push(new LTransition(FADE_OUT, new LBoardState(PVP)));
 					Util::flushEvents();
-					gStateMachine->push(new LTransition(FADE_OUT, new LBoardState));
-                	Util::flushEvents();
-					break;
+					return;
 				case PLAY_AI:
-					// gMusicPlayer->pause();
-              		Util::flushEvents();
-					// playerVersusComputer();
-                	Util::flushEvents();
-					break;
-				case SETTINGS:
-					SDL_Delay(20);
+					gStateMachine->push(new LTransition(FADE_OUT, new LBoardState(PVAI)));
 					Util::flushEvents();
+					return;
+				case SETTINGS:
 					gStateMachine->pop();
 					gStateMachine->push(new LSettingsState);
 					Util::flushEvents();
-					break;
+					return;
 				case DEVMODE:
-					SDL_Delay(200);
-					Util::flushEvents();
 					break;
 				}
 			}

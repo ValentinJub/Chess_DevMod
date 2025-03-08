@@ -305,19 +305,12 @@ void LMenuSettings::setClickableTexturePosition() {
                 pieceStartPosY = 359 + hPadding,
                 piece1Width = mClickableMenuTexture[PT_1]->w(),
                 piece1Height = mClickableMenuTexture[PT_1]->h(),
-                piece2Width = mClickableMenuTexture[PT_2]->w(),
-                piece2Height = mClickableMenuTexture[PT_2]->h();
+                piece2Width = mClickableMenuTexture[PT_2]->w();
     
     for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i+=2) {
         int y(i + 1),
             leftTabHeight(mClickableMenuTexture[i]->h()),
             leftTabWidth(mClickableMenuTexture[i]->w()),
-            rightTabHeight(0),
-            rightTabWidth(0);
-        if(y < TOTAL_CLICKABLE_ITEMS) {
-            rightTabHeight = mClickableMenuTexture[y]->h();
-            rightTabWidth = mClickableMenuTexture[y]->w();
-        }
         
         leftX = SCREEN_WIDTH / 2;
         rightX = ((SCREEN_WIDTH / 2) + (leftTabWidth + bigPadding));
@@ -338,8 +331,8 @@ void LMenuSettings::setClickableTexturePosition() {
         if( y == PT_2) {
             rightX = pieceMaxPosX - piece2Width;
             rightY = pieceStartPosY;
-            rightTabWidth = piece2Width;
-            rightTabHeight = piece2Height;
+            // rightTabWidth = piece2Width;
+            // rightTabHeight = piece2Height;
         }
         if(i == BACK) {
             leftX = bigPadding;
