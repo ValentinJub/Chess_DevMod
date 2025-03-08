@@ -410,7 +410,6 @@ std::vector<SDL_Point> LEngine::bPawnMove(std::array<std::array<int, SPL>, SPL> 
     if(mLastMovedPiece == WPAWN && abs(mLastMovedPieceSrcPos.y - mLastMovedPieceDestPos.y) == 2 && mLastMovedPieceDestPos.y == pawnPos.y && abs(mLastMovedPieceDestPos.x - pawnPos.x) == 1) {
         legalPos.push_back(SDL_Point{mLastMovedPieceDestPos.x, mLastMovedPieceDestPos.y + 1});
     }
-	// En passant moves need to be added here later.
 	return legalPos;
 }
 
