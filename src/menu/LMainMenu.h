@@ -6,13 +6,10 @@
 #include "com/LButton.h"
 #include "graphics/LTextureClickable.h"
 #include "com/LSubject.h"
-#include "states/LStateMachine.h"
-#include "states/menu/LSettingsState.h"
-#include "factories/LMediaFactory.h"
-#include "sound/LMusicPlayer.h"
 #include "com/logger.h"
 #include "tweeny/include/tweeny.h"
 #include "states/LTransition.h"
+
 using tweeny::easing;
 
 struct FPiece {

@@ -1,5 +1,10 @@
 #include "menu/LMainMenu.h"
 #include "states/game/LBoardState.h"
+#include "states/game/LBoardCustomState.h"
+#include "states/menu/LSettingsState.h"
+#include "states/LStateMachine.h"
+#include "factories/LMediaFactory.h"
+#include "sound/LMusicPlayer.h"
 
 extern TTF_Font* gFont64; 
 extern TTF_Font* gFont32;
@@ -168,16 +173,21 @@ void LMainMenu::handleKeyEvents(SDL_Event* e) {
             case SDLK_1:
 				gStateMachine->push(new LTransition(FADE_OUT, new LBoardState(PVP)));
                 Util::flushEvents();
-                break;
+                return;
             case SDLK_2:
 				gStateMachine->push(new LTransition(FADE_OUT, new LBoardState(PVAI)));
                 Util::flushEvents();
-                break;
+                return;
             case SDLK_3:
 				gStateMachine->pop();
 				gStateMachine->push(new LSettingsState);
                 Util::flushEvents();
-                break;
+                return;
+			case SDLK_4:
+				gStateMachine->pop();
+				gStateMachine->push(new LBoardCustomState);
+				Util::flushEvents();
+				return;
             }
 	}
 }
@@ -202,7 +212,10 @@ void LMainMenu::handleMouseEvents(SDL_Event* e) {
 					Util::flushEvents();
 					return;
 				case DEVMODE:
-					break;
+					gStateMachine->pop();
+					gStateMachine->push(new LBoardCustomState);
+					Util::flushEvents();
+					return;
 				}
 			}
 		}
