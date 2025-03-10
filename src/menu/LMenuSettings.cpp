@@ -292,12 +292,6 @@ void LMenuSettings::setClickableTexturePosition() {
                 titleHeight(mOptionMenuTexture[0]->h()),
                 topY(bigPadding + titleHeight),
                 textureHeight(mClickableMenuTexture[0]->h());
-    int leftX(0),
-        leftY(0),
-        rightX(0),
-        rightY(0),
-        inc(0);
-
     // the positionS FOR THE piece texture
     const int   pieceStartPosX = 243,
                 hPadding = 12,
@@ -307,16 +301,16 @@ void LMenuSettings::setClickableTexturePosition() {
                 piece1Height = mClickableMenuTexture[PT_1]->h(),
                 piece2Width = mClickableMenuTexture[PT_2]->w();
     
+    int inc(0);
     for(int i(0); i < TOTAL_CLICKABLE_ITEMS; i+=2) {
         int y(i + 1),
             leftTabHeight(mClickableMenuTexture[i]->h()),
-            leftTabWidth(mClickableMenuTexture[i]->w()),
+            leftTabWidth(mClickableMenuTexture[i]->w());
         
-        leftX = SCREEN_WIDTH / 2;
-        rightX = ((SCREEN_WIDTH / 2) + (leftTabWidth + bigPadding));
-
-        leftY = topY + (textureHeight * inc) + bigPadding * inc;
-        rightY = topY + (textureHeight * inc) + bigPadding * inc;
+        int leftX = SCREEN_WIDTH / 2,
+            rightX = ((SCREEN_WIDTH / 2) + (leftTabWidth + bigPadding)),
+            leftY = topY + (textureHeight * inc) + bigPadding * inc,
+            rightY = topY + (textureHeight * inc) + bigPadding * inc;
 
         if(i == 0) {
             leftY = topY;
@@ -331,8 +325,6 @@ void LMenuSettings::setClickableTexturePosition() {
         if( y == PT_2) {
             rightX = pieceMaxPosX - piece2Width;
             rightY = pieceStartPosY;
-            // rightTabWidth = piece2Width;
-            // rightTabHeight = piece2Height;
         }
         if(i == BACK) {
             leftX = bigPadding;

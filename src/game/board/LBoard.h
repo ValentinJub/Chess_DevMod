@@ -70,7 +70,6 @@ private:
     LTexture *mBlackTimerTexture = NULL;
     LTexture *mWhiteScoreTexture;
     LTexture *mBlackScoreTexture;
-    LTexture *mPauseBackgroundTexture;
     LTexture *mPauseTextTexture;
     LTexture *mOutOfTimeTexture;
 
@@ -104,12 +103,12 @@ private:
 
     void renderTile();
     void renderPieces();
-    void renderTileCoordinates();
     void renderOutOfTimeScreen();
     void renderTimer();
     void renderScore();
     void renderDeadPieces();
     void renderPause();
+    void renderFadedBackground();
     void drawButtons();
 
     void playVictorySound() const;
@@ -139,6 +138,7 @@ private:
          mBlackTimerRanOut = false,
          mIsPaused = false,
          mAPieceIsSelected = false,
+         mDrawButtons = false,
          mGameOver = false;
 };
 

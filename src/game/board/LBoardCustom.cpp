@@ -120,8 +120,8 @@ void LBoardCustom::renderTile() {
 	int yPos(0);
 	for(int y(0); y < SPL; y++) {
 		for(int x(0); x < SPL; x++) {
-			xPos = OFFSET + (TOTAL_SQUARES * x);
-			yPos = OFFSET + (TOTAL_SQUARES * y);
+			xPos = HOFFSET + (TOTAL_SQUARES * x);
+			yPos = VOFFSET + (TOTAL_SQUARES * y);
 			if(y % 2 == 0) {
 				if(!light) mTileTexture->renderAt(xPos, yPos, &mTileRectClip[DARK1]);
 				else mTileTexture->renderAt(xPos, yPos, &mTileRectClip[LIGHT1]);
@@ -140,7 +140,7 @@ void LBoardCustom::renderTile() {
 			if(y == 7) {
 				const char coord = 'a' + x;
 				LTexture* txt = gMediaFactory->getTxt(std::string(1, coord), gFont16, COLOR_RED);
-				txt->renderAt(xPos + OFFSET - txt->w() , yPos + OFFSET - txt->h());
+				txt->renderAt(xPos + HOFFSET - txt->w() , yPos + VOFFSET - txt->h());
 			}
 		}
 	}
@@ -151,8 +151,8 @@ void LBoardCustom::renderBoardPieces() {
 		for(int x(0); x < SPL; x++) {
 			if((mBoard[y][x] >= 0) && (mBoard[y][x] < TOTAL_PIECES - 1)) {
 				mPieceTexture->renderAt(
-					OFFSET + (TOTAL_SQUARES * x), 
-					OFFSET + (TOTAL_SQUARES * y), 
+					HOFFSET + (TOTAL_SQUARES * x), 
+					VOFFSET + (TOTAL_SQUARES * y), 
 					&mPieceClip[mBoard[y][x]]
 				);
 			}
@@ -179,8 +179,8 @@ void LBoardCustom::setBoardButtons() {
 		for(int x(0); x < SPL; x++) {
 			if((mBoard[y][x] >= 0) && (mBoard[y][x] < TOTAL_PIECES - 1)) {
 				mPieceButtons[i]->setPos(
-					(x * TOTAL_SQUARES) + OFFSET, 
-					(y * TOTAL_SQUARES) + OFFSET
+					(x * TOTAL_SQUARES) + HOFFSET, 
+					(y * TOTAL_SQUARES) + VOFFSET
 				);
 				mPieceButtons[i]->setSize(TOTAL_SQUARES,TOTAL_SQUARES);
 				i++;
