@@ -25,12 +25,14 @@ const char* MUSIC_MENU = "media/music/Menu/menu.mp3";
 
 const char* SPRITE_BACKGROUND = "media/sprites/Background/bg1.jpg";
 const char* SPRITE_BACKGROUND_FULLBLACK = "media/sprites/blackScreen.png";
-const char* SPRITE_PIECE_SHEET = "media/sprites/64/pieceSpritesheet.png";
+const char* SPRITE_PIECE_SHEET = "media/sprites/64/npiece_spritesheet.png";
+// const char* SPRITE_PIECE_SHEET = "media/sprites/64/pieceSpritesheet.png";
 const char* SPRITE_RETRO_PIECE_SHEET = "media/sprites/64/retroPieceSpritesheet.png";
 // const char* SPRITE_BOARD = "media/sprites/64/board.png";
 const char* SPRITE_BOARD = "media/sprites/tile.png";
 const char* SPRITE_DOT = "media/sprites/dot.png";
-const char* SPRITE_QUEEN_NORMAL = "media/sprites/64/queen0.png";
+// const char* SPRITE_QUEEN_NORMAL = "media/sprites/64/queen0.png";
+const char* SPRITE_QUEEN_NORMAL = "media/sprites/64/wq.png";
 const char* SPRITE_QUEEN_RETRO = "media/sprites/64/queen1.png";
 
 const char* SPRITE_PIECE_SHEET_32 = "media/sprites/32/spritesheet32.png";

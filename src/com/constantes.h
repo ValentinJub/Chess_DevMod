@@ -53,6 +53,7 @@ constexpr SDL_Color COLOR_RED = {0xFF,0,0,0xFF};
 constexpr int SCREEN_WIDTH = 1280;
 constexpr int SCREEN_HEIGHT = 800;
 constexpr int TILE_SIZE = 84;
+constexpr int TILE_OFFSET = 10;
 constexpr int NBR_OF_MUSIC = 7;
 
 constexpr int LEFT_MENU = 8;
