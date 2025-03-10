@@ -166,17 +166,14 @@ int CApp::exec() {
 		spdlog::error("Critical failure: failed to initialize!");
 	}
 	else {
-		Uint64 NOW = SDL_GetPerformanceCounter();
-		Uint64 LAST = 0;
+		Uint64 now = SDL_GetPerformanceCounter();
+		Uint64 last = 0;
 		while(this->mAppIsRunning) {
-			LAST = NOW;
-			NOW = SDL_GetPerformanceCounter();
-			double dt = ((NOW - LAST) * 1000 / (double)SDL_GetPerformanceFrequency());
+			last = now;
+			now = SDL_GetPerformanceCounter();
+			double dt = ((now - last) * 1000 / (double)SDL_GetPerformanceFrequency());
 			gStateMachine->update(dt);
-			SDL_RenderClear(gRenderer);
-			gBackgroundTexture->render();
-			gStateMachine->render();
-			SDL_RenderPresent(gRenderer);
+			gStateMachine->render();			
 		}
 	}
 	spdlog::info("Exiting...");
