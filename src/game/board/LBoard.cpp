@@ -47,11 +47,6 @@ LBoard::LBoard(LObserver* observer, PlayMode mode) : mPlayMode(mode), mAppObserv
 		mPieceButtons.push_back(new LButton);
 	}
 	
-	for(int i(0); i < EMPTY; i++) {
-		mDeadWhitePiece[i] = 0;
-		mDeadBlackPiece[i] = 0;
-	}
-	
 	//Set to 9 so no pieces 
 	//Are highlighted at start
 	mSelectedPiecePos = {9, 9};
@@ -379,6 +374,7 @@ void LBoard::renderPieces() {
 					);
 				}
 				else mPieceTexture->renderAt(
+					// Set pos, render()
 					HOFFSET + TILE_OFFSET + (TILE_SIZE * x), 
 					VOFFSET + TILE_OFFSET + (TILE_SIZE * y), 
 					&mPieceClip[mBoard[y][x]]
@@ -522,7 +518,7 @@ void LBoard::doMove(SDL_Point dest, SDL_Point src, int piece) {
 	//if the square destination is not empty, substract a button
 	if(mBoard[dest.y][dest.x] != EMPTY) {
 		mPieceButtons.resize(mPieceButtons.size() - 1);
-		fillDeadPieceTab(mBoard[dest.y][dest.x]);
+		this->fillDeadPieceTab(mBoard[dest.y][dest.x]);
 		captured = true;
 	}
 	
@@ -740,37 +736,26 @@ void LBoard::renderScore() {
 }
 
 void LBoard::renderDeadPieces() {
-	int whiteOffset = 0;
-	int blackOffset = 0;
-	int whitePosX = VOFFSET * 4;
-	int whitePosY = (VOFFSET * 9);
-	int blackPosX = VOFFSET * 4;
-	int blackPosY = 0;
-	for(int i(0); i < EMPTY; i++) {
-		//black side
-		if(mDeadWhitePiece[i] != 0) {
-			for(int y(0); y < mDeadWhitePiece[i]; y++) {
-				//make a second line once 8 elements
-				if(blackOffset >= 32 * 8) {
-					blackOffset = 0;
-					blackPosY = 32;
-				}
-				mMiniPieceTexture->renderAt(blackPosX + blackOffset, blackPosY, &mMiniPieceClip[i]);
-				blackOffset += 32;
-			}
-		}
-		//white side
-		if(mDeadBlackPiece[i] != 0) {
-			for(int y(0); y < mDeadBlackPiece[i]; y++) {
-				//make a second line once 8 elements
-				if(whiteOffset >= 32 * 8) {
-					whiteOffset = 0;
-					whitePosY = (VOFFSET * 9) + 32;
-				}
-				mMiniPieceTexture->renderAt(whitePosX + whiteOffset, whitePosY, &mMiniPieceClip[i]);
-				whiteOffset += 32;
-			}
-		}
+	int offset = 0, x = VOFFSET * 4;
+	// We render the white dead piece on black's side, at the top of the screen
+	for(int piece : mDeadWhitePiece) {
+		mMiniPieceTexture->renderAt(
+			x + offset, 
+			mDeadWhitePiece.size() > 8 ? 32 : 0, 
+			&mMiniPieceClip[piece]
+		);
+		offset = offset >= 32 * 8 ? 0 : offset + 32;
+	}
+	//white side
+	offset = 0;
+	int y = SCREEN_HEIGHT - VOFFSET;
+	for(int piece : mDeadBlackPiece) {
+		mMiniPieceTexture->renderAt(
+			x + offset, 
+			mDeadBlackPiece.size() > 8 ? y + 32 : y,
+			&mMiniPieceClip[piece]
+		);
+		offset = offset >= 32 * 8 ? 0 : offset + 32;
 	}
 }
 
@@ -783,10 +768,10 @@ void LBoard::changeTurn() {
 
 void LBoard::fillDeadPieceTab(const int fallenPiece) {
 	if(mWhiteTurn) {
-		mDeadBlackPiece[fallenPiece]++;
+		mDeadBlackPiece.push_back(fallenPiece);
 	}
 	else {
-		mDeadWhitePiece[fallenPiece]++;
+		mDeadWhitePiece.push_back(fallenPiece);
 	}
 }
 

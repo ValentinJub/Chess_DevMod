@@ -128,8 +128,7 @@ private:
     bool checkPromotion(SDL_Point dest);
 
     int mTimeLimit;
-    int mDeadWhitePiece[EMPTY];
-    int mDeadBlackPiece[EMPTY];
+    std::vector<int> mDeadWhitePiece, mDeadBlackPiece;
 
     int mSelectedPiece = EMPTY;
 
