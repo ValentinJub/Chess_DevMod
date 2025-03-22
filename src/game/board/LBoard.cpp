@@ -47,11 +47,6 @@ LBoard::LBoard(LObserver* observer, PlayMode mode) : mPlayMode(mode), mAppObserv
 		mPieceButtons.push_back(new LButton);
 	}
 	
-	for(int i(0); i < EMPTY; i++) {
-		mDeadWhitePiece[i] = 0;
-		mDeadBlackPiece[i] = 0;
-	}
-	
 	//Set to 9 so no pieces 
 	//Are highlighted at start
 	mSelectedPiecePos = {9, 9};
@@ -115,21 +110,25 @@ void LBoard::update() {
 			return;
 		}
 		else if(e.type == SDL_KEYDOWN) {
-			if(e.key.keysym.sym == SDLK_ESCAPE) {
+			switch(e.key.keysym.sym) {
+			case SDLK_ESCAPE:
 				gStateMachine->push(new LTransition(FADE_OUT, new LMainMenuState));
 				return;
-			}
-			else if(e.key.keysym.sym == SDLK_SPACE) {
+			case SDLK_SPACE:
 				this->pause();
-			} 
-			else if(e.key.keysym.sym == SDLK_x) {
+				break;
+			case SDLK_x:
 				mBoard = promotionBoard;
-			} 
-			else if(e.key.keysym.sym == SDLK_c) {
+				break;
+			case SDLK_c:
 				mBoard = castlingBoard;
-			}
-			else if(e.key.keysym.sym == SDLK_r) {
+				break;
+			case SDLK_r:
 				mBoard = normalBoard;
+				break;
+			case SDLK_z:
+				mDrawButtons = !mDrawButtons;
+				break;
 			}
 		}
 		if(!(mIsPaused)) {
@@ -144,18 +143,11 @@ void LBoard::render() {
 	SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 	this->renderTile();
 	this->renderPieces();
-	if(mSettings.useTimer == 0) {
-		this->renderTimer();
-	}
 	this->renderScore();
 	this->renderDeadPieces();
-	if(mIsPaused) {
-		this->renderPause();
-	}
-}
-
-void LBoard::renderTileCoordinates() {
-
+	if(mSettings.useTimer == 0) this->renderTimer();
+	if(mDrawButtons) this->drawButtons();
+	if(mIsPaused) this->renderPause();
 }
 
 void LBoard::playMusic() {
@@ -251,11 +243,8 @@ bool LBoard::initTileTextures() {
 }
 
 bool LBoard::initPauseTexture() {
-	mPauseBackgroundTexture = gMediaFactory->getImg(SPRITE_BACKGROUND_FULLBLACK);
-	mPauseBackgroundTexture->setAlpha(127);
-	mPauseBackgroundTexture->setBlendMode(SDL_BLENDMODE_BLEND);
 	mPauseTextTexture = gMediaFactory->getTxt("Pause", gFont64, COLOR_WHITE);
-	return mPauseBackgroundTexture != NULL && mPauseTextTexture != NULL;
+	return mPauseTextTexture != NULL;
 }
 
 bool LBoard::initOutOfTimeTexture() {
@@ -280,23 +269,23 @@ void LBoard::setPiecesClip() {
 void LBoard::setTileRectClip() {
 	mTileRectClip[DARK1].x = 0;
 	mTileRectClip[DARK1].y = 0;
-	mTileRectClip[DARK1].w = TOTAL_SQUARES;
-	mTileRectClip[DARK1].h = TOTAL_SQUARES;
+	mTileRectClip[DARK1].w = TILE_SIZE;
+	mTileRectClip[DARK1].h = TILE_SIZE;
 	
-	mTileRectClip[LIGHT1].x = TOTAL_SQUARES;
+	mTileRectClip[LIGHT1].x = TILE_SIZE;
 	mTileRectClip[LIGHT1].y = 0;
-	mTileRectClip[LIGHT1].w = TOTAL_SQUARES;
-	mTileRectClip[LIGHT1].h = TOTAL_SQUARES;
+	mTileRectClip[LIGHT1].w = TILE_SIZE;
+	mTileRectClip[LIGHT1].h = TILE_SIZE;
 	
-	mTileRectClip[DARK2].x = 128;
+	mTileRectClip[DARK2].x = TILE_SIZE * 2;
 	mTileRectClip[DARK2].y = 0;
-	mTileRectClip[DARK2].w = TOTAL_SQUARES;
-	mTileRectClip[DARK2].h = TOTAL_SQUARES;
+	mTileRectClip[DARK2].w = TILE_SIZE;
+	mTileRectClip[DARK2].h = TILE_SIZE;
 	
-	mTileRectClip[LIGHT2].x = 192;
+	mTileRectClip[LIGHT2].x = TILE_SIZE * 3;
 	mTileRectClip[LIGHT2].y = 0;
-	mTileRectClip[LIGHT2].w = TOTAL_SQUARES;
-	mTileRectClip[LIGHT2].h = TOTAL_SQUARES;
+	mTileRectClip[LIGHT2].w = TILE_SIZE;
+	mTileRectClip[LIGHT2].h = TILE_SIZE;
 }
 
 void LBoard::renderTile() {
@@ -307,8 +296,8 @@ void LBoard::renderTile() {
 	//color settings
 	for(int y(0); y < SPL; y++) {
 		for(int x(0); x < SPL; x++) {
-			xPos = OFFSET + (TOTAL_SQUARES * x);
-			yPos = OFFSET + (TOTAL_SQUARES * y);
+			xPos = HOFFSET + (TILE_SIZE * x);
+			yPos = VOFFSET + (TILE_SIZE * y);
 			if(y % 2 == 0) {
 				if(mSettings.tileColor == 0) {
 					if(!light) mTileTexture->renderAt(xPos, yPos, &mTileRectClip[DARK1]);
@@ -341,7 +330,7 @@ void LBoard::renderTile() {
 			if(y == 7) {
 				const char coord = 'a' + x;
 				LTexture* txt = gMediaFactory->getTxt(std::string(1, coord), gFont16, COLOR_RED);
-				txt->renderAt(xPos + OFFSET - txt->w() , yPos + OFFSET - txt->h());
+				txt->renderAt(xPos + TILE_SIZE - txt->w() , yPos + TILE_SIZE - txt->h());
 			}
 		}
 	}
@@ -349,13 +338,13 @@ void LBoard::renderTile() {
 	if(mAPieceIsSelected && mSettings.showLegalMoves == 0) {
 		std::vector<SDL_Point> legalMoves = mEngine.getPseudoLegalMoves(mBoard, mSelectedPiecePos);
 		for(int z(0); z < legalMoves.size(); z++) {
-			yPos = OFFSET + (legalMoves[z].y * TOTAL_SQUARES);
-			xPos = OFFSET + (legalMoves[z].x * TOTAL_SQUARES);
+			yPos = VOFFSET + (legalMoves[z].y * TILE_SIZE);
+			xPos = HOFFSET + (legalMoves[z].x * TILE_SIZE);
 			mTileTexture->addDecorator(new LTileBorder(
 				SDL_Point{xPos, yPos},
-				SDL_Point{xPos + TOTAL_SQUARES, yPos + TOTAL_SQUARES},
-				TOTAL_SQUARES,
-				TOTAL_SQUARES,
+				SDL_Point{xPos + TILE_SIZE, yPos + TILE_SIZE},
+				TILE_SIZE,
+				TILE_SIZE,
 				3
 			));
 			mTileTexture->setRenderDecorators(true);
@@ -366,8 +355,8 @@ void LBoard::renderTile() {
 	if(mRightClickedTile.size() > 0) {
 		int size = mRightClickedTile.size();
 		for(int z(0); z < size; z++) {
-			yPos = OFFSET + (mRightClickedTile[z].y * TOTAL_SQUARES);
-			xPos = OFFSET + (mRightClickedTile[z].x * TOTAL_SQUARES);
+			yPos = VOFFSET + (mRightClickedTile[z].y * TILE_SIZE);
+			xPos = HOFFSET + (mRightClickedTile[z].x * TILE_SIZE);
 			mTileTexture->renderAt(xPos, yPos, &mTileRectClip[LIGHT2]);
 		}
 	}
@@ -379,14 +368,15 @@ void LBoard::renderPieces() {
 			if((mBoard[y][x] >= 0) && (mBoard[y][x] < TOTAL_PIECES - 1)) {
 				if( (mAPieceIsSelected) && (mSelectedPiecePos.x == x) && (mSelectedPiecePos.y == y)) {
 					mHighlightedPieceTexture->renderAt(
-						OFFSET + (TOTAL_SQUARES * x), 
-						OFFSET + (TOTAL_SQUARES * y), 
+						HOFFSET + TILE_OFFSET + (TILE_SIZE * x), 
+						VOFFSET + TILE_OFFSET + (TILE_SIZE * y), 
 						&mPieceClip[mBoard[y][x]]
 					);
 				}
 				else mPieceTexture->renderAt(
-					OFFSET + (TOTAL_SQUARES * x), 
-					OFFSET + (TOTAL_SQUARES * y), 
+					// Set pos, render()
+					HOFFSET + TILE_OFFSET + (TILE_SIZE * x), 
+					VOFFSET + TILE_OFFSET + (TILE_SIZE * y), 
 					&mPieceClip[mBoard[y][x]]
 				);
 			}
@@ -413,10 +403,10 @@ void LBoard::setButtons() {
 		for(int x(0); x < SPL; x++) {
 			if((mBoard[y][x] >= 0) && (mBoard[y][x] < TOTAL_PIECES - 1)) {
 				mPieceButtons[i]->setPos(
-					(x * TOTAL_SQUARES) + OFFSET, 
-					(y * TOTAL_SQUARES) + OFFSET
+					(x * TILE_SIZE) + HOFFSET, 
+					(y * TILE_SIZE) + VOFFSET
 				);
-				mPieceButtons[i]->setSize(TOTAL_SQUARES,TOTAL_SQUARES);
+				mPieceButtons[i]->setSize(TILE_SIZE,TILE_SIZE);
 				i++;
 			}
 		}
@@ -424,22 +414,29 @@ void LBoard::setButtons() {
 }
 
 void LBoard::renderPause() {
-	mPauseBackgroundTexture->render();
-	mPauseTextTexture->renderAt((SCREEN_WIDTH - mPauseTextTexture->w()) / 2, (SCREEN_HEIGHT - mPauseTextTexture->h()) / 2); 
+	this->renderFadedBackground();
+	mPauseTextTexture->renderAt((SCREEN_WIDTH - mPauseTextTexture->w()) / 2, (SCREEN_HEIGHT - mPauseTextTexture->h()) / 2);
 }
 
 void LBoard::renderOutOfTimeScreen() {
-	mPauseBackgroundTexture->render();
+	this->renderFadedBackground();
 	mOutOfTimeTexture->renderAt((SCREEN_WIDTH - mOutOfTimeTexture->w()) / 2, (SCREEN_HEIGHT - mOutOfTimeTexture->h()) / 2);
 	SDL_RenderPresent(gRenderer);
 }
 
+void LBoard::renderFadedBackground() {
+	SDL_Rect rect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+	SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0x7F);
+	SDL_RenderFillRect(gRenderer, &rect);
+}
+
 void LBoard::handleEvents(SDL_Event* e) {
 	bool outside = true; 
-	int x, y;
-	SDL_GetMouseState( &x, &y );
-	x = (x / TOTAL_SQUARES) - 1;
-	y = (y / TOTAL_SQUARES) - 1; 
+	int x, y, rx, ry;
+	SDL_GetMouseState( &rx, &ry );
+	// There is a VOFFSET and HOFFSET
+	x = ((rx - HOFFSET) / TILE_SIZE);
+	y = ((ry - VOFFSET) / TILE_SIZE);
 	//check for each buttons
 	int size = mPieceButtons.size();
 	for(int i(0); i < size; i++) {
@@ -498,7 +495,9 @@ void LBoard::handleEvents(SDL_Event* e) {
 void LBoard::move(SDL_Event* e) {
 	int destinationPosX, destinationPosY;
 	SDL_GetMouseState( &destinationPosX, &destinationPosY );
-	SDL_Point destPos = {(destinationPosX / TOTAL_SQUARES) - 1, (destinationPosY / TOTAL_SQUARES) - 1};
+	const int x = ((destinationPosX - HOFFSET) / TILE_SIZE);
+	const int y = ((destinationPosY - VOFFSET) / TILE_SIZE);
+	SDL_Point destPos = {x,y};
 	if((e->type == SDL_MOUSEBUTTONUP) && (e->button.button == SDL_BUTTON_LEFT)) {
 		std::vector<SDL_Point> legalPos = mEngine.getPseudoLegalMoves(mBoard, mSelectedPiecePos);
 		int size = legalPos.size();
@@ -519,7 +518,7 @@ void LBoard::doMove(SDL_Point dest, SDL_Point src, int piece) {
 	//if the square destination is not empty, substract a button
 	if(mBoard[dest.y][dest.x] != EMPTY) {
 		mPieceButtons.resize(mPieceButtons.size() - 1);
-		fillDeadPieceTab(mBoard[dest.y][dest.x]);
+		this->fillDeadPieceTab(mBoard[dest.y][dest.x]);
 		captured = true;
 	}
 	
@@ -647,10 +646,6 @@ void LBoard::playMoveSound(bool captured, bool castled) const {
 	}
 }
 
-void LBoard::playVictorySound() const {
-	
-}
-
 void LBoard::renderTimer() {
 	// white timer total time left in seconds
 	int wtime = mClock->white();
@@ -735,43 +730,32 @@ void LBoard::renderScore() {
 		mBlackScoreTexture->renderAt(0, 0);
 	}
 	else {
-		mWhiteScoreTexture->renderAt(OFFSET * 3, SCREEN_HEIGHT - 64);
-		mBlackScoreTexture->renderAt(OFFSET * 3, 0);
+		mWhiteScoreTexture->renderAt(HOFFSET * 3, SCREEN_HEIGHT - 64);
+		mBlackScoreTexture->renderAt(VOFFSET * 3, 0);
 	}
 }
 
 void LBoard::renderDeadPieces() {
-	int whiteOffset = 0;
-	int blackOffset = 0;
-	int whitePosX = OFFSET * 4;
-	int whitePosY = (OFFSET * 9);
-	int blackPosX = OFFSET * 4;
-	int blackPosY = 0;
-	for(int i(0); i < EMPTY; i++) {
-		//black side
-		if(mDeadWhitePiece[i] != 0) {
-			for(int y(0); y < mDeadWhitePiece[i]; y++) {
-				//make a second line once 8 elements
-				if(blackOffset >= 32 * 8) {
-					blackOffset = 0;
-					blackPosY = 32;
-				}
-				mMiniPieceTexture->renderAt(blackPosX + blackOffset, blackPosY, &mMiniPieceClip[i]);
-				blackOffset += 32;
-			}
-		}
-		//white side
-		if(mDeadBlackPiece[i] != 0) {
-			for(int y(0); y < mDeadBlackPiece[i]; y++) {
-				//make a second line once 8 elements
-				if(whiteOffset >= 32 * 8) {
-					whiteOffset = 0;
-					whitePosY = (OFFSET * 9) + 32;
-				}
-				mMiniPieceTexture->renderAt(whitePosX + whiteOffset, whitePosY, &mMiniPieceClip[i]);
-				whiteOffset += 32;
-			}
-		}
+	int offset = 0, x = VOFFSET * 4;
+	// We render the white dead piece on black's side, at the top of the screen
+	for(int piece : mDeadWhitePiece) {
+		mMiniPieceTexture->renderAt(
+			x + offset, 
+			mDeadWhitePiece.size() > 8 ? 32 : 0, 
+			&mMiniPieceClip[piece]
+		);
+		offset = offset >= 32 * 8 ? 0 : offset + 32;
+	}
+	//white side
+	offset = 0;
+	int y = SCREEN_HEIGHT - VOFFSET;
+	for(int piece : mDeadBlackPiece) {
+		mMiniPieceTexture->renderAt(
+			x + offset, 
+			mDeadBlackPiece.size() > 8 ? y + 32 : y,
+			&mMiniPieceClip[piece]
+		);
+		offset = offset >= 32 * 8 ? 0 : offset + 32;
 	}
 }
 
@@ -784,10 +768,10 @@ void LBoard::changeTurn() {
 
 void LBoard::fillDeadPieceTab(const int fallenPiece) {
 	if(mWhiteTurn) {
-		mDeadBlackPiece[fallenPiece]++;
+		mDeadBlackPiece.push_back(fallenPiece);
 	}
 	else {
-		mDeadWhitePiece[fallenPiece]++;
+		mDeadWhitePiece.push_back(fallenPiece);
 	}
 }
 

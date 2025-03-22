@@ -14,6 +14,7 @@ public:
     static LMediaFactory* Instance();
     LTexture* getImg(const std::string& path) override;
     LTexture* getImgUnique(const std::string& path);
+    SDL_Texture* getImgSDL_Texture(const std::string& path);
     LTextureClickable* getImgClickable(const std::string& path);
     TTF_Font* getFont(const std::string& path, int size);
     SDL_Texture* getTxtSDL_Texture(const std::string& path, TTF_Font* font, SDL_Color color);

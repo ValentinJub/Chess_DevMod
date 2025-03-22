@@ -1,7 +1,9 @@
 #include "LStateMachine.h"
 #include "states/LState.h"
 #include <SDL2/SDL.h>
+#include "com/constantes.h"
 
+extern SDL_Renderer* gRenderer;
 LStateMachine::LStateMachine(LObserver* appObserver) : mAppObserver(appObserver) {}
 
 // This frees all the states in the state machine
@@ -20,10 +22,15 @@ void LStateMachine::update(Uint64 dt) {
 
 // This renders all the states in the state machine
 void LStateMachine::render() {
+    SDL_RenderClear(gRenderer);
+    SDL_Rect rect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+	SDL_SetRenderDrawColor(gRenderer, 0x46, 0x46, 0x4c, 0xFF);
+	SDL_RenderFillRect(gRenderer, &rect);
     if(mStates.empty()) return;
     for(auto state : mStates) {
         state->render();
     }
+    SDL_RenderPresent(gRenderer);
     SDL_Delay(16);
 }
 

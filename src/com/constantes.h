@@ -50,14 +50,17 @@ constexpr SDL_Color COLOR_BLACK = {0,0,0,0xFF};
 constexpr SDL_Color COLOR_WHITE = {0xFF,0xFF,0xFF,0xFF};
 constexpr SDL_Color COLOR_RED = {0xFF,0,0,0xFF};
 
-constexpr int SCREEN_WIDTH = 64*10;
-constexpr int SCREEN_HEIGHT = 64*10;
+constexpr int SCREEN_WIDTH = 1280;
+constexpr int SCREEN_HEIGHT = 800;
+constexpr int TILE_SIZE = 84;
+constexpr int TILE_OFFSET = 10;
 constexpr int NBR_OF_MUSIC = 7;
 
 constexpr int LEFT_MENU = 8;
 constexpr int TOTAL_SETTINGS_MENU_TEXTURES = 17;
 constexpr int TOTAL_SQUARES = 64;
-constexpr int OFFSET = 64;
+constexpr int VOFFSET = 64;
+constexpr int HOFFSET = VOFFSET * 2;
 constexpr int SPL = 8;
 constexpr int INITIAL_PIECES_TOTAL = 32;
 constexpr int PLACEHOLDER = 1;

@@ -43,6 +43,15 @@ LTexture* LMediaFactory::getImgUnique(const std::string& path) {
     return this->makeLTexture(newTexture);
 }
 
+SDL_Texture* LMediaFactory::getImgSDL_Texture(const std::string& path) {
+    if(mImgCache.find(path) == mImgCache.end()) {
+        SDL_Texture* newTexture = loadImg(path);
+        if(newTexture == NULL) return nullptr;
+        mImgCache[path] = std::unique_ptr<SDL_Texture, LMediaFactory::SDLTextureDeleter>(newTexture);
+    }
+    return mImgCache[path].get();
+}
+
 LTextureClickable* LMediaFactory::getImgClickable(const std::string& path) {
     if(mImgCache.find(path) == mImgCache.end()) {
         SDL_Texture* newTexture = loadImg(path);
