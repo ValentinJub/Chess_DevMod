@@ -22,7 +22,12 @@ void LTextureClickable::setButton(LButton* button) {
 }
 
 void LTextureClickable::setButton() {
-    mButton = new LButton(this->x(), this->y(), this->w(), this->h());
+    mButton = new LButton(
+        this->x(), 
+        this->y(), 
+        mClip == NULL ? mWidth : mClip->w,
+        mClip == NULL ? mHeight : mClip->h
+    );
 }
 
 LButton* LTextureClickable::getButton() const {
