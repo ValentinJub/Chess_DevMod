@@ -449,3 +449,22 @@ int LEngine::pieceValue(int const pieceType) const {
 			return 0;
 	}
 }
+
+// See: https://en.wikipedia.org/wiki/Algebraic_notation_(chess)
+std::string LEngine::moveToString(const std::array<std::array<int, SPL>, SPL>& board, SDL_Point src, SDL_Point dest) {
+	const int piece = board[src.y][src.x];
+	const std::string pieceStr = pieceToString(piece);
+	const int destPiece = board[dest.y][dest.x];
+	const std::string destStr = squareToString(dest);
+	std::string move = "";
+	// Catpure
+
+	// Pawn promotion
+	// Casting
+	// En passant
+	// Check
+	// Checkmate
+	// Disambiguation
+	// End of game
+	return pieceStr + destStr;
+}

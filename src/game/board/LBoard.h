@@ -33,6 +33,7 @@ Board also contains settings such as tile colors, legal move displayed on map...
 #include "states/LStateMachine.h"
 #include "states/LTransition.h"
 #include "game/logic/LEngine.h"
+#include "game/board/LMoveHistory.h"
 
 class LClock;
 class LComputer;
@@ -53,6 +54,7 @@ public:
     void poll(LSubject* sub, int value) override;
 
 private:
+    LMoveHistory* mMoveHistory;
     PlayMode mPlayMode;
     LObserver* mAppObserver;
     OptionValues mSettings;

@@ -19,6 +19,7 @@ bool isWhitePiece(int piece);
 bool isBlackPiece(int piece);
 bool isEnemyOrEmpty(int curr, int next);
 bool isEnemy(int curr, int next);
-
+std::string pieceToString(int piece);
+std::string squareToString(SDL_Point square);
 
 #endif

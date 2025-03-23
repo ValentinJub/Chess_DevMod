@@ -25,6 +25,7 @@ class LEngine {
 
         void setEnPassant(int piece, SDL_Point src, SDL_Point dest);
         int pieceValue(int const pieceType) const;
+        std::string moveToString(const std::array<std::array<int, SPL>, SPL>& board, SDL_Point src, SDL_Point dest);
         private:
 
         SDL_Point findKing(const std::array<std::array<int, SPL>, SPL>& board, bool isWhite);

@@ -55,6 +55,13 @@ LBoard::LBoard(LObserver* observer, PlayMode mode) : mPlayMode(mode), mAppObserv
 	if(mClock != NULL) {
 		mClock->start();
 	}
+
+	const int x = HOFFSET + (TILE_SIZE * SPL) + VOFFSET;
+	const int y = VOFFSET;
+	mMoveHistory = new LMoveHistory(
+		new SDL_Rect{x, y, SCREEN_WIDTH - x - VOFFSET, TILE_SIZE * SPL},
+		SDL_Color{0x00, 0x00, 0x00, 0x7F}
+	);
 }
 
 void LBoard::poll(LSubject* sub, int value) {
@@ -145,6 +152,7 @@ void LBoard::render() {
 	this->renderPieces();
 	this->renderScore();
 	this->renderDeadPieces();
+	mMoveHistory->render();
 	if(mSettings.useTimer == 0) this->renderTimer();
 	if(mDrawButtons) this->drawButtons();
 	if(mIsPaused) this->renderPause();
@@ -560,6 +568,8 @@ void LBoard::doMove(SDL_Point dest, SDL_Point src, int piece) {
 	}
 
 	this->playMoveSound(captured, castled);
+
+	mMoveHistory->addMove("Move from piece " + std::to_string(piece) + " at " + std::to_string(src.x) + "," + std::to_string(src.y) + " to " + std::to_string(dest.x) + "," + std::to_string(dest.y));
 	
 	//move selected piece to destination
 	mBoard[dest.y][dest.x] = piece;
